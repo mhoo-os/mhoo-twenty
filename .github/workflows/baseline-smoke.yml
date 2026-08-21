@@ -1,0 +1,217 @@
+name: Baseline smoke
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: baseline-smoke-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  baseline-smoke:
+    name: Reproduce Twenty baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: default
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d default"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      APP_SECRET: baseline-smoke-only-secret
+      CI: true
+      FRONTEND_URL: http://127.0.0.1:3001
+      IS_WORKSPACE_CREATION_LIMITED_TO_SERVER_ADMINS: false
+      NODE_ENV: development
+      NODE_OPTIONS: --max-old-space-size=6144
+      NODE_PORT: 3000
+      NX_DAEMON: false
+      PG_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/default
+      REDIS_URL: redis://127.0.0.1:6379
+      SERVER_URL: http://127.0.0.1:3000
+      SIGN_IN_PREFILLED: true
+
+    steps:
+      - name: Check out baseline
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Enable pinned Yarn
+        run: corepack enable
+
+      - name: Validate pinned environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.16.0"
+          test "$(yarn --version)" = "4.13.0"
+          test "$(node -p "require('./package.json').packageManager")" = "yarn@4.13.0"
+          grep -qx 'TWENTY_TAG=twenty/v2.30.0' .twenty-baseline
+          grep -qx 'TWENTY_SHA=531361c9a73b5eda6223fc8deae7d5b3fe144fec' .twenty-baseline
+          git ls-files --error-unmatch \
+            packages/twenty-shared/src/index.ts \
+            packages/twenty-front-component-renderer/src/host/generated/host-component-registry.ts \
+            packages/twenty-front-component-renderer/src/remote/generated/remote-components.ts \
+            packages/twenty-front-component-renderer/src/remote/generated/remote-elements.ts
+
+      - name: Install dependencies from lockfile
+        run: yarn install --immutable
+
+      # Upstream formatter-backed generators write their tracked outputs but can
+      # retain worker threads. Compile the checked-in release artifacts directly
+      # so this smoke job has deterministic completion without changing Twenty.
+      - name: Build server dependency chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          for project in \
+            twenty-ui \
+            twenty-shared \
+            twenty-client-sdk \
+            twenty-emails \
+            twenty-sdk \
+            twenty-server
+          do
+            npx nx run "$project:build" --excludeTaskDependencies --skip-nx-cache
+          done
+
+      - name: Build workspace UI
+        shell: bash
+        run: |
+          set -euo pipefail
+          for target in \
+            twenty-ui:build:individual \
+            twenty-shared:build:individual \
+            twenty-sdk:build:sdk \
+            twenty-front-component-renderer:sandbox:prebuild \
+            twenty-front-component-renderer:build \
+            twenty-front:build
+          do
+            npx nx run "$target" --excludeTaskDependencies --skip-nx-cache
+          done
+
+      - name: Initialize database and run migrations
+        working-directory: packages/twenty-server
+        run: |
+          set -euo pipefail
+          node dist/database/scripts/setup-db.js
+          node dist/command/command.js run-instance-commands --force --include-slow
+
+      - name: Seed development workspace
+        working-directory: packages/twenty-server
+        run: node dist/command/command.js workspace:seed:dev
+
+      - name: Start application server
+        working-directory: packages/twenty-server
+        shell: bash
+        run: |
+          set -euo pipefail
+          node dist/main.js > "$RUNNER_TEMP/twenty-server.log" 2>&1 &
+          echo "SERVER_PID=$!" >> "$GITHUB_ENV"
+
+          for attempt in $(seq 1 90); do
+            if curl --fail --silent http://127.0.0.1:3000/healthz > /dev/null; then
+              exit 0
+            fi
+            if ! kill -0 "$!" 2>/dev/null; then
+              cat "$RUNNER_TEMP/twenty-server.log"
+              exit 1
+            fi
+            sleep 2
+          done
+
+          echo "Health check failed after $attempt attempts"
+          cat "$RUNNER_TEMP/twenty-server.log"
+          exit 1
+
+      - name: Confirm health endpoint
+        run: |
+          set -euo pipefail
+          test "$(curl --fail --silent http://127.0.0.1:3000/healthz | jq -r .status)" = "ok"
+
+      - name: Start and confirm worker
+        working-directory: packages/twenty-server
+        shell: bash
+        run: |
+          set -euo pipefail
+          node dist/queue-worker/queue-worker.js > "$RUNNER_TEMP/twenty-worker.log" 2>&1 &
+          echo "WORKER_PID=$!" >> "$GITHUB_ENV"
+
+          for attempt in $(seq 1 60); do
+            if grep -q 'QueueWorkerModule dependencies initialized' "$RUNNER_TEMP/twenty-worker.log"; then
+              sleep 5
+              kill -0 "$!"
+              exit 0
+            fi
+            if ! kill -0 "$!" 2>/dev/null; then
+              cat "$RUNNER_TEMP/twenty-worker.log"
+              exit 1
+            fi
+            sleep 2
+          done
+
+          echo "Worker startup check failed after $attempt attempts"
+          cat "$RUNNER_TEMP/twenty-worker.log"
+          exit 1
+
+      - name: Confirm seeded login
+        shell: bash
+        run: |
+          set -euo pipefail
+          # shellcheck disable=SC2016
+          query='mutation BaselineLogin($email: String!, $password: String!) { signIn(email: $email, password: $password) { availableWorkspaces { availableWorkspacesForSignIn { loginToken } } tokens { accessOrWorkspaceAgnosticToken { token } refreshToken { token } } } }'
+          payload="$(jq -nc \
+            --arg query "$query" \
+            --arg email 'tim@apple.dev' \
+            --arg password 'tim@apple.dev' \
+            '{query: $query, variables: {email: $email, password: $password}}')"
+          response="$(curl --fail --silent \
+            --header 'Content-Type: application/json' \
+            --data "$payload" \
+            http://127.0.0.1:3000/metadata)"
+
+          jq -e '
+            .errors == null and
+            (.data.signIn.availableWorkspaces.availableWorkspacesForSignIn | length) > 0 and
+            (.data.signIn.availableWorkspaces.availableWorkspacesForSignIn[0].loginToken | length) > 20 and
+            (.data.signIn.tokens.accessOrWorkspaceAgnosticToken.token | length) > 20 and
+            (.data.signIn.tokens.refreshToken.token | length) > 20
+          ' <<< "$response" > /dev/null
+
+      - name: Stop smoke processes and print logs
+        if: always()
+        shell: bash
+        run: |
+          if [[ -n "${WORKER_PID:-}" ]]; then kill "$WORKER_PID" 2>/dev/null || true; fi
+          if [[ -n "${SERVER_PID:-}" ]]; then kill "$SERVER_PID" 2>/dev/null || true; fi
+          tail -n 100 "$RUNNER_TEMP/twenty-server.log" 2>/dev/null || true
+          tail -n 100 "$RUNNER_TEMP/twenty-worker.log" 2>/dev/null || true

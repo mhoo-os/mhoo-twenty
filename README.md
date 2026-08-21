@@ -26,6 +26,10 @@
 provides the workspace and CRM experience while remaining as close as possible
 to vanilla Twenty.
 
+Twenty v2.30.0 is the pinned foundation. Upgrades require deliberate review,
+and Mhoo customization should use supported Apps and extension points wherever
+possible instead of changing Twenty product behavior.
+
 Repository boundaries:
 
 - `mhoo-os/mhoo` owns Mhoo OS architecture and documentation.
