@@ -20,6 +20,70 @@
 
 <br />
 
+# Mhoo Twenty
+
+`mhoo-os/mhoo-twenty` is the Twenty-based operational UI layer of Mhoo OS. It
+provides the workspace and CRM experience while remaining as close as possible
+to vanilla Twenty.
+
+Repository boundaries:
+
+- `mhoo-os/mhoo` owns Mhoo OS architecture and documentation.
+- `mhoo-os/mhoo-twenty` owns the Twenty operational UI layer.
+- `mhoo-os/codex-lb` owns AI infrastructure.
+- `mhoo-os/connectors` owns external integrations.
+- `mhoo-os/core` is reserved for the future business state layer.
+
+Mhoo Core, connectors, and AI services are separate repositories. This baseline
+does not add Mhoo business logic, provider credentials, production data, or UI
+customization.
+
+## Supported baseline
+
+This branch is pinned to `twenty/v2.30.0` at upstream commit
+`531361c9a73b5eda6223fc8deae7d5b3fe144fec`, with Node.js `^24.5.0`, Yarn
+`4.13.0`, and `twenty-sdk@2.30.0`. See
+[`docs/twenty-baseline.md`](docs/twenty-baseline.md) for the selection and
+upgrade policy.
+
+## Local development
+
+Prerequisites:
+
+- Node.js 24 (the repository includes `.nvmrc`)
+- Corepack with Yarn 4.13.0
+- Docker Desktop with Docker Compose
+
+From the repository root:
+
+```bash
+nvm use
+corepack enable
+yarn install --immutable
+bash packages/twenty-utils/setup-dev-env.sh --docker
+yarn start
+```
+
+The setup script starts PostgreSQL and Redis, creates clean `default` and `test`
+databases, creates local environment files from the checked-in examples, and
+runs Twenty's database initialization. `yarn start` runs the frontend,
+application server, and worker.
+
+- Frontend: <http://localhost:3001>
+- Application server and health check: <http://localhost:3000/healthz>
+- PostgreSQL: `localhost:5432`
+- Redis: `localhost:6379`
+
+Open the frontend, continue with email using the development credentials shown
+by Twenty, and complete the workspace creation flow. The local database is
+disposable and must never be populated from production.
+
+Stop the local data services with:
+
+```bash
+bash packages/twenty-utils/setup-dev-env.sh --docker --down
+```
+
 # Why Twenty
 
 Twenty gives technical teams the building blocks for a custom CRM that meets complex business needs and quickly adapts as the business evolves. Twenty is the CRM you build, ship, and version like the rest of your stack.
