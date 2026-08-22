@@ -41,9 +41,56 @@ Build inputs pinned by `.twenty-source` include the Dockerfile, Docker ignore fi
 
 ## Candidate
 
-Candidate result: pending.
+Candidate result: **PASS**.
 
-The completed report records the candidate source revision, build ID, OCI image/manifest digest, BuildKit metadata, provenance/SBOM presence, OCI labels, disposable database migration counts, server and worker startup, `/healthz`, `/client-config`, frontend shell, and seeded authenticated login.
+| Identity | Value |
+| --- | --- |
+| Candidate tag | `mhoo/candidate/v2.30.1-1` |
+| Candidate tag object | `6f00cf5e832c5546cd6f1e8cb3ab584ced7fdac9` |
+| Candidate source/control revision | `4c87f8447a828c02f3ed3ed995c6f6c550001435` |
+| Build ID | `mhoo-twenty-v2.30.1-candidate.1` |
+| Image name used for validation | `mhoo-os/mhoo-twenty:mhoo-twenty-v2.30.1-candidate.1` |
+| Platform | `linux/amd64` |
+| OCI image manifest digest | `sha256:e5f8d17e18cc8d4f366330e2c708976fcb4e7b42918ff4acf9a0abba7e94e9c3` |
+| OCI image config digest | `sha256:93dd3b613c5373597785ba477dbcbadafea043553c253f7941d4ae70f218c7cf` |
+| Authoritative workflow | [run 32591069988](https://github.com/mhoo-os/mhoo-twenty/actions/runs/32591069988) |
+| Build and validation job | [job 97075050018](https://github.com/mhoo-os/mhoo-twenty/actions/runs/32591069988/job/97075050018) |
+
+BuildKit built directly from `https://github.com/mhoo-os/mhoo-twenty.git#4c87f8447a828c02f3ed3ed995c6f6c550001435` and recorded the manifest digest in its metadata. The digest commits to the image config and therefore to the verified OCI labels:
+
+| OCI label | Verified value |
+| --- | --- |
+| `org.opencontainers.image.source` | `https://github.com/mhoo-os/mhoo-twenty` |
+| `org.opencontainers.image.revision` | `4c87f8447a828c02f3ed3ed995c6f6c550001435` |
+| `org.opencontainers.image.version` | `v2.30.1` |
+| `org.opencontainers.image.ref.name` | `mhoo-twenty-v2.30.1-candidate.1` |
+| `io.mhoo.build.id` | `mhoo-twenty-v2.30.1-candidate.1` |
+| `io.mhoo.twenty.upstream.revision` | `064bdd795a0bd78c65f024350cefed2c8f38a661` |
+| `io.mhoo.twenty.upstream.tree` | `7ebc5efa7f5f1bfdf9d238a88e3455decaa4f313` |
+| `io.mhoo.twenty.exact-source.revision` | `5271f821d2adf6aa31c74b93d8166becc426fe0a` |
+
+The CI validation build used BuildKit's Docker-load output so the exact image could be started on the disposable runner. That output mode does not preserve separate provenance or SBOM attestations, and none are claimed here. The cryptographic custody chain for this non-published candidate is the recorded upstream commit/tree, exact-source tree equality, pinned build-input hashes, immutable Mhoo candidate tag, BuildKit manifest/config digests, digest-bound OCI labels, and the successful workflow receipt. The image was not pushed to a registry, signed, deployed, or made operationally authoritative.
+
+## Disposable validation
+
+The authoritative job printed `candidate validation passed` after all of the following checks succeeded:
+
+| Check | Result |
+| --- | --- |
+| Exact source trust and controlled-overlay boundary | Passed |
+| OCI source, revision, version, build, upstream commit, and upstream tree labels | Passed |
+| Core tables after disposable initialization | `71` |
+| TypeORM migrations | `182` |
+| Completed upgrade migrations on a fresh database | `138` |
+| Server startup and `/healthz` | Passed |
+| `/client-config` version and environment authority | Passed |
+| Frozen frontend shell | Passed |
+| Worker startup and seeded queue processing | Passed |
+| Seeded authenticated login and token issuance | Passed |
+
+PostgreSQL, Redis, server, and worker ran only in the GitHub-hosted disposable job and were destroyed by its cleanup trap. No production deployment, production database access or migration, secret change, credential rotation, rehearsal, or version upgrade occurred.
+
+Two earlier builds produced manifests but ended in validation-harness false negatives and are explicitly not candidates: `sha256:7eeabc9c38dffdb78b5caa0cf043e62c3492ca930d037f5a6ec5e93bd7c8e428` and `sha256:fd000b0cc028030c1c51bf7a0aebf660c187fca54a85b29fcb5c617e74203b16`. Only the digest recorded in the candidate table above is approved for the next gate.
 
 ## Local commands
 
