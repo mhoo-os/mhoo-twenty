@@ -9,12 +9,14 @@ describe('arrayOfUuidOrVariableSchema', () => {
       ];
 
       validUuids.forEach((uuid) => {
+        // Test as single value
         const singleResult = arrayOfUuidOrVariableSchema.safeParse(uuid);
         expect(singleResult.success).toBe(true);
         if (singleResult.success) {
           expect(singleResult.data).toEqual([uuid]);
         }
 
+        // Test as array
         const arrayResult = arrayOfUuidOrVariableSchema.safeParse([uuid]);
         expect(arrayResult.success).toBe(true);
         if (arrayResult.success) {
@@ -33,12 +35,14 @@ describe('arrayOfUuidOrVariableSchema', () => {
       ];
 
       invalidUuids.forEach((uuid) => {
+        // Test as single value
         const singleResult = arrayOfUuidOrVariableSchema.safeParse(uuid);
         expect(singleResult.success).toBe(true);
         if (singleResult.success) {
           expect(singleResult.data).toEqual([]);
         }
 
+        // Test as array
         const arrayResult = arrayOfUuidOrVariableSchema.safeParse([uuid]);
         expect(arrayResult.success).toBe(true);
         if (arrayResult.success) {
@@ -57,12 +61,14 @@ describe('arrayOfUuidOrVariableSchema', () => {
       ];
 
       validVariables.forEach((variable) => {
+        // Test as single value
         const singleResult = arrayOfUuidOrVariableSchema.safeParse(variable);
         expect(singleResult.success).toBe(true);
         if (singleResult.success) {
           expect(singleResult.data).toEqual([variable]);
         }
 
+        // Test as array
         const arrayResult = arrayOfUuidOrVariableSchema.safeParse([variable]);
         expect(arrayResult.success).toBe(true);
         if (arrayResult.success) {
@@ -75,12 +81,14 @@ describe('arrayOfUuidOrVariableSchema', () => {
       const invalidVariables = ['{{variable', 'variable}}', '{{}}', '{{', '}}'];
 
       invalidVariables.forEach((variable) => {
+        // Test as single value
         const singleResult = arrayOfUuidOrVariableSchema.safeParse(variable);
         expect(singleResult.success).toBe(true);
         if (singleResult.success) {
           expect(singleResult.data).toEqual([]);
         }
 
+        // Test as array
         const arrayResult = arrayOfUuidOrVariableSchema.safeParse([variable]);
         expect(arrayResult.success).toBe(true);
         if (arrayResult.success) {

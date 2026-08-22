@@ -1,5 +1,6 @@
 import { computeDeterministicUuid } from '@/application/deterministic-identifier/compute-deterministic-uuid.util';
 
+// A view field is identified by the field it displays, within its view.
 export const getViewFieldUniversalIdentifier = ({
   applicationUniversalIdentifier,
   viewUniversalIdentifier,

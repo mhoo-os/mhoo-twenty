@@ -5,6 +5,8 @@ import { type AdvancedTextEditorProfile } from '@/advanced-text-editor/types/Adv
 import { type UploadedImage } from '@/advanced-text-editor/types/UploadedImage';
 import { serializeAdvancedTextEditorDocument } from '@/advanced-text-editor/utils/serializeAdvancedTextEditorDocument';
 import { FormFieldInputContainer } from '@/ui/input/components/FormFieldInputContainer';
+import { InputHint } from '@/ui/input/components/InputHint';
+import { InputLabel } from '@/ui/input/components/InputLabel';
 import { type VariablePickerComponent } from '@/ui/input/types/VariablePickerComponent';
 import { useFullScreenModal } from '@/ui/layout/fullscreen/hooks/useFullScreenModal';
 import { type BreadcrumbProps } from '@/ui/navigation/bread-crumb/components/Breadcrumb';
@@ -17,7 +19,7 @@ import { type Editor } from '@tiptap/core';
 import { type ComponentType, useEffect, useId, useState } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 import { IconMaximize } from 'twenty-ui/icon';
-import { Field, LightIconButton } from 'twenty-ui/input';
+import { LightIconButton } from 'twenty-ui/input';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { useIsMobile } from 'twenty-ui/utilities';
 
@@ -233,7 +235,7 @@ export const FormAdvancedTextFieldInput = ({
         hasFieldChrome={chrome === 'field'}
       >
         <FormFieldInputContainer>
-          {label ? <Field.Label>{label}</Field.Label> : null}
+          {label ? <InputLabel>{label}</InputLabel> : null}
 
           <StyledAdvancedTextFieldFieldContainer>
             <StyledAdvancedTextFieldInnerContainer
@@ -271,8 +273,8 @@ export const FormAdvancedTextFieldInput = ({
               ) : null}
             </StyledAdvancedTextFieldInnerContainer>
           </StyledAdvancedTextFieldFieldContainer>
-          {hint && <Field.Description>{hint}</Field.Description>}
-          {error && <Field.Error match>{error}</Field.Error>}
+          {hint && <InputHint>{hint}</InputHint>}
+          {error && <InputHint danger>{error}</InputHint>}
         </FormFieldInputContainer>
       </StyledAdvancedTextFieldContainerWrapper>
 

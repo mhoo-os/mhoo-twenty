@@ -29,46 +29,9 @@ const STAT_FIELD_UNIVERSAL_IDENTIFIERS = [
 ];
 const CAMPAIGN_VIEW_UNIVERSAL_IDENTIFIER =
   CAMPAIGN.views.allMessageCampaigns.universalIdentifier;
-
-const CAMPAIGN_FIELD_UNIVERSAL_IDENTIFIER_BY_NAME: Record<string, string> =
-  Object.fromEntries(
-    Object.entries(CAMPAIGN.fields).map(
-      ([fieldName, { universalIdentifier }]) => [fieldName, universalIdentifier],
-    ),
-  );
-
-// The command reads the view columns from the standard application of the
-// running build, and resolves each column's field through fieldMetadataId, so
-// the mocks mirror that indirection. Field ids double as their universal
-// identifier here.
-const CAMPAIGN_VIEW_FIELDS = Object.entries(
+const CAMPAIGN_VIEW_FIELD_UNIVERSAL_IDENTIFIERS = Object.values(
   CAMPAIGN.views.allMessageCampaigns.viewFields,
-).map(([fieldName, { universalIdentifier }]) => ({
-  universalIdentifier,
-  fieldUniversalIdentifier: CAMPAIGN_FIELD_UNIVERSAL_IDENTIFIER_BY_NAME[
-    fieldName
-  ],
-}));
-
-const CAMPAIGN_VIEW_FIELD_UNIVERSAL_IDENTIFIERS = CAMPAIGN_VIEW_FIELDS.map(
-  ({ universalIdentifier }) => universalIdentifier,
-);
-
-const NAME_FIELD_UNIVERSAL_IDENTIFIER = CAMPAIGN.fields.name.universalIdentifier;
-const NAME_VIEW_FIELD_UNIVERSAL_IDENTIFIER =
-  CAMPAIGN.views.allMessageCampaigns.viewFields.name.universalIdentifier;
-
-// Everything the allMessageCampaigns view references that a 2.19 workspace
-// already has: neither the stat fields (added by this command) nor name (added
-// by the 2.25 command).
-const PRE_EXISTING_CAMPAIGN_FIELD_UNIVERSAL_IDENTIFIERS =
-  CAMPAIGN_VIEW_FIELDS.map(
-    ({ fieldUniversalIdentifier }) => fieldUniversalIdentifier,
-  ).filter(
-    (universalIdentifier) =>
-      universalIdentifier !== NAME_FIELD_UNIVERSAL_IDENTIFIER &&
-      !STAT_FIELD_UNIVERSAL_IDENTIFIERS.includes(universalIdentifier),
-  );
+).map((viewField) => viewField.universalIdentifier);
 
 const buildByUniversalIdentifierMap = (universalIdentifiers: string[]) => ({
   byUniversalIdentifier: Object.fromEntries(
@@ -76,27 +39,6 @@ const buildByUniversalIdentifierMap = (universalIdentifiers: string[]) => ({
       universalIdentifier,
       { universalIdentifier },
     ]),
-  ),
-});
-
-const buildStandardFieldMetadataMaps = (universalIdentifiers: string[]) => ({
-  ...buildByUniversalIdentifierMap(universalIdentifiers),
-  universalIdentifierById: Object.fromEntries(
-    universalIdentifiers.map((universalIdentifier) => [
-      universalIdentifier,
-      universalIdentifier,
-    ]),
-  ),
-});
-
-const buildStandardViewFieldMaps = () => ({
-  byUniversalIdentifier: Object.fromEntries(
-    CAMPAIGN_VIEW_FIELDS.map(
-      ({ universalIdentifier, fieldUniversalIdentifier }) => [
-        universalIdentifier,
-        { universalIdentifier, fieldMetadataId: fieldUniversalIdentifier },
-      ],
-    ),
   ),
 });
 
@@ -119,15 +61,15 @@ describe('AddMessageCampaignStatFieldsCommand', () => {
 
     computeTwentyStandardApplicationAllFlatEntityMapsMock.mockReturnValue({
       allFlatEntityMaps: {
-        flatFieldMetadataMaps: buildStandardFieldMetadataMaps(
-          CAMPAIGN_VIEW_FIELDS.map(
-            ({ fieldUniversalIdentifier }) => fieldUniversalIdentifier,
-          ),
+        flatFieldMetadataMaps: buildByUniversalIdentifierMap(
+          STAT_FIELD_UNIVERSAL_IDENTIFIERS,
         ),
         flatViewMaps: buildByUniversalIdentifierMap([
           CAMPAIGN_VIEW_UNIVERSAL_IDENTIFIER,
         ]),
-        flatViewFieldMaps: buildStandardViewFieldMaps(),
+        flatViewFieldMaps: buildByUniversalIdentifierMap(
+          CAMPAIGN_VIEW_FIELD_UNIVERSAL_IDENTIFIERS,
+        ),
       },
     });
 
@@ -174,13 +116,8 @@ describe('AddMessageCampaignStatFieldsCommand', () => {
     });
   };
 
-  it('creates missing stat fields, the campaign view, and every campaign view field whose field is available', async () => {
-    mockWorkspaceCache({
-      existingFields: [
-        ...PRE_EXISTING_CAMPAIGN_FIELD_UNIVERSAL_IDENTIFIERS,
-        NAME_FIELD_UNIVERSAL_IDENTIFIER,
-      ],
-    });
+  it('creates missing stat fields, the campaign view, and all campaign view fields', async () => {
+    mockWorkspaceCache({});
 
     await runOnWorkspace();
 
@@ -229,34 +166,9 @@ describe('AddMessageCampaignStatFieldsCommand', () => {
     ).toHaveLength(CAMPAIGN_VIEW_FIELD_UNIVERSAL_IDENTIFIERS.length);
   });
 
-  it('leaves out view columns whose field does not exist in the workspace yet', async () => {
-    mockWorkspaceCache({
-      existingFields: PRE_EXISTING_CAMPAIGN_FIELD_UNIVERSAL_IDENTIFIERS,
-    });
-
-    await runOnWorkspace();
-
-    const payload =
-      validateBuildAndRunWorkspaceMigrationMock.mock.calls[0][0]
-        .allFlatEntityOperationByMetadataName;
-
-    expect(payload.viewField.flatEntityToCreate).not.toContainEqual(
-      expect.objectContaining({
-        universalIdentifier: NAME_VIEW_FIELD_UNIVERSAL_IDENTIFIER,
-      }),
-    );
-    expect(payload.viewField.flatEntityToCreate).toHaveLength(
-      CAMPAIGN_VIEW_FIELD_UNIVERSAL_IDENTIFIERS.length - 1,
-    );
-  });
-
   it('creates only missing pieces when rerun against a partially migrated workspace', async () => {
     mockWorkspaceCache({
-      existingFields: [
-        ...PRE_EXISTING_CAMPAIGN_FIELD_UNIVERSAL_IDENTIFIERS,
-        NAME_FIELD_UNIVERSAL_IDENTIFIER,
-        CAMPAIGN.fields.sentCount.universalIdentifier,
-      ],
+      existingFields: [CAMPAIGN.fields.sentCount.universalIdentifier],
       existingViews: [CAMPAIGN_VIEW_UNIVERSAL_IDENTIFIER],
       existingViewFields: [
         CAMPAIGN.views.allMessageCampaigns.viewFields.subject

@@ -14,6 +14,7 @@ import { StripeSubscriptionItemService } from 'src/engine/core-modules/billing/s
 import { StripeSubscriptionScheduleService } from 'src/engine/core-modules/billing/stripe/services/stripe-subscription-schedule.service';
 import { StripeSubscriptionService } from 'src/engine/core-modules/billing/stripe/services/stripe-subscription.service';
 import { StripeWebhookService } from 'src/engine/core-modules/billing/stripe/services/stripe-webhook.service';
+import { StripeCreditGrantService } from 'src/engine/core-modules/billing/stripe/services/stripe-credit-grant.service';
 import { StripeInvoiceService } from 'src/engine/core-modules/billing/stripe/services/stripe-invoice.service';
 import { StripeSDKModule } from 'src/engine/core-modules/billing/stripe/stripe-sdk/stripe-sdk.module';
 import { BillingCustomerEntity } from 'src/engine/core-modules/billing/entities/billing-customer.entity';
@@ -37,6 +38,7 @@ import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspac
     StripePriceService,
     StripeProductService,
     StripeBillingMeterEventService,
+    StripeCreditGrantService,
     StripeInvoiceService,
     provideWorkspaceScopedRepository(BillingCustomerEntity),
   ],
@@ -52,6 +54,7 @@ import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspac
     StripeProductService,
     StripeBillingMeterEventService,
     StripeSubscriptionScheduleService,
+    StripeCreditGrantService,
     StripeInvoiceService,
   ],
 })

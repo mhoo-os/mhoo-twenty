@@ -18,6 +18,7 @@ export const StyledTintedIconTileContainer = ({
   ...rest
 }: StyledTintedIconTileContainerProps) => (
   <div
+    // oxlint-disable-next-line react/jsx-props-no-spreading
     {...rest}
     className={clsx(styles.root, className)}
     style={

@@ -39,8 +39,6 @@ export const makeTab = (
 ) => ({
   id,
   applicationId: '',
-  universalIdentifier: id,
-  isSystemSideEffect: false,
   title: id,
   isActive: true,
   position,

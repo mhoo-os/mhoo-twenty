@@ -505,6 +505,7 @@ describe('useWebhookForm', () => {
         { wrapper: ({ children }) => <Wrapper>{children}</Wrapper> },
       );
 
+      // Initially canSave should be false (form is not valid)
       expect(result.current.canSave).toBe(false);
     });
   });

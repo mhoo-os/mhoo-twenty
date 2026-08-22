@@ -47,8 +47,7 @@ const StyledAnimatedContainer = styled.div<{
       : `${NAVIGATION_DRAWER_COLLAPSED_WIDTH}px`};
 
   @media (max-width: ${MOBILE_VIEWPORT}px) {
-    width: ${({ isExpanded }) =>
-      isExpanded ? 'calc(100vw / var(--t-zoom, 1))' : '0'};
+    width: ${({ isExpanded }) => (isExpanded ? '100vw' : '0')};
   }
 `;
 

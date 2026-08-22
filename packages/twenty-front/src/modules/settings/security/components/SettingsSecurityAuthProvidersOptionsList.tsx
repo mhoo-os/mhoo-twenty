@@ -104,6 +104,7 @@ export const SettingsSecurityAuthProvidersOptionsList = () => {
         },
       },
     }).catch((err) => {
+      // rollback optimistic update if err
       setCurrentWorkspace({
         ...currentWorkspace,
         [key]: !currentWorkspace[key],

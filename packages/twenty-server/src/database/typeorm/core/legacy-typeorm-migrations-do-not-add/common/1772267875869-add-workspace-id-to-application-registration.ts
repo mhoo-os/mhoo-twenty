@@ -8,6 +8,7 @@ export class AddWorkspaceIdToApplicationRegistration1772267875869 implements Mig
       `ALTER TABLE "core"."applicationRegistration" ADD "workspaceId" uuid`,
     );
 
+    // Delete any orphaned registrations that can't be assigned a workspace
     await queryRunner.query(`
       DELETE FROM "core"."applicationRegistration"
       WHERE "workspaceId" IS NULL

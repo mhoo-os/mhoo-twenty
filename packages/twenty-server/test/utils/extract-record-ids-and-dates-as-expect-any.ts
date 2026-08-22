@@ -4,7 +4,7 @@ export const extractRecordIdsAndDatesAsExpectAny = (
   record: Record<string, unknown> | Array<Record<string, unknown>>,
 ): any => {
   if (Array.isArray(record)) {
-    return record.map((item) => extractRecordIdsAndDatesAsExpectAny(item));
+    return record.map(extractRecordIdsAndDatesAsExpectAny);
   }
 
   if (typeof record !== 'object') {

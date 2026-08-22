@@ -177,6 +177,7 @@ describe('SearchResolver', () => {
     await deleteAllRecords('_pet');
     await deleteAllRecords('_surveyResult');
     await deleteAllRecords('_rocket');
+    ///
 
     await createManyOperation({
       objectMetadataSingularName: 'pet',

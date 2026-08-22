@@ -12,7 +12,6 @@ import {
 } from 'twenty-ui/icon';
 import { LightIconButton } from 'twenty-ui/input';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
-import { useIsMobile } from 'twenty-ui/utilities';
 
 import { useEnterLayoutCustomizationMode } from '@/layout-customization/hooks/useEnterLayoutCustomizationMode';
 import { isLayoutCustomizationModeEnabledState } from '@/layout-customization/states/isLayoutCustomizationModeEnabledState';
@@ -48,7 +47,6 @@ const StyledRightIconsContainer = styled.div`
 `;
 
 export const WorkspaceSection = () => {
-  const isMobile = useIsMobile();
   const items = useNavigationMenuItemSectionItems();
   const { workspaceNavigationMenuItemsSorted } = useSortedNavigationMenuItems();
   const objectMetadataItems = useAtomStateValue(objectMetadataItemsSelector);
@@ -200,31 +198,27 @@ export const WorkspaceSection = () => {
       sectionTitle={t`Workspace`}
       items={items}
       rightIcon={
-        // Customising the menu is a desktop job, so mobile shows neither the
-        // entry point nor the add button it turns into.
-        isMobile ? undefined : (
-          <StyledRightIconsContainer>
-            {isLayoutCustomizationModeEnabled ? (
-              <LightIconButton
-                Icon={IconPlus}
-                accent="tertiary"
-                size="small"
-                onClick={handleAddMenuItem}
-              />
-            ) : (
-              hasLayoutsPermission && (
-                <div onMouseEnter={preloadNavigationMenuItemDndKit}>
-                  <LightIconButton
-                    Icon={IconTool}
-                    accent="tertiary"
-                    size="small"
-                    onClick={handleEditClick}
-                  />
-                </div>
-              )
-            )}
-          </StyledRightIconsContainer>
-        )
+        <StyledRightIconsContainer>
+          {isLayoutCustomizationModeEnabled ? (
+            <LightIconButton
+              Icon={IconPlus}
+              accent="tertiary"
+              size="small"
+              onClick={handleAddMenuItem}
+            />
+          ) : (
+            hasLayoutsPermission && (
+              <div onMouseEnter={preloadNavigationMenuItemDndKit}>
+                <LightIconButton
+                  Icon={IconTool}
+                  accent="tertiary"
+                  size="small"
+                  onClick={handleEditClick}
+                />
+              </div>
+            )
+          )}
+        </StyledRightIconsContainer>
       }
       selectedNavigationMenuItemId={selectedNavigationMenuItemIdInEditMode}
       onNavigationMenuItemClick={

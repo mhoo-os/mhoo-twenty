@@ -26,7 +26,6 @@ export type ConfirmationModalProps = {
   confirmationValue?: string;
   confirmButtonAccent?: ButtonAccent;
   AdditionalButtons?: React.ReactNode;
-  hideCancelButton?: boolean;
   overlay?: ModalOverlay;
 };
 
@@ -90,7 +89,6 @@ export const ConfirmationModal = ({
   confirmationPlaceholder,
   confirmButtonAccent = 'danger',
   AdditionalButtons,
-  hideCancelButton = false,
   overlay = 'dark',
 }: ConfirmationModalProps) => {
   const { i18n, t } = useLingui();
@@ -171,16 +169,14 @@ export const ConfirmationModal = ({
           />
         </Section>
       )}
-      {!hideCancelButton && (
-        <StyledCenteredButton
-          onClick={handleCancelClick}
-          variant="secondary"
-          title={t`Cancel`}
-          fullWidth
-          justify="center"
-          dataTestId="confirmation-modal-cancel-button"
-        />
-      )}
+      <StyledCenteredButton
+        onClick={handleCancelClick}
+        variant="secondary"
+        title={t`Cancel`}
+        fullWidth
+        justify="center"
+        dataTestId="confirmation-modal-cancel-button"
+      />
 
       {AdditionalButtons}
 

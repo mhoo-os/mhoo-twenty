@@ -69,6 +69,7 @@ export const computeStandardWorkflowVersionViewFields = (
       },
     }),
 
+    // workflowVersionRecordPageFields view fields
     workflowVersionRecordPageFieldsStatus: createStandardViewFieldFlatMetadata({
       ...args,
       objectName: 'workflowVersion',

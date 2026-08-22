@@ -1,23 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { isNonEmptyString } from '@sniptt/guards';
 import { MessageChannelType } from 'twenty-shared/types';
-import { isDefined } from 'twenty-shared/utils';
 import { Repository } from 'typeorm';
 
-import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
-import { InboundEmailMessageSourceResolverService } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/sources/inbound-email-message-source-resolver.service';
+import { InboundEmailS3ClientProvider } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/providers/inbound-email-s3-client.provider';
+import { InboundEmailParserService } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/services/inbound-email-parser.service';
+import { InboundEmailStorageService } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/services/inbound-email-storage.service';
 import { type InboundEmailImportOutcome } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/types/inbound-email-import-outcome.type';
-import { type InboundEmailMessageReference } from 'src/modules/messaging/message-import-manager/drivers/inbound-email/types/inbound-email-message-reference.type';
 import { MessagingSaveMessagesAndEnqueueContactCreationService } from 'src/modules/messaging/message-import-manager/services/messaging-save-messages-and-enqueue-contact-creation.service';
+import { isDefined } from 'twenty-shared/utils';
 
 type ImportInboundMessageParams = {
-  messageReference: InboundEmailMessageReference;
+  s3Key: string;
   envelopeRecipients: string[];
 };
 
@@ -26,8 +25,9 @@ export class InboundEmailImportService {
   private readonly logger = new Logger(InboundEmailImportService.name);
 
   constructor(
-    private readonly twentyConfigService: TwentyConfigService,
-    private readonly inboundEmailMessageSourceResolverService: InboundEmailMessageSourceResolverService,
+    private readonly inboundEmailS3ClientProvider: InboundEmailS3ClientProvider,
+    private readonly inboundEmailStorageService: InboundEmailStorageService,
+    private readonly inboundEmailParserService: InboundEmailParserService,
     private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
     private readonly messagingSaveMessagesAndEnqueueContactCreationService: MessagingSaveMessagesAndEnqueueContactCreationService,
     @InjectRepository(MessageChannelEntity)
@@ -39,32 +39,17 @@ export class InboundEmailImportService {
   async importInboundMessage(
     params: ImportInboundMessageParams,
   ): Promise<InboundEmailImportOutcome> {
-    const { messageReference, envelopeRecipients } = params;
+    const { s3Key, envelopeRecipients } = params;
 
-    const inboundEmailDomain = this.twentyConfigService.get(
-      'INBOUND_EMAIL_DOMAIN',
-    );
-
-    if (!isNonEmptyString(inboundEmailDomain)) {
+    if (!this.inboundEmailS3ClientProvider.isConfigured()) {
       this.logger.warn(
-        `Skipping inbound email import for ${messageReference.reference}: email group is not configured.`,
+        `Skipping inbound email import for ${s3Key}: email group is not configured.`,
       );
 
       return { kind: 'unconfigured' };
     }
 
-    const messageSource = this.inboundEmailMessageSourceResolverService.resolve(
-      messageReference.source,
-    );
-
-    if (!messageSource.isConfigured()) {
-      this.logger.warn(
-        `Skipping inbound email import for ${messageReference.reference}: message source ${messageReference.source} is not configured.`,
-      );
-
-      return { kind: 'unconfigured' };
-    }
-
+    const inboundEmailDomain = this.inboundEmailS3ClientProvider.getDomain();
     const recipient = this.matchInboundRecipient(
       envelopeRecipients,
       inboundEmailDomain,
@@ -72,7 +57,7 @@ export class InboundEmailImportService {
 
     if (!isDefined(recipient)) {
       this.logger.warn(
-        `No recipient at ${inboundEmailDomain} in inbound notification for ${messageReference.reference}`,
+        `No recipient at ${inboundEmailDomain} in SNS payload for ${s3Key}`,
       );
 
       return { kind: 'unmatched', recipient: null };
@@ -84,14 +69,17 @@ export class InboundEmailImportService {
 
     if (!isDefined(messageChannel)) {
       this.logger.warn(
-        `No email group channel matches recipient ${recipient} (reference ${messageReference.reference})`,
+        `No email group channel matches recipient ${recipient} (key ${s3Key})`,
       );
 
       return { kind: 'unmatched', recipient };
     }
 
-    const message = await messageSource.fetchMessage(
-      messageReference.reference,
+    const rawMessage =
+      await this.inboundEmailStorageService.getRawMessage(s3Key);
+    const parsedInboundMessage = await this.inboundEmailParserService.parse(
+      rawMessage,
+      s3Key,
     );
 
     const { workspaceId } = messageChannel;
@@ -109,7 +97,7 @@ export class InboundEmailImportService {
     await this.globalWorkspaceOrmManager.executeInWorkspaceContext(
       async () => {
         await this.messagingSaveMessagesAndEnqueueContactCreationService.saveMessagesAndEnqueueContactCreation(
-          [message],
+          [parsedInboundMessage.message],
           messageChannel,
           connectedAccount,
           workspaceId,
@@ -119,7 +107,7 @@ export class InboundEmailImportService {
       { lite: true },
     );
 
-    await messageSource.cleanup(messageReference.reference);
+    await this.inboundEmailStorageService.deleteRawMessage(s3Key);
 
     return {
       kind: 'imported',

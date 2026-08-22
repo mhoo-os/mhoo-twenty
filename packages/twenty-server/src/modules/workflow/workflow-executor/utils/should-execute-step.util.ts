@@ -39,7 +39,6 @@ export const shouldExecuteStep = ({
 
   return shouldExecuteChildStep({
     parentSteps,
-    childStepId: step.id,
     stepInfos,
   });
 };

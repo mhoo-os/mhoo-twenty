@@ -45,6 +45,7 @@ export const computeStandardWorkflowRunViewFields = (
       },
     }),
 
+    // workflowRunRecordPageFields view fields
     workflowRunRecordPageFieldsStatus: createStandardViewFieldFlatMetadata({
       ...args,
       objectName: 'workflowRun',

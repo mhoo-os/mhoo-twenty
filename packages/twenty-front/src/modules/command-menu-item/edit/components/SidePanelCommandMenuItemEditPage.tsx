@@ -18,9 +18,10 @@ import { type DraggableListDropResult } from '@/ui/layout/draggable-list/types/D
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 import { ContextStorePageType } from 'twenty-shared/types';
-import { interpolateCommandMenuItemPlaceholders } from 'twenty-shared/i18n';
-import { isDefined } from 'twenty-shared/utils';
-import { getCommandMenuItemPlaceholderValues } from '@/command-menu-item/utils/getCommandMenuItemPlaceholderValues';
+import {
+  interpolateCommandMenuItemTemplate,
+  isDefined,
+} from 'twenty-shared/utils';
 import {
   IconDotsVertical,
   IconPin,
@@ -82,10 +83,10 @@ export const SidePanelCommandMenuItemEditPage = () => {
   );
 
   const getDisplayLabel = (item: CommandMenuItemFieldsFragment) =>
-    interpolateCommandMenuItemPlaceholders(
-      item.label,
-      getCommandMenuItemPlaceholderValues(commandMenuContextApi),
-    );
+    interpolateCommandMenuItemTemplate({
+      label: item.label,
+      context: commandMenuContextApi,
+    }) ?? item.label;
 
   const { pinned: allPinnedItems, other: allOtherItems } =
     groupCommandMenuItems(editableCommandMenuItems);

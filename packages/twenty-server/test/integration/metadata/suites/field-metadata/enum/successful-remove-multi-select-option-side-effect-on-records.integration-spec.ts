@@ -133,6 +133,7 @@ describe('remove multi-select option with side effect on records', () => {
 
     const removedOnlyRecordId = removedOnlyData.createOneResponse.id;
 
+    // Record with only surviving options
     const { data: survivingData } = await createOneOperation({
       expectToFail: false,
       objectMetadataSingularName: TEST_OBJECT_NAME_SINGULAR,
@@ -142,6 +143,7 @@ describe('remove multi-select option with side effect on records', () => {
 
     const survivingRecordId = survivingData.createOneResponse.id;
 
+    // Remove OPTION_2 -- keep OPTION_1 and OPTION_3
     const { data: updateData, errors: updateErrors } =
       await updateOneFieldMetadata({
         expectToFail: false,
@@ -196,6 +198,7 @@ describe('remove multi-select option with side effect on records', () => {
       removedOnlyTagField === null || removedOnlyTagField.length === 0,
     ).toBe(true);
 
+    // Surviving record: should be unchanged
     const { data: survivingAfter } = await findOneOperation({
       expectToFail: false,
       objectMetadataSingularName: TEST_OBJECT_NAME_SINGULAR,

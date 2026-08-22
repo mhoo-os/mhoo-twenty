@@ -3,11 +3,9 @@
 exports[`Impersonation - unauthenticated request denial (integration) rejects an impersonation request with no authentication 1`] = `
 {
   "extensions": {
-    "code": "UNAUTHENTICATED",
-    "subCode": "UNAUTHENTICATED",
-    "userFriendlyMessage": "You must be authenticated to perform this action.",
+    "code": "FORBIDDEN",
+    "userFriendlyMessage": "An error occurred.",
   },
-  "message": "Missing authentication token",
-  "name": "AuthenticationError",
+  "message": "Forbidden resource",
 }
 `;

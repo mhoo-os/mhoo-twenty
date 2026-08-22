@@ -29,5 +29,4 @@ export enum SidePanelPages {
   ComposeEmail = 'compose-email',
   SendCampaignTest = 'send-campaign-test',
   EmailBlockSettings = 'email-block-settings',
-  SettingsMetadataTranslations = 'settings-metadata-translations',
 }

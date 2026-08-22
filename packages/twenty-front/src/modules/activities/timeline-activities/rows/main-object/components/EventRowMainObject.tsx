@@ -1,10 +1,9 @@
-import { EventRowDate } from '@/activities/timeline-activities/rows/components/EventRowDate';
 import { type EventRowDynamicComponentProps } from '@/activities/timeline-activities/rows/components/EventRowDynamicComponent.types';
 import { EventRowItem } from '@/activities/timeline-activities/rows/components/EventRowItem';
 import { EventRowMainObjectUpdated } from '@/activities/timeline-activities/rows/main-object/components/EventRowMainObjectUpdated';
 import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
-import { themeCssVariables } from 'twenty-ui/theme-constants';
+import { MOBILE_VIEWPORT, themeCssVariables } from 'twenty-ui/theme-constants';
 
 type EventRowMainObjectProps = EventRowDynamicComponentProps;
 
@@ -20,6 +19,14 @@ const StyledRowContainer = styled.div`
   display: flex;
   gap: ${themeCssVariables.spacing[1]};
   justify-content: space-between;
+`;
+
+const StyledItemTitleDate = styled.div`
+  @media (max-width: ${MOBILE_VIEWPORT}px) {
+    display: none;
+  }
+  color: ${themeCssVariables.font.color.tertiary};
+  padding: 0 ${themeCssVariables.spacing[1]};
 `;
 
 const StyledRow = styled.div`
@@ -48,7 +55,7 @@ export const EventRowMainObject = ({
               <EventRowItem variant="action">{t`was created by`}</EventRowItem>
               <EventRowItem>{authorFullName}</EventRowItem>
             </StyledRow>
-            <EventRowDate createdAt={createdAt} />
+            <StyledItemTitleDate>{createdAt}</StyledItemTitleDate>
           </StyledRowContainer>
         </StyledMainContainer>
       );
@@ -73,7 +80,7 @@ export const EventRowMainObject = ({
               <EventRowItem variant="action">{t`was deleted by`}</EventRowItem>
               <EventRowItem>{authorFullName}</EventRowItem>
             </StyledRow>
-            <EventRowDate createdAt={createdAt} />
+            <StyledItemTitleDate>{createdAt}</StyledItemTitleDate>
           </StyledRowContainer>
         </StyledMainContainer>
       );
@@ -87,7 +94,7 @@ export const EventRowMainObject = ({
               <EventRowItem variant="action">{t`was restored by`}</EventRowItem>
               <EventRowItem>{authorFullName}</EventRowItem>
             </StyledRow>
-            <EventRowDate createdAt={createdAt} />
+            <StyledItemTitleDate>{createdAt}</StyledItemTitleDate>
           </StyledRowContainer>
         </StyledMainContainer>
       );

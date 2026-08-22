@@ -77,6 +77,10 @@ export class UserSessionService {
     request: Request;
     origin: UserSessionCreationOrigin;
   }): Promise<void> {
+    if (!this.twentyConfigService.get('AUTH_COOKIE_SESSIONS_ENABLED')) {
+      return;
+    }
+
     const response = request.res;
 
     if (!isDefined(response)) {

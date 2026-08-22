@@ -12,7 +12,7 @@ import {
 } from '@/object-record/record-field/ui/form-types/types/RecordPickerValue';
 import { type VariablePickerComponent } from '@/object-record/record-field/ui/form-types/types/VariablePickerComponent';
 import { ForbiddenFieldDisplay } from '@/object-record/record-field/ui/meta-types/display/components/ForbiddenFieldDisplay';
-import { Field } from 'twenty-ui/input';
+import { InputLabel } from '@/ui/input/components/InputLabel';
 import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
 import { isString } from '@sniptt/guards';
@@ -115,7 +115,7 @@ export const FormMorphRelationToOneFieldInput = ({
   if (hasForbiddenSelectedRecord) {
     return (
       <FormFieldInputContainer data-testid={testId}>
-        {label ? <Field.Label>{label}</Field.Label> : null}
+        {label ? <InputLabel>{label}</InputLabel> : null}
         <FormFieldInputRowContainer>
           <StyledReadonlyContainer>
             <FormFieldInputInnerContainer
@@ -135,7 +135,7 @@ export const FormMorphRelationToOneFieldInput = ({
   if (readableObjectNameSingulars.length === 0) {
     return (
       <FormFieldInputContainer data-testid={testId}>
-        {label ? <Field.Label>{label}</Field.Label> : null}
+        {label ? <InputLabel>{label}</InputLabel> : null}
         <FormFieldInputRowContainer>
           <StyledReadonlyContainer>
             <FormFieldInputInnerContainer

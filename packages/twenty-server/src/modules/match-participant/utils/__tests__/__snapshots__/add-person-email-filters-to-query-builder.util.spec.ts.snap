@@ -1,10 +1,21 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`addPersonEmailFiltersToQueryBuilder case-insensitive email normalization: should normalize emails to lowercase - query builder calls 1`] = `
 [
   {
     "args": [
-      "LOWER("person"."emailsPrimaryEmail") IN (:...emails)",
+      [
+        "person.id",
+        "person.emailsPrimaryEmail",
+        "person.emailsAdditionalEmails",
+        "person.deletedAt",
+      ],
+    ],
+    "method": "select",
+  },
+  {
+    "args": [
+      "LOWER(person.emailsPrimaryEmail) IN (:...emails)",
       {
         "emails": [
           "test@example.com",
@@ -20,7 +31,7 @@ exports[`addPersonEmailFiltersToQueryBuilder case-insensitive email normalizatio
   },
   {
     "args": [
-      ""person"."emailsAdditionalEmails" @> :email0::jsonb",
+      "person.emailsAdditionalEmails @> :email0::jsonb",
       {
         "email0": "["test@example.com"]",
       },
@@ -29,7 +40,7 @@ exports[`addPersonEmailFiltersToQueryBuilder case-insensitive email normalizatio
   },
   {
     "args": [
-      ""person"."emailsAdditionalEmails" @> :email1::jsonb",
+      "person.emailsAdditionalEmails @> :email1::jsonb",
       {
         "email1": "["contact@company.com"]",
       },
@@ -47,7 +58,18 @@ exports[`addPersonEmailFiltersToQueryBuilder emails with empty exclusion array: 
 [
   {
     "args": [
-      "LOWER("person"."emailsPrimaryEmail") IN (:...emails)",
+      [
+        "person.id",
+        "person.emailsPrimaryEmail",
+        "person.emailsAdditionalEmails",
+        "person.deletedAt",
+      ],
+    ],
+    "method": "select",
+  },
+  {
+    "args": [
+      "LOWER(person.emailsPrimaryEmail) IN (:...emails)",
       {
         "emails": [
           "test@example.com",
@@ -62,7 +84,7 @@ exports[`addPersonEmailFiltersToQueryBuilder emails with empty exclusion array: 
   },
   {
     "args": [
-      ""person"."emailsAdditionalEmails" @> :email0::jsonb",
+      "person.emailsAdditionalEmails @> :email0::jsonb",
       {
         "email0": "["test@example.com"]",
       },
@@ -80,7 +102,18 @@ exports[`addPersonEmailFiltersToQueryBuilder empty emails array: should handle e
 [
   {
     "args": [
-      "LOWER("person"."emailsPrimaryEmail") IN (:...emails)",
+      [
+        "person.id",
+        "person.emailsPrimaryEmail",
+        "person.emailsAdditionalEmails",
+        "person.deletedAt",
+      ],
+    ],
+    "method": "select",
+  },
+  {
+    "args": [
+      "LOWER(person.emailsPrimaryEmail) IN (:...emails)",
       {
         "emails": [],
       },
@@ -102,7 +135,18 @@ exports[`addPersonEmailFiltersToQueryBuilder multiple emails with exclusions: sh
 [
   {
     "args": [
-      "LOWER("person"."emailsPrimaryEmail") IN (:...emails)",
+      [
+        "person.id",
+        "person.emailsPrimaryEmail",
+        "person.emailsAdditionalEmails",
+        "person.deletedAt",
+      ],
+    ],
+    "method": "select",
+  },
+  {
+    "args": [
+      "LOWER(person.emailsPrimaryEmail) IN (:...emails)",
       {
         "emails": [
           "test@example.com",
@@ -118,7 +162,7 @@ exports[`addPersonEmailFiltersToQueryBuilder multiple emails with exclusions: sh
   },
   {
     "args": [
-      ""person"."id" NOT IN (:...excludePersonIds)",
+      "person.id NOT IN (:...excludePersonIds)",
       {
         "excludePersonIds": [
           "person-1",
@@ -129,7 +173,7 @@ exports[`addPersonEmailFiltersToQueryBuilder multiple emails with exclusions: sh
   },
   {
     "args": [
-      ""person"."id" NOT IN (:...excludePersonIds) AND "person"."emailsAdditionalEmails" @> :email0::jsonb",
+      "person.id NOT IN (:...excludePersonIds) AND person.emailsAdditionalEmails @> :email0::jsonb",
       {
         "email0": "["test@example.com"]",
         "excludePersonIds": [
@@ -141,7 +185,7 @@ exports[`addPersonEmailFiltersToQueryBuilder multiple emails with exclusions: sh
   },
   {
     "args": [
-      ""person"."id" NOT IN (:...excludePersonIds) AND "person"."emailsAdditionalEmails" @> :email1::jsonb",
+      "person.id NOT IN (:...excludePersonIds) AND person.emailsAdditionalEmails @> :email1::jsonb",
       {
         "email1": "["contact@company.com"]",
         "excludePersonIds": [
@@ -162,7 +206,18 @@ exports[`addPersonEmailFiltersToQueryBuilder multiple emails without exclusions:
 [
   {
     "args": [
-      "LOWER("person"."emailsPrimaryEmail") IN (:...emails)",
+      [
+        "person.id",
+        "person.emailsPrimaryEmail",
+        "person.emailsAdditionalEmails",
+        "person.deletedAt",
+      ],
+    ],
+    "method": "select",
+  },
+  {
+    "args": [
+      "LOWER(person.emailsPrimaryEmail) IN (:...emails)",
       {
         "emails": [
           "test@example.com",
@@ -178,7 +233,7 @@ exports[`addPersonEmailFiltersToQueryBuilder multiple emails without exclusions:
   },
   {
     "args": [
-      ""person"."emailsAdditionalEmails" @> :email0::jsonb",
+      "person.emailsAdditionalEmails @> :email0::jsonb",
       {
         "email0": "["test@example.com"]",
       },
@@ -187,7 +242,7 @@ exports[`addPersonEmailFiltersToQueryBuilder multiple emails without exclusions:
   },
   {
     "args": [
-      ""person"."emailsAdditionalEmails" @> :email1::jsonb",
+      "person.emailsAdditionalEmails @> :email1::jsonb",
       {
         "email1": "["contact@company.com"]",
       },
@@ -205,7 +260,18 @@ exports[`addPersonEmailFiltersToQueryBuilder single email with person ID exclusi
 [
   {
     "args": [
-      "LOWER("person"."emailsPrimaryEmail") IN (:...emails)",
+      [
+        "person.id",
+        "person.emailsPrimaryEmail",
+        "person.emailsAdditionalEmails",
+        "person.deletedAt",
+      ],
+    ],
+    "method": "select",
+  },
+  {
+    "args": [
+      "LOWER(person.emailsPrimaryEmail) IN (:...emails)",
       {
         "emails": [
           "test@example.com",
@@ -220,7 +286,7 @@ exports[`addPersonEmailFiltersToQueryBuilder single email with person ID exclusi
   },
   {
     "args": [
-      ""person"."id" NOT IN (:...excludePersonIds)",
+      "person.id NOT IN (:...excludePersonIds)",
       {
         "excludePersonIds": [
           "person-1",
@@ -232,7 +298,7 @@ exports[`addPersonEmailFiltersToQueryBuilder single email with person ID exclusi
   },
   {
     "args": [
-      ""person"."id" NOT IN (:...excludePersonIds) AND "person"."emailsAdditionalEmails" @> :email0::jsonb",
+      "person.id NOT IN (:...excludePersonIds) AND person.emailsAdditionalEmails @> :email0::jsonb",
       {
         "email0": "["test@example.com"]",
         "excludePersonIds": [
@@ -254,7 +320,18 @@ exports[`addPersonEmailFiltersToQueryBuilder single email without exclusions: sh
 [
   {
     "args": [
-      "LOWER("person"."emailsPrimaryEmail") IN (:...emails)",
+      [
+        "person.id",
+        "person.emailsPrimaryEmail",
+        "person.emailsAdditionalEmails",
+        "person.deletedAt",
+      ],
+    ],
+    "method": "select",
+  },
+  {
+    "args": [
+      "LOWER(person.emailsPrimaryEmail) IN (:...emails)",
       {
         "emails": [
           "test@example.com",
@@ -269,7 +346,7 @@ exports[`addPersonEmailFiltersToQueryBuilder single email without exclusions: sh
   },
   {
     "args": [
-      ""person"."emailsAdditionalEmails" @> :email0::jsonb",
+      "person.emailsAdditionalEmails @> :email0::jsonb",
       {
         "email0": "["test@example.com"]",
       },
@@ -287,7 +364,18 @@ exports[`addPersonEmailFiltersToQueryBuilder three emails with unique parameter 
 [
   {
     "args": [
-      "LOWER("person"."emailsPrimaryEmail") IN (:...emails)",
+      [
+        "person.id",
+        "person.emailsPrimaryEmail",
+        "person.emailsAdditionalEmails",
+        "person.deletedAt",
+      ],
+    ],
+    "method": "select",
+  },
+  {
+    "args": [
+      "LOWER(person.emailsPrimaryEmail) IN (:...emails)",
       {
         "emails": [
           "email1@example.com",
@@ -304,7 +392,7 @@ exports[`addPersonEmailFiltersToQueryBuilder three emails with unique parameter 
   },
   {
     "args": [
-      ""person"."emailsAdditionalEmails" @> :email0::jsonb",
+      "person.emailsAdditionalEmails @> :email0::jsonb",
       {
         "email0": "["email1@example.com"]",
       },
@@ -313,7 +401,7 @@ exports[`addPersonEmailFiltersToQueryBuilder three emails with unique parameter 
   },
   {
     "args": [
-      ""person"."emailsAdditionalEmails" @> :email1::jsonb",
+      "person.emailsAdditionalEmails @> :email1::jsonb",
       {
         "email1": "["email2@example.com"]",
       },
@@ -322,7 +410,7 @@ exports[`addPersonEmailFiltersToQueryBuilder three emails with unique parameter 
   },
   {
     "args": [
-      ""person"."emailsAdditionalEmails" @> :email2::jsonb",
+      "person.emailsAdditionalEmails @> :email2::jsonb",
       {
         "email2": "["email3@example.com"]",
       },

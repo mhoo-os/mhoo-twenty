@@ -1,9 +1,9 @@
 import {
+  createFrontComponentsWatcher,
   createLogicFunctionsWatcher,
   type EsbuildWatcher,
 } from '@/cli/utilities/build/common/esbuild-watcher';
 import { FileUploadWatcher } from '@/cli/utilities/build/common/file-upload-watcher';
-import { FrontComponentsWatcher } from '@/cli/utilities/build/common/front-component-build/front-components-watcher';
 import { TscWatcher } from '@/cli/utilities/build/common/tsc-watcher';
 import { type TypecheckError } from '@/cli/utilities/build/common/typecheck-plugin';
 import { type ManifestBuildResult } from '@/cli/utilities/build/manifest/manifest-update-checksums';
@@ -11,10 +11,7 @@ import { ManifestWatcher } from '@/cli/utilities/build/manifest/manifest-watcher
 import { type OrchestratorState } from '@/cli/utilities/dev/orchestrator/dev-mode-orchestrator-state';
 import type { Location } from 'esbuild';
 import { type ChokidarFsEvent } from '@/cli/types';
-import {
-  ASSETS_DIR,
-  type FrontComponentSharedDependenciesManifest,
-} from 'twenty-shared/application';
+import { ASSETS_DIR } from 'twenty-shared/application';
 import { FileFolder } from 'twenty-shared/types';
 
 export type FileBuiltEvent = {
@@ -39,7 +36,7 @@ export class StartWatchersOrchestratorStep {
 
   private manifestWatcher: ManifestWatcher | null = null;
   private logicFunctionsWatcher: EsbuildWatcher | null = null;
-  private frontComponentsWatcher: FrontComponentsWatcher | null = null;
+  private frontComponentsWatcher: EsbuildWatcher | null = null;
   private assetWatcher: FileUploadWatcher | null = null;
   private dependencyWatcher: FileUploadWatcher | null = null;
   private tscWatcher: TscWatcher | null = null;
@@ -75,17 +72,11 @@ export class StartWatchersOrchestratorStep {
 
   async handleWatcherRestarts(result: ManifestBuildResult): Promise<void> {
     const { logicFunctions, frontComponents } = result.filePaths;
-    const sharedDependencies =
-      result.manifest?.application.frontComponentSharedDependencies;
 
     if (!this.state.steps.startWatchers.output.watchersStarted) {
       this.state.steps.startWatchers.output.watchersStarted = true;
       this.state.steps.startWatchers.status = 'done';
-      await this.startFileWatchers(
-        logicFunctions,
-        frontComponents,
-        sharedDependencies,
-      );
+      await this.startFileWatchers(logicFunctions, frontComponents);
 
       return;
     }
@@ -94,16 +85,8 @@ export class StartWatchersOrchestratorStep {
       await this.logicFunctionsWatcher.restart(logicFunctions);
     }
 
-    if (
-      this.frontComponentsWatcher?.shouldRestart(
-        frontComponents,
-        sharedDependencies,
-      )
-    ) {
-      await this.frontComponentsWatcher.restart(
-        frontComponents,
-        sharedDependencies,
-      );
+    if (this.frontComponentsWatcher?.shouldRestart(frontComponents)) {
+      await this.frontComponentsWatcher.restart(frontComponents);
     }
   }
 
@@ -182,12 +165,11 @@ export class StartWatchersOrchestratorStep {
   private async startFileWatchers(
     logicFunctions: string[],
     frontComponents: string[],
-    sharedDependencies: FrontComponentSharedDependenciesManifest | undefined,
   ): Promise<void> {
     await Promise.all([
       this.startTscWatcher(),
       this.startLogicFunctionsWatcher(logicFunctions),
-      this.startFrontComponentsWatcher(frontComponents, sharedDependencies),
+      this.startFrontComponentsWatcher(frontComponents),
       this.startAssetWatcher(),
       this.startDependencyWatcher(),
     ]);
@@ -209,12 +191,10 @@ export class StartWatchersOrchestratorStep {
 
   private async startFrontComponentsWatcher(
     sourcePaths: string[],
-    sharedDependencies: FrontComponentSharedDependenciesManifest | undefined,
   ): Promise<void> {
-    this.frontComponentsWatcher = new FrontComponentsWatcher({
+    this.frontComponentsWatcher = createFrontComponentsWatcher({
       appPath: this.state.appPath,
       sourcePaths,
-      sharedDependencies,
       shouldSkipTypecheck: this.shouldSkipTypecheck,
       handleBuildError: this.handleFileBuildError.bind(this),
       handleFileBuilt: this.handleFileBuilt.bind(this),

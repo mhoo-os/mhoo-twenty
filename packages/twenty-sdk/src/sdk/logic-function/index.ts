@@ -45,9 +45,7 @@ export type { RoutePayload } from '@/sdk/define/logic-functions/triggers/route-p
 
 export {
   jsonSchemaToInputSchema,
-  RetryableLogicFunctionError,
   type InputJsonSchema,
-  type LogicFunctionExecutionContext,
 } from 'twenty-shared/logic-function';
 
 export { getConnection } from '@/sdk/logic-function/connections/get-connection';

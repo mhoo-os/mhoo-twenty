@@ -2,7 +2,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Command } from 'nest-commander';
 import {
-  SYSTEM_VIEW_KEYS,
   getSystemViewFieldUniversalIdentifier,
   getSystemViewUniversalIdentifier,
 } from 'twenty-shared/application';
@@ -206,7 +205,7 @@ export class ReconcileIndexViewUniversalIdentifierCommand extends ProvisionedWor
         objectMetadataApplicationUniversalIdentifier:
           flatObjectMetadata.applicationUniversalIdentifier,
         objectUniversalIdentifier: flatObjectMetadata.universalIdentifier,
-        viewKey: SYSTEM_VIEW_KEYS.INDEX,
+        viewKey: ViewKey.INDEX,
       });
 
       if (flatView.universalIdentifier === derivedViewUniversalIdentifier) {

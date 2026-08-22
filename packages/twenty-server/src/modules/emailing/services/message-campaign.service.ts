@@ -40,6 +40,7 @@ import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queu
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
 import { MessageChannelMetadataService } from 'src/engine/metadata-modules/message-channel/message-channel-metadata.service';
 import { UserRoleService } from 'src/engine/metadata-modules/user-role/user-role.service';
+import { type WorkspaceEntityManager } from 'src/engine/twenty-orm/entity-manager/workspace-entity-manager';
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
@@ -357,6 +358,7 @@ export class MessageCampaignService {
 
       if (recipientsToCreate.length > 0) {
         await this.materializeCampaignMessages({
+          workspaceId,
           campaignId,
           messageChannelId,
           fromAddress: campaign.fromAddress?.primaryEmail ?? '',
@@ -630,6 +632,7 @@ export class MessageCampaignService {
   }
 
   private async materializeCampaignMessages({
+    workspaceId,
     campaignId,
     messageChannelId,
     fromAddress,
@@ -637,6 +640,7 @@ export class MessageCampaignService {
     bodyTemplate,
     recipients,
   }: {
+    workspaceId: string;
     campaignId: string;
     messageChannelId: string;
     fromAddress: string;
@@ -658,30 +662,37 @@ export class MessageCampaignService {
       temporaryExternalId: v4(),
     }));
 
-    await this.globalWorkspaceOrmManager.runInWorkspaceTransaction(
-      async (transactionScope) => {
-        const messageThreadRepository =
-          transactionScope.getRepository<MessageThreadWorkspaceEntity>(
-            'messageThread',
-            { shouldBypassPermissionChecks: true },
-          );
-        const messageRepository =
-          transactionScope.getRepository<MessageWorkspaceEntity>('message', {
-            shouldBypassPermissionChecks: true,
-          });
-        const associationRepository =
-          transactionScope.getRepository<MessageChannelMessageAssociationWorkspaceEntity>(
-            'messageChannelMessageAssociation',
-            { shouldBypassPermissionChecks: true },
-          );
-        const participantRepository =
-          transactionScope.getRepository<MessageParticipantWorkspaceEntity>(
-            'messageParticipant',
-            { shouldBypassPermissionChecks: true },
-          );
+    const messageThreadRepository = await this.getSystemRepository(
+      workspaceId,
+      MessageThreadWorkspaceEntity,
+    );
+    const messageRepository = await this.getSystemRepository(
+      workspaceId,
+      MessageWorkspaceEntity,
+    );
+    const associationRepository = await this.getSystemRepository(
+      workspaceId,
+      MessageChannelMessageAssociationWorkspaceEntity,
+    );
+    const participantRepository = await this.getSystemRepository(
+      workspaceId,
+      MessageParticipantWorkspaceEntity,
+    );
 
+    const workspaceDataSource =
+      await this.globalWorkspaceOrmManager.getGlobalWorkspaceDataSource();
+
+    if (!workspaceDataSource) {
+      throw new Error(
+        `No workspace datasource available for workspace ${workspaceId}`,
+      );
+    }
+
+    await workspaceDataSource.transaction(
+      async (transactionManager: WorkspaceEntityManager) => {
         await messageThreadRepository.insert(
           rows.map((row) => ({ id: row.threadId })),
+          transactionManager,
         );
         await messageRepository.insert(
           rows.map((row) => ({
@@ -694,6 +705,7 @@ export class MessageCampaignService {
             messageCampaignId: campaignId,
             deliveryStatus: CAMPAIGN_MESSAGE_DELIVERY_STATUS.QUEUED,
           })),
+          transactionManager,
         );
         await associationRepository.insert(
           rows.map((row) => ({
@@ -704,6 +716,7 @@ export class MessageCampaignService {
             messageThreadExternalId: row.temporaryExternalId,
             direction: MessageDirection.OUTGOING,
           })),
+          transactionManager,
         );
         await participantRepository.insert(
           rows.flatMap((row) => [
@@ -724,6 +737,7 @@ export class MessageCampaignService {
               messageCampaignId: campaignId,
             },
           ]),
+          transactionManager,
         );
       },
     );

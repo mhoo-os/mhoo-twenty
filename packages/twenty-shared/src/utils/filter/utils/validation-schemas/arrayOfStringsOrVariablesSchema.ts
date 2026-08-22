@@ -1,22 +1,14 @@
-import { isValidVariable } from '@/utils/validation/isValidVariable';
+import { isValidVariable } from '@/utils';
 import { z } from 'zod';
 
 export const arrayOfStringsOrVariablesSchema = z
   .string()
-  .transform((val, ctx) => {
+  .transform((val) => {
     if (val === '') return [];
     if (isValidVariable(val) as boolean) {
       return [val];
     }
-    try {
-      return JSON.parse(val);
-    } catch (error) {
-      ctx.addIssue({
-        code: 'custom',
-        message: (error as Error).message,
-      });
-      return z.NEVER;
-    }
+    return JSON.parse(val);
   })
   .refine(
     (parsed) =>

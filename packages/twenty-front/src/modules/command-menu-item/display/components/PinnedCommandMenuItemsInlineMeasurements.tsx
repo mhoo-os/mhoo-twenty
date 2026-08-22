@@ -16,7 +16,6 @@ type ElementDimensions = {
 
 type PinnedCommandMenuItemsInlineMeasurementsProps = {
   pinnedCommandMenuItems: CommandMenuItemFieldsFragment[];
-  shouldHideCommandMenuItemLabel: (commandMenuItemId: string) => boolean;
   onPinnedCommandMenuItemDimensionChange: (
     commandMenuItemKey: string,
   ) => (dimensions: ElementDimensions) => void;
@@ -33,7 +32,6 @@ const StyledHiddenMeasurementsContainer = styled.div`
 
 export const PinnedCommandMenuItemsInlineMeasurements = ({
   pinnedCommandMenuItems,
-  shouldHideCommandMenuItemLabel,
   onPinnedCommandMenuItemDimensionChange,
 }: PinnedCommandMenuItemsInlineMeasurementsProps) => {
   const { getIcon } = useIcons();
@@ -61,7 +59,6 @@ export const PinnedCommandMenuItemsInlineMeasurements = ({
                 shortLabel,
                 Icon,
               }}
-              shouldHideLabel={shouldHideCommandMenuItemLabel(item.id)}
             />
           </NodeDimension>
         );

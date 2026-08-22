@@ -104,6 +104,7 @@ describe('View Filter Group creation should succeed', () => {
   });
 
   it('should create a nested view filter group', async () => {
+    // Create parent filter group
     const { data: parentData } = await createOneViewFilterGroup({
       expectToFail: false,
       input: {
@@ -114,6 +115,7 @@ describe('View Filter Group creation should succeed', () => {
 
     const parentViewFilterGroupId = parentData?.createViewFilterGroup?.id;
 
+    // Create child filter group
     const { data: childData } = await createOneViewFilterGroup({
       expectToFail: false,
       input: {

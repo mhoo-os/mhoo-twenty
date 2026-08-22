@@ -81,15 +81,6 @@ export class ServerRouteTriggerRestApiExceptionFilter implements ExceptionFilter
           undefined,
           { shouldBeCapturedBySentry: false },
         );
-      case ServerRouteTriggerExceptionCode.METHOD_NOT_ALLOWED:
-        return this.httpExceptionHandlerService.handleError(
-          exception as CustomException,
-          response,
-          405,
-          undefined,
-          undefined,
-          { shouldBeCapturedBySentry: false },
-        );
       default: {
         return this.httpExceptionHandlerService.handleError(
           exception as CustomException,

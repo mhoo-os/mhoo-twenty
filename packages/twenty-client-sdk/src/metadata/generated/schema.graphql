@@ -5,6 +5,32 @@ interface BillingProductDTO {
   metadata: BillingProductMetadata!
 }
 
+type ApplicationRegistrationVariable {
+  id: UUID!
+  key: String!
+  description: String!
+  isSecret: Boolean!
+  isRequired: Boolean!
+  type: String!
+  options: JSON
+  isFilled: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A UUID scalar type"""
+scalar UUID
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type ApiKey {
   id: UUID!
   name: String!
@@ -14,14 +40,6 @@ type ApiKey {
   updatedAt: DateTime!
   role: Role!
 }
-
-"""A UUID scalar type"""
-scalar UUID
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type ApplicationRegistrationSummary {
   id: UUID!
@@ -43,15 +61,9 @@ type ApplicationVariable {
   value: String!
   description: String!
   isSecret: Boolean!
-  isDeprecated: Boolean!
   type: String!
   options: JSON
 }
-
-"""
-The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON
 
 type Agent {
   id: UUID!
@@ -97,7 +109,6 @@ type FrontComponent {
   usesSdkClient: Boolean!
   applicationTokenPair: ApplicationTokenPair
   applicationVariables: JSON
-  frontComponentSharedDependenciesChecksum: String
 }
 
 type CommandMenuItem {
@@ -358,7 +369,6 @@ type WorkspaceMember {
   name: FullName!
   userEmail: String!
   colorScheme: String!
-  uiScale: String!
   openRecordIn: OpenRecordIn!
   avatarUrl: String
   locale: String
@@ -586,9 +596,6 @@ enum PermissionFlagType {
 
 type ViewField {
   id: UUID!
-  universalIdentifier: UUID!
-  applicationId: UUID!
-  isSystemSideEffect: Boolean!
   fieldMetadataId: UUID!
   isVisible: Boolean!
   size: Float!
@@ -718,9 +725,6 @@ type ViewFieldGroup {
 
 type View {
   id: UUID!
-  universalIdentifier: UUID!
-  applicationId: UUID!
-  isSystemSideEffect: Boolean!
   name: String!
   objectMetadataId: UUID!
   type: ViewType!
@@ -873,7 +877,6 @@ type User {
   workspaceMember: WorkspaceMember
   userWorkspaces: [UserWorkspace!]!
   onboardingStatus: OnboardingStatus
-  previousOnboardingStatus: OnboardingStatus
   currentWorkspace: Workspace
   currentUserWorkspace: UserWorkspace
   userVars: JSONObject
@@ -948,8 +951,6 @@ type GridPosition {
 
 type PageLayoutWidget {
   id: UUID!
-  universalIdentifier: UUID!
-  isSystemSideEffect: Boolean!
   applicationId: UUID!
   pageLayoutTabId: UUID!
   title: String!
@@ -1313,8 +1314,6 @@ type WorkflowVersionConfiguration {
 
 type PageLayoutTab {
   id: UUID!
-  universalIdentifier: UUID!
-  isSystemSideEffect: Boolean!
   applicationId: UUID!
   title: String!
   position: Float!
@@ -1337,8 +1336,6 @@ type PageLayout {
   tabs: [PageLayoutTab!]
   defaultTabToFocusOnMobileAndSidePanelId: UUID
   universalIdentifier: UUID!
-  applicationId: UUID!
-  isSystemSideEffect: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
   deletedAt: DateTime
@@ -1456,11 +1453,6 @@ type BillingSubscriptionItem {
   billingProduct: BillingProductDTO!
 }
 
-type BillingCustomer {
-  id: UUID!
-  hasPaymentMethod: Boolean
-}
-
 type BillingSubscription {
   id: UUID!
   status: SubscriptionStatus!
@@ -1481,6 +1473,11 @@ enum SubscriptionStatus {
   Paused
   Trialing
   Unpaid
+}
+
+type BillingCustomer {
+  id: UUID!
+  hasPaymentMethod: Boolean
 }
 
 type LogicFunctionExecutionResult {
@@ -1704,14 +1701,6 @@ type InviteSuggestion {
   displayName: String
 }
 
-type OnboardingStepNavigation {
-  """Onboarding status the user landed on"""
-  onboardingStatus: OnboardingStatus
-
-  """Step the user can go back to from there, if any"""
-  previousOnboardingStatus: OnboardingStatus
-}
-
 type OnboardingStepSuccess {
   """Boolean that confirms query was dispatched"""
   success: Boolean!
@@ -1737,6 +1726,7 @@ type FeatureFlag {
 }
 
 enum FeatureFlagKey {
+  IS_AI_CHAT_PAGE_ENABLED
   IS_APP_CLAIMING_ENABLED
   IS_UNIQUE_INDEXES_ENABLED
   IS_JSON_FILTER_ENABLED
@@ -1748,10 +1738,7 @@ enum FeatureFlagKey {
   IS_LOGIC_FUNCTION_PREBUILT_MODE_ENABLED
   IS_SETTINGS_DISCOVERY_HERO_ENABLED
   IS_WORKFLOW_VERSION_IN_CORE_ENABLED
-  IS_WORKFLOW_CORE_INDEX_PAGE_ENABLED
   IS_WORKFLOW_DISPATCH_FROM_CORE_ENABLED
-  IS_NATIVE_CALL_RECORDING_TABS_ENABLED
-  IS_ORM_V2_READ_PATH_ENABLED
 }
 
 type WorkspaceUrls {
@@ -1759,14 +1746,13 @@ type WorkspaceUrls {
   subdomainUrl: String!
 }
 
-type ApplicationRegistrationVariable {
+type ApplicationRegistrationVariableDTO {
   id: UUID!
   key: String!
   value: String
   description: String!
   isSecret: Boolean!
   isRequired: Boolean!
-  isDeprecated: Boolean!
   isFilled: Boolean!
   type: String!
   options: JSON
@@ -2151,18 +2137,10 @@ type MarketplaceAppDetail {
 type WorkspaceCompanyEnrichmentResult {
   outcome: WorkspaceCompanyEnrichmentOutcome!
   enrichment: JSON
-  personOutcome: WorkspacePersonEnrichmentOutcome!
-  personEnrichment: JSON
   isBookCallOnboardingStepPending: Boolean!
 }
 
 enum WorkspaceCompanyEnrichmentOutcome {
-  matched
-  unavailable
-  transientError
-}
-
-enum WorkspacePersonEnrichmentOutcome {
   matched
   unavailable
   transientError
@@ -3166,27 +3144,6 @@ enum MessageFolderPendingSyncAction {
   NONE
 }
 
-type MetadataTranslation {
-  metadataName: String!
-  recordId: UUID!
-  objectMetadataId: UUID
-  property: String!
-  locale: String!
-  sourceValue: String!
-  canonicalValue: String!
-  value: String!
-  provenance: MetadataTranslationProvenance!
-}
-
-"""
-Where a resolved metadata label comes from: a workspace-authored translation, a shipped application catalog, or inheritance from the canonical value
-"""
-enum MetadataTranslationProvenance {
-  WORKSPACE
-  SHIPPED
-  INHERITED
-}
-
 type CollectionHash {
   collectionName: AllMetadataName!
   hash: String!
@@ -3320,7 +3277,7 @@ type Query {
   findManyApplicationRegistrations: [ApplicationRegistration!]!
   findOneApplicationRegistration(id: String!): ApplicationRegistration!
   findApplicationRegistrationStats(id: String!): ApplicationRegistrationStats!
-  findApplicationRegistrationVariables(applicationRegistrationId: String!): [ApplicationRegistrationVariable!]!
+  findApplicationRegistrationVariables(applicationRegistrationId: String!): [ApplicationRegistrationVariableDTO!]!
   applicationRegistrationTarballUrl(id: String!): String
   findClaimableApplicationRegistration(sourcePackage: String, universalIdentifier: String): ClaimableApplicationRegistration
   githubClaimAuthorizationUrl(applicationRegistrationId: String!): String!
@@ -3369,7 +3326,6 @@ type Query {
   skills: [Skill!]!
   skill(id: UUID!): Skill
   agentTurns(agentId: UUID!): [AgentTurn!]!
-  metadataTranslations(input: MetadataTranslationsInput!): [MetadataTranslation!]!
   checkUserExists(email: String!, captchaToken: String): CheckUserExist!
   checkWorkspaceInviteHashIsValid(inviteHash: String!): WorkspaceInviteHashValid!
   findWorkspaceFromInviteHash(inviteHash: String!): Workspace!
@@ -3434,12 +3390,6 @@ input ListAppConnectionsInput {
   providerName: String
   userWorkspaceId: String
   visibility: String
-}
-
-input MetadataTranslationsInput {
-  objectMetadataId: UUID
-  fieldMetadataId: UUID
-  locale: String
 }
 
 input EventLogQueryInput {
@@ -3557,10 +3507,9 @@ type Mutation {
   assignRoleToApiKey(apiKeyId: UUID!, roleId: UUID!): Boolean!
   revokeUserSession(userSessionId: UUID!): Boolean!
   revokeAllOtherUserSessions: Int!
-  skipSyncEmailOnboardingStep(isAutoSkipped: Boolean! = false): OnboardingStepSuccess!
-  completeBookCallOnboardingStep(hasBookedCall: Boolean! = false, isAutoSkipped: Boolean! = false): OnboardingStepSuccess!
-  triggerInstallAppsOnboardingStep(universalIdentifiers: [String!]!, isAutoSkipped: Boolean! = false): OnboardingStepSuccess!
-  goBackToPreviousOnboardingStep: OnboardingStepNavigation!
+  skipSyncEmailOnboardingStep: OnboardingStepSuccess!
+  completeBookCallOnboardingStep: OnboardingStepSuccess!
+  triggerInstallAppsOnboardingStep(universalIdentifiers: [String!]!): OnboardingStepSuccess!
   updateOneApplicationVariable(key: String!, value: String!, applicationId: UUID!): Boolean!
   checkoutSession(recurringInterval: SubscriptionInterval!, plan: BillingPlanKey! = PRO, requirePaymentMethod: Boolean! = true, successUrlPath: String): BillingSession!
   createSubscriptionPaymentIntent(recurringInterval: SubscriptionInterval!, plan: BillingPlanKey! = PRO, requirePaymentMethod: Boolean! = true, successUrlPath: String, idempotencyKey: String!): BillingPaymentIntent!
@@ -3677,14 +3626,14 @@ type Mutation {
   createChatThread: AgentChatThread!
   sendChatMessage(threadId: UUID!, text: String!, messageId: UUID!, browsingContext: JSON, modelId: String, fileAttachments: [FileAttachmentInput!]): SendChatMessageResult!
   retryChatMessage(threadId: UUID!, modelId: String): SendChatMessageResult!
-  answerAgentChatQuestion(threadId: UUID!, messageId: UUID!, answers: [AgentChatQuestionAnswerInput!]!, modelId: String, fileAttachments: [FileAttachmentInput!]): SendChatMessageResult!
+  answerAgentChatQuestion(threadId: UUID!, messageId: UUID!, answers: [AgentChatQuestionAnswerInput!]!, modelId: String): SendChatMessageResult!
   stopAgentChatStream(threadId: UUID!): Boolean!
   renameChatThread(id: UUID!, title: String!): AgentChatThread!
   archiveChatThread(id: UUID!): AgentChatThread!
   unarchiveChatThread(id: UUID!): AgentChatThread!
   deleteChatThread(id: UUID!): Boolean!
   deleteQueuedChatMessage(messageId: UUID!): Boolean!
-  startWorkspaceSetupChat(companyContext: JSON, personContext: JSON): StartWorkspaceSetupChatResult!
+  startWorkspaceSetupChat(companyContext: JSON): StartWorkspaceSetupChatResult!
   createSkill(input: CreateSkillInput!): Skill!
   updateSkill(input: UpdateSkillInput!): Skill!
   deleteSkill(id: UUID!): Skill!
@@ -4324,13 +4273,6 @@ input UpdateObjectPayload {
   isLabelSyncedWithName: Boolean
   isSearchable: Boolean
   openRecordIn: ObjectOpenRecordIn
-  translations: [MetadataTranslationOverrideInput!]
-}
-
-input MetadataTranslationOverrideInput {
-  locale: String!
-  property: String!
-  value: String
 }
 
 input CreateOneIndexInput {
@@ -4585,7 +4527,6 @@ input UpdateFieldInput {
   objectMetadataId: UUID
   isLabelSyncedWithName: Boolean
   morphRelationsUpdatePayload: [JSON!]
-  translations: [MetadataTranslationOverrideInput!]
 }
 
 input DeleteOneFieldInput {

@@ -19,6 +19,7 @@ describe('generateFakeField', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default mock implementations
     generateFakeValueSpy.mockImplementation((type) => `fake-${type}`);
     camelToTitleCaseSpy.mockImplementation((str) => `Title ${str}`);
   });

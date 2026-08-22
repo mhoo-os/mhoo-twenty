@@ -109,6 +109,7 @@ export const useApolloFactory = (options: Partial<Options> = {}) => {
       },
       extraLinks: [],
       isDebugMode: process.env.IS_DEBUG_MODE === 'true',
+      // Override options
       ...options,
     });
 

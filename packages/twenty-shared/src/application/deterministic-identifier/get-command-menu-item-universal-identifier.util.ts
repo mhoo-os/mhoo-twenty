@@ -7,6 +7,7 @@ const NAVIGATION_COMMAND_DISCRIMINATOR = 'navigation';
 // RECORD_SELECTION, across objects). One util per availabilityType, prefixed by
 // the type, with the target object added only for RECORD_SELECTION.
 
+// GLOBAL: a command available everywhere, identified by its engineComponentKey.
 export const getGlobalCommandMenuItemUniversalIdentifier = ({
   applicationUniversalIdentifier,
   engineComponentKey,
@@ -53,6 +54,7 @@ export const getRecordSelectionCommandMenuItemUniversalIdentifier = ({
     applicationUniversalIdentifier,
   });
 
+// An object's singleton navigation command, keyed by the object + the 'navigation' role.
 export const getNavigationCommandUniversalIdentifier = ({
   applicationUniversalIdentifier,
   objectUniversalIdentifier,

@@ -52,13 +52,16 @@ export class WorkflowCreateManyPostQueryHook implements WorkspacePostQueryHookIn
     for (const workflow of payload) {
       await this.workflowVersionCoreSyncService.writeWorkflowVersionAndMirror(
         workspace.id,
-        async (workflowVersionRepository) => {
-          const insertResult = await workflowVersionRepository.insert({
-            workflowId: workflow.id,
-            status: WorkflowVersionStatus.DRAFT,
-            name: 'v1',
-            position,
-          });
+        async (workflowVersionRepository, entityManager) => {
+          const insertResult = await workflowVersionRepository.insert(
+            {
+              workflowId: workflow.id,
+              status: WorkflowVersionStatus.DRAFT,
+              name: 'v1',
+              position,
+            },
+            entityManager,
+          );
 
           return (
             insertResult.generatedMaps[0] as WorkflowVersionWorkspaceEntity

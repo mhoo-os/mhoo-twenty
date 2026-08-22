@@ -10,8 +10,6 @@ import {
 describe('removeWidgetFromTab', () => {
   const mockTabs: PageLayoutTab[] = [
     {
-      isSystemSideEffect: false,
-      universalIdentifier: 'universal-identifier-mock',
       id: 'tab-1',
       applicationId: '',
       isActive: true,
@@ -20,8 +18,6 @@ describe('removeWidgetFromTab', () => {
       pageLayoutId: 'layout-1',
       widgets: [
         {
-          isSystemSideEffect: false,
-          universalIdentifier: 'universal-identifier-mock',
           __typename: 'PageLayoutWidget' as const,
           id: 'widget-1',
           applicationId: '',
@@ -42,8 +38,6 @@ describe('removeWidgetFromTab', () => {
           deletedAt: null,
         },
         {
-          isSystemSideEffect: false,
-          universalIdentifier: 'universal-identifier-mock',
           __typename: 'PageLayoutWidget' as const,
           id: 'widget-2',
           applicationId: '',
@@ -71,8 +65,6 @@ describe('removeWidgetFromTab', () => {
       deletedAt: null,
     },
     {
-      isSystemSideEffect: false,
-      universalIdentifier: 'universal-identifier-mock',
       id: 'tab-2',
       applicationId: '',
       isActive: true,
@@ -81,8 +73,6 @@ describe('removeWidgetFromTab', () => {
       pageLayoutId: 'layout-1',
       widgets: [
         {
-          isSystemSideEffect: false,
-          universalIdentifier: 'universal-identifier-mock',
           __typename: 'PageLayoutWidget' as const,
           id: 'widget-3',
           applicationId: '',

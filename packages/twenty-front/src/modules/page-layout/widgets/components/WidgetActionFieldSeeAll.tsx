@@ -1,7 +1,13 @@
+import { useFieldMetadataItemById } from '@/object-metadata/hooks/useFieldMetadataItemById';
+import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
+import { formatFieldMetadataItemAsColumnDefinition } from '@/object-metadata/utils/formatFieldMetadataItemAsColumnDefinition';
+import { type FieldRelationMetadata } from '@/object-record/record-field/ui/types/FieldMetadata';
 import { isFieldRelation } from '@/object-record/record-field/ui/types/guards/isFieldRelation';
-import { type PageLayoutWidget } from '@/page-layout/types/PageLayoutWidget';
-import { useFieldWidgetFieldDefinition } from '@/page-layout/widgets/field/hooks/useFieldWidgetFieldDefinition';
+import { hasJunctionConfig } from '@/object-record/record-field/ui/utils/junction/hasJunctionConfig';
+import { useResolveFieldMetadataIdFromNameOrId } from '@/page-layout/hooks/useResolveFieldMetadataIdFromNameOrId';
+import { isFieldWidget } from '@/page-layout/widgets/field/utils/isFieldWidget';
+import { useCurrentWidget } from '@/page-layout/widgets/hooks/useCurrentWidget';
 import { useTargetRecord } from '@/ui/layout/contexts/useTargetRecord';
 import { useAtomFamilySelectorValue } from '@/ui/utilities/state/jotai/hooks/useAtomFamilySelectorValue';
 import { indexViewIdFromObjectMetadataItemFamilySelector } from '@/views/states/selectors/indexViewIdFromObjectMetadataItemFamilySelector';
@@ -11,8 +17,9 @@ import { Link } from 'react-router-dom';
 import { AppPath, ViewFilterOperand } from 'twenty-shared/types';
 import { getAppPath, isDefined } from 'twenty-shared/utils';
 import { IconArrowUpRight } from 'twenty-ui/icon';
-import { LightIconButton } from 'twenty-ui/input';
 import { AppTooltip, TooltipDelay, TooltipPosition } from 'twenty-ui/surfaces';
+import { LightIconButton } from 'twenty-ui/input';
+import { RelationType } from '~/generated-metadata/graphql';
 
 const StyledLinkContainer = styled.div`
   display: flex;
@@ -22,23 +29,49 @@ const StyledLinkContainer = styled.div`
   }
 `;
 
-type WidgetActionFieldSeeAllProps = {
-  widget: PageLayoutWidget;
-};
+const StyledSeeAllButtonWrapper = styled.div`
+  opacity: 1;
+  pointer-events: auto;
+`;
 
-export const WidgetActionFieldSeeAll = ({
-  widget,
-}: WidgetActionFieldSeeAllProps) => {
+export const WidgetActionFieldSeeAll = () => {
+  const widget = useCurrentWidget();
   const targetRecord = useTargetRecord();
 
-  const { fieldDefinition } = useFieldWidgetFieldDefinition(widget);
+  const { objectMetadataItem } = useObjectMetadataItem({
+    objectNameSingular: targetRecord.targetObjectNameSingular,
+  });
+
+  const fieldMetadataId = isFieldWidget(widget)
+    ? widget.configuration.fieldMetadataId
+    : undefined;
+
+  const resolvedFieldMetadataId = useResolveFieldMetadataIdFromNameOrId(
+    fieldMetadataId ?? '',
+  );
+
+  const { fieldMetadataItem } = useFieldMetadataItemById(
+    resolvedFieldMetadataId ?? '',
+  );
+
+  const fieldDefinition = isDefined(fieldMetadataItem)
+    ? formatFieldMetadataItemAsColumnDefinition({
+        field: fieldMetadataItem,
+        position: 0,
+        objectMetadataItem,
+        showLabel: true,
+        labelWidth: 90,
+      })
+    : null;
 
   const relationMetadata =
     isDefined(fieldDefinition) && isFieldRelation(fieldDefinition)
-      ? fieldDefinition.metadata
+      ? (fieldDefinition.metadata as FieldRelationMetadata)
       : null;
 
   const { objectMetadataItems } = useObjectMetadataItems();
+
+  const isJunction = hasJunctionConfig(relationMetadata?.settings);
 
   const relationObjectMetadataItem = objectMetadataItems.find(
     (item) =>
@@ -50,15 +83,23 @@ export const WidgetActionFieldSeeAll = ({
     ({ id }) => id === relationMetadata?.relationFieldMetadataId,
   );
 
+  const targetObjectMetadataItem = relationObjectMetadataItem;
+
   const indexViewId = useAtomFamilySelectorValue(
     indexViewIdFromObjectMetadataItemFamilySelector,
-    { objectMetadataItemId: relationObjectMetadataItem?.id ?? '' },
+    { objectMetadataItemId: targetObjectMetadataItem?.id ?? '' },
   );
 
   if (
-    !isDefined(relationObjectMetadataItem) ||
-    !isDefined(relationFieldMetadataItem)
+    !isDefined(relationMetadata) ||
+    relationMetadata.relationType !== RelationType.ONE_TO_MANY ||
+    !isDefined(targetObjectMetadataItem) ||
+    isJunction
   ) {
+    return null;
+  }
+
+  if (!isDefined(relationFieldMetadataItem)) {
     return null;
   }
 
@@ -76,14 +117,14 @@ export const WidgetActionFieldSeeAll = ({
   const filterLinkHref = getAppPath(
     AppPath.RecordIndexPage,
     {
-      objectNamePlural: relationObjectMetadataItem.namePlural,
+      objectNamePlural: targetObjectMetadataItem.namePlural,
     },
     filterQueryParams,
   );
 
   const tooltipId = `widget-see-all-${widget.id}`;
   const relationLabelPlural =
-    relationObjectMetadataItem.labelPlural.toLowerCase();
+    targetObjectMetadataItem.labelPlural.toLowerCase();
   const tooltipContent = t`See all ${relationLabelPlural} linked to this record`;
 
   return (
@@ -91,7 +132,9 @@ export const WidgetActionFieldSeeAll = ({
       <div id={tooltipId}>
         <StyledLinkContainer>
           <Link to={filterLinkHref} data-testid="widget-see-all-link">
-            <LightIconButton Icon={IconArrowUpRight} accent="secondary" />
+            <StyledSeeAllButtonWrapper>
+              <LightIconButton Icon={IconArrowUpRight} accent="secondary" />
+            </StyledSeeAllButtonWrapper>
           </Link>
         </StyledLinkContainer>
       </div>

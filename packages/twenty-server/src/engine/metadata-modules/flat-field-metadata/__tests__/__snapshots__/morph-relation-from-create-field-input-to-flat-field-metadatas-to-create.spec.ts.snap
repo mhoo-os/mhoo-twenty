@@ -151,7 +151,6 @@ exports[`fromCreateFieldInputToFlatFieldMetadatasToCreate MORPH_RELATION test su
         "viewFieldUniversalIdentifiers": [],
         "viewFilterUniversalIdentifiers": [],
         "viewSortUniversalIdentifiers": [],
-        "writability": "OPEN",
       },
       {
         "applicationUniversalIdentifier": Any<String>,
@@ -191,7 +190,6 @@ exports[`fromCreateFieldInputToFlatFieldMetadatasToCreate MORPH_RELATION test su
         "viewFieldUniversalIdentifiers": [],
         "viewFilterUniversalIdentifiers": [],
         "viewSortUniversalIdentifiers": [],
-        "writability": "OPEN",
       },
       {
         "applicationUniversalIdentifier": Any<String>,
@@ -229,7 +227,6 @@ exports[`fromCreateFieldInputToFlatFieldMetadatasToCreate MORPH_RELATION test su
         "viewFieldUniversalIdentifiers": [],
         "viewFilterUniversalIdentifiers": [],
         "viewSortUniversalIdentifiers": [],
-        "writability": "OPEN",
       },
       {
         "applicationUniversalIdentifier": Any<String>,
@@ -269,7 +266,6 @@ exports[`fromCreateFieldInputToFlatFieldMetadatasToCreate MORPH_RELATION test su
         "viewFieldUniversalIdentifiers": [],
         "viewFilterUniversalIdentifiers": [],
         "viewSortUniversalIdentifiers": [],
-        "writability": "OPEN",
       },
     ],
     "indexMetadatas": [

@@ -1,9 +1,7 @@
 import { TWENTY_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER } from '@/application/constants/TwentyStandardApplicationUniversalIdentifier';
 import { getSystemViewFieldUniversalIdentifier } from '@/application/deterministic-identifier/get-system-view-field-universal-identifier.util';
-import {
-  getSystemViewUniversalIdentifier,
-  SYSTEM_VIEW_KEYS,
-} from '@/application/deterministic-identifier/get-system-view-universal-identifier.util';
+import { getSystemViewUniversalIdentifier } from '@/application/deterministic-identifier/get-system-view-universal-identifier.util';
+import { ViewKey } from '@/types/ViewKey';
 
 type StandardViewFieldUniversalIdentifier = { universalIdentifier: string };
 
@@ -25,7 +23,7 @@ export const buildStandardObjectIndexView = <
     objectMetadataApplicationUniversalIdentifier:
       TWENTY_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
     objectUniversalIdentifier,
-    viewKey: SYSTEM_VIEW_KEYS.INDEX,
+    viewKey: ViewKey.INDEX,
   });
 
   const viewFields = Object.fromEntries(

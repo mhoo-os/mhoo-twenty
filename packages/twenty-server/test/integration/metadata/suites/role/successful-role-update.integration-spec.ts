@@ -195,6 +195,7 @@ describe('Role update should succeed', () => {
   });
 
   it('should update role to read=false when explicitly setting all write permissions to false', async () => {
+    // First update the role to have write permissions
     await updateOneRole({
       expectToFail: false,
       input: {
@@ -207,6 +208,7 @@ describe('Role update should succeed', () => {
       },
     });
 
+    // Now update to read=false with all write permissions explicitly set to false
     const { data, errors } = await updateOneRole({
       expectToFail: false,
       input: {
@@ -232,6 +234,7 @@ describe('Role update should succeed', () => {
   });
 
   it('should update role from read=true to read=false with all write=false', async () => {
+    // Start with read=true, write=false (default from beforeEach)
     const { data, errors } = await updateOneRole({
       expectToFail: false,
       input: {

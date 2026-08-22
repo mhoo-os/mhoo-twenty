@@ -91,9 +91,7 @@ const StyledTitle = styled.div`
 
   @media (max-width: 600px) {
     flex-wrap: wrap;
-    font-size: 20px;
-    max-width: calc(90vw / var(--t-zoom, 1));
-    padding: ${themeCssVariables.spacing[4]} ${themeCssVariables.spacing[2]};
+    max-width: 90vw;
   }
 
   &.is-leaving {
@@ -146,10 +144,8 @@ const StyledTitle = styled.div`
 const StyledTitleBoldRun = styled.span`
   align-items: center;
   display: inline-flex;
-  flex-wrap: wrap;
   gap: ${themeCssVariables.spacing[2]};
-  justify-content: center;
-  white-space: normal;
+  white-space: nowrap;
 
   .is-flying & {
     animation: welcomeTitleBoldRunOut 0.38s ease 0.12s forwards;

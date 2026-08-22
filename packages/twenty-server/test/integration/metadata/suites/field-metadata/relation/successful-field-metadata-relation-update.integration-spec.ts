@@ -316,6 +316,7 @@ describe('Field metadata self-relation update should succeed', () => {
     const mentorFieldId = createdField.id;
     const menteesFieldId = createdField.relation.targetFieldMetadata.id;
 
+    // Update the MANY_TO_ONE side
     const { data: mentorUpdateData } = await updateOneFieldMetadata({
       expectToFail: false,
       input: {
@@ -338,6 +339,7 @@ describe('Field metadata self-relation update should succeed', () => {
       description: 'The mentor of this person',
     });
 
+    // Update the ONE_TO_MANY side
     const { data: menteesUpdateData } = await updateOneFieldMetadata({
       expectToFail: false,
       input: {

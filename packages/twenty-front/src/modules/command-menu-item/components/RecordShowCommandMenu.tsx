@@ -1,4 +1,3 @@
-import { CommandMenuItemContainerType } from '@/command-menu-item/types/CommandMenuItemContainerType';
 import { CommandMenuContextProvider } from '@/command-menu-item/contexts/CommandMenuContextProvider';
 import { PinnedCommandMenuItemButtons } from '@/command-menu-item/display/components/PinnedCommandMenuItemButtons';
 import { CommandMenuItemEditButton } from '@/command-menu-item/edit/components/CommandMenuItemEditButton';
@@ -8,6 +7,7 @@ import { contextStoreTargetedRecordsRuleComponentState } from '@/context-store/s
 import { isLayoutCustomizationModeEnabledState } from '@/layout-customization/states/isLayoutCustomizationModeEnabledState';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+import { useIsMobile } from 'twenty-ui/utilities';
 
 export const RecordShowCommandMenu = () => {
   const contextStoreCurrentObjectMetadataItemId = useAtomComponentStateValue(
@@ -24,6 +24,7 @@ export const RecordShowCommandMenu = () => {
     contextStoreTargetedRecordsRule.mode === 'selection' &&
     contextStoreTargetedRecordsRule.selectedRecordIds.length === 1;
 
+  const isMobile = useIsMobile();
   const isLayoutCustomizationModeEnabled = useAtomStateValue(
     isLayoutCustomizationModeEnabledState,
   );
@@ -35,10 +36,10 @@ export const RecordShowCommandMenu = () => {
           <CommandMenuContextProvider
             isInSidePanel={false}
             displayType="button"
-            containerType={CommandMenuItemContainerType.ShowPageHeader}
+            containerType="show-page-header"
             isInPreviewMode={isLayoutCustomizationModeEnabled}
           >
-            <PinnedCommandMenuItemButtons />
+            {!isMobile && <PinnedCommandMenuItemButtons />}
           </CommandMenuContextProvider>
           <CommandMenuItemEditButton />
         </>

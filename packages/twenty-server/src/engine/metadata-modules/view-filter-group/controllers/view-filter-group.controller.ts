@@ -35,9 +35,10 @@ import {
 } from 'src/engine/metadata-modules/view-filter-group/exceptions/view-filter-group.exception';
 import { ViewFilterGroupRestApiExceptionFilter } from 'src/engine/metadata-modules/view-filter-group/filters/view-filter-group-rest-api-exception.filter';
 import { ViewFilterGroupService } from 'src/engine/metadata-modules/view-filter-group/services/view-filter-group.service';
+import { CreateViewFilterGroupPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/create-view-filter-group-permission.guard';
+import { DeleteViewFilterGroupPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/delete-view-filter-group-permission.guard';
+import { UpdateViewFilterGroupPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/update-view-filter-group-permission.guard';
 import { WorkspaceMigrationRunnerRestApiExceptionFilter } from 'src/engine/workspace-manager/workspace-migration/filters/workspace-migration-runner-rest-api-exception.filter';
-import { CreateViewChildEntityPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/create-view-child-entity-permission.guard';
-import { ViewChildEntityPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/view-child-entity-permission.guard';
 
 @Controller(`${ApiPath.Rest}/metadata/viewFilterGroups`)
 @UseGuards(WorkspaceAuthGuard)
@@ -97,7 +98,7 @@ export class ViewFilterGroupController {
   }
 
   @Post()
-  @UseGuards(CreateViewChildEntityPermissionGuard)
+  @UseGuards(CreateViewFilterGroupPermissionGuard)
   async create(
     @Body() input: CreateViewFilterGroupInput,
     @AuthWorkspace() workspace: WorkspaceEntity,
@@ -109,7 +110,7 @@ export class ViewFilterGroupController {
   }
 
   @Patch(':id')
-  @UseGuards(ViewChildEntityPermissionGuard('viewFilterGroup'))
+  @UseGuards(UpdateViewFilterGroupPermissionGuard)
   async update(
     @Param('id') id: string,
     @Body() input: UpdateViewFilterGroupInput,
@@ -123,7 +124,7 @@ export class ViewFilterGroupController {
   }
 
   @Delete(':id')
-  @UseGuards(ViewChildEntityPermissionGuard('viewFilterGroup'))
+  @UseGuards(DeleteViewFilterGroupPermissionGuard)
   async delete(
     @Param('id') id: string,
     @AuthWorkspace() workspace: WorkspaceEntity,

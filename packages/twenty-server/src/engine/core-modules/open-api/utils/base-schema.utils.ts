@@ -136,6 +136,7 @@ curl -H 'Authorization: Bearer <token>' \\
       },
       version: API_Version,
     },
+    // Testing purposes
     servers: [
       {
         url: `${serverUrl}/${ApiPath.Rest}/${schemaName !== 'core' ? schemaName : ''}`,

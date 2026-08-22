@@ -297,6 +297,7 @@ describe('useGetPlaceApiData', () => {
         wrapper: createWrapper(mocks),
       });
 
+      // First get autocomplete results
       const autocompleteData = await result.current.getPlaceAutocompleteData(
         'Paris',
         'test-token',

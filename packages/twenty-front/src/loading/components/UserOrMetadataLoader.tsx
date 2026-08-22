@@ -10,7 +10,7 @@ const StyledContainer = styled.div`
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
-  height: calc(100dvh / var(--t-zoom, 1));
+  height: 100dvh;
   min-width: ${NAVIGATION_DRAWER_CONSTRAINTS.default}px;
   overflow: hidden;
   width: 100%;

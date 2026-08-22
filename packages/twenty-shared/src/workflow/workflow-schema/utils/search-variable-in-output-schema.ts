@@ -52,6 +52,8 @@ const stripBrackets = (rawVariableName: string): string =>
     (_, variableName) => variableName,
   );
 
+// Record output schema navigation
+
 const getFieldFromSchema = (
   fieldKey: string,
   recordSchema: RecordFieldNodeValue,
@@ -175,6 +177,8 @@ export const searchRecordOutputSchema = ({
   );
 };
 
+// Base output schema navigation
+
 const navigateBaseToTargetField = (
   startingSchema: BaseOutputSchemaV2,
   pathSegments: string[],
@@ -236,6 +240,8 @@ const searchBaseOutputSchema = ({
     variableType: targetField.type,
   };
 };
+
+// Per-schema-type search functions
 
 const searchThroughRecordOutputSchema = ({
   stepName,
@@ -656,6 +662,8 @@ const searchThroughManualTriggerOutputSchema = ({
 
   return EMPTY_RESULT;
 };
+
+// Main dispatcher
 
 export const searchVariableInOutputSchema = ({
   schema,

@@ -5,14 +5,12 @@ import { isDefined } from 'twenty-shared/utils';
 import { MOBILE_VIEWPORT, themeCssVariables } from 'twenty-ui/theme-constants';
 
 import { HorizontalScrollBoxShadowCSS } from '@/object-record/record-table/components/HorizontalScrollBoxShadowCSS';
-import {
-  getRecordTableColumnWidthInlineStyles,
-  RECORD_TABLE_CHECKBOX_WIDTH_CSS_VAR,
-  RECORD_TABLE_DRAG_DROP_WIDTH_CSS_VAR,
-} from '@/object-record/record-table/components/RecordTableStyleWrapper';
+import { getRecordTableColumnWidthInlineStyles } from '@/object-record/record-table/components/RecordTableStyleWrapper';
 import { RECORD_TABLE_COLUMN_ADD_COLUMN_BUTTON_WIDTH } from '@/object-record/record-table/constants/RecordTableColumnAddColumnButtonWidth';
 import { RECORD_TABLE_COLUMN_ADD_COLUMN_BUTTON_WIDTH_CLASS_NAME } from '@/object-record/record-table/constants/RecordTableColumnAddColumnButtonWidthClassName';
+import { RECORD_TABLE_COLUMN_CHECKBOX_WIDTH } from '@/object-record/record-table/constants/RecordTableColumnCheckboxWidth';
 import { RECORD_TABLE_COLUMN_CHECKBOX_WIDTH_CLASS_NAME } from '@/object-record/record-table/constants/RecordTableColumnCheckboxWidthClassName';
+import { RECORD_TABLE_COLUMN_DRAG_AND_DROP_WIDTH } from '@/object-record/record-table/constants/RecordTableColumnDragAndDropWidth';
 import { RECORD_TABLE_COLUMN_DRAG_AND_DROP_WIDTH_CLASS_NAME } from '@/object-record/record-table/constants/RecordTableColumnDragAndDropWidthClassName';
 import { RECORD_TABLE_COLUMN_LAST_EMPTY_COLUMN_WIDTH_CLASS_NAME } from '@/object-record/record-table/constants/RecordTableColumnLastEmptyColumnWidthClassName';
 import { RECORD_TABLE_COLUMN_LAST_EMPTY_COLUMN_WIDTH_VARIABLE_NAME } from '@/object-record/record-table/constants/RecordTableColumnLastEmptyColumnWidthVariableName';
@@ -21,10 +19,7 @@ import { RECORD_TABLE_LABEL_IDENTIFIER_COLUMN_WIDTH_ON_MOBILE } from '@/object-r
 import { TABLE_Z_INDEX } from '@/object-record/record-table/constants/TableZIndex';
 import { useRecordTableContextOrThrow } from '@/object-record/record-table/contexts/RecordTableContext';
 import { RecordTableRowDraggableContextProvider } from '@/object-record/record-table/contexts/RecordTableRowDraggableContext';
-import { useIsRecordTableCheckboxColumnHidden } from '@/object-record/record-table/hooks/useIsRecordTableCheckboxColumnHidden';
 import { useRecordTableLastColumnWidthToFill } from '@/object-record/record-table/hooks/useRecordTableLastColumnWidthToFill';
-import { isRecordTableDragColumnHiddenComponentState } from '@/object-record/record-table/states/isRecordTableDragColumnHiddenComponentState';
-import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { RecordTableCellCheckbox } from '@/object-record/record-table/record-table-cell/components/RecordTableCellCheckbox';
 import { RecordTableCellDragAndDrop } from '@/object-record/record-table/record-table-cell/components/RecordTableCellDragAndDrop';
 import { RecordTableLastEmptyCell } from '@/object-record/record-table/record-table-cell/components/RecordTableLastEmptyCell';
@@ -76,26 +71,20 @@ const StyledRowDragOverlayCSSBridge = styled.div`
   }
 
   div.table-cell.${RECORD_TABLE_COLUMN_CHECKBOX_WIDTH_CLASS_NAME} {
-    left: var(${RECORD_TABLE_DRAG_DROP_WIDTH_CSS_VAR});
+    left: ${RECORD_TABLE_COLUMN_DRAG_AND_DROP_WIDTH}px;
     position: sticky;
     z-index: ${TABLE_Z_INDEX.cell.sticky};
   }
 
   div.table-cell-0-0 {
-    left: calc(
-      var(${RECORD_TABLE_DRAG_DROP_WIDTH_CSS_VAR}) +
-        var(${RECORD_TABLE_CHECKBOX_WIDTH_CSS_VAR})
-    );
+    left: ${`${RECORD_TABLE_COLUMN_DRAG_AND_DROP_WIDTH + RECORD_TABLE_COLUMN_CHECKBOX_WIDTH}px`};
     position: sticky;
 
     ${HorizontalScrollBoxShadowCSS}
   }
 
   div.table-cell.${getRecordTableColumnFieldWidthClassName(0)} {
-    left: calc(
-      var(${RECORD_TABLE_DRAG_DROP_WIDTH_CSS_VAR}) +
-        var(${RECORD_TABLE_CHECKBOX_WIDTH_CSS_VAR})
-    );
+    left: ${`${RECORD_TABLE_COLUMN_DRAG_AND_DROP_WIDTH + RECORD_TABLE_COLUMN_CHECKBOX_WIDTH}px`};
     position: sticky;
     z-index: ${TABLE_Z_INDEX.cell.sticky};
 
@@ -103,15 +92,15 @@ const StyledRowDragOverlayCSSBridge = styled.div`
   }
 
   div.${RECORD_TABLE_COLUMN_DRAG_AND_DROP_WIDTH_CLASS_NAME} {
-    max-width: var(${RECORD_TABLE_DRAG_DROP_WIDTH_CSS_VAR});
-    min-width: var(${RECORD_TABLE_DRAG_DROP_WIDTH_CSS_VAR});
-    width: var(${RECORD_TABLE_DRAG_DROP_WIDTH_CSS_VAR});
+    max-width: ${RECORD_TABLE_COLUMN_DRAG_AND_DROP_WIDTH}px;
+    min-width: ${RECORD_TABLE_COLUMN_DRAG_AND_DROP_WIDTH}px;
+    width: ${RECORD_TABLE_COLUMN_DRAG_AND_DROP_WIDTH}px;
   }
 
   div.${RECORD_TABLE_COLUMN_CHECKBOX_WIDTH_CLASS_NAME} {
-    max-width: var(${RECORD_TABLE_CHECKBOX_WIDTH_CSS_VAR});
-    min-width: var(${RECORD_TABLE_CHECKBOX_WIDTH_CSS_VAR});
-    width: var(${RECORD_TABLE_CHECKBOX_WIDTH_CSS_VAR});
+    max-width: ${RECORD_TABLE_COLUMN_CHECKBOX_WIDTH}px;
+    min-width: ${RECORD_TABLE_COLUMN_CHECKBOX_WIDTH}px;
+    width: ${RECORD_TABLE_COLUMN_CHECKBOX_WIDTH}px;
   }
 
   div.${RECORD_TABLE_COLUMN_ADD_COLUMN_BUTTON_WIDTH_CLASS_NAME} {
@@ -150,13 +139,6 @@ export const RecordTableRowDragOverlayContent = ({
 
   const { visibleRecordFields, recordTableId } = useRecordTableContextOrThrow();
 
-  const isRecordTableDragColumnHidden = useAtomComponentStateValue(
-    isRecordTableDragColumnHiddenComponentState,
-  );
-
-  const isRecordTableCheckboxColumnHidden =
-    useIsRecordTableCheckboxColumnHidden();
-
   const { scrollWrapperHTMLElement } = useScrollWrapperHTMLElement(
     `record-table-scroll-${recordTableId}`,
   );
@@ -165,23 +147,14 @@ export const RecordTableRowDragOverlayContent = ({
 
   const columnWidthStyles = useMemo(() => {
     const styles: Record<string, string> =
-      getRecordTableColumnWidthInlineStyles({
-        visibleRecordFields,
-        isDragColumnHidden: isRecordTableDragColumnHidden,
-        isCheckboxColumnHidden: isRecordTableCheckboxColumnHidden,
-      });
+      getRecordTableColumnWidthInlineStyles({ visibleRecordFields });
     styles[RECORD_TABLE_COLUMN_LAST_EMPTY_COLUMN_WIDTH_VARIABLE_NAME] =
       `${lastColumnWidth}px`;
     styles[
       RECORD_TABLE_COLUMN_WITH_GROUP_LAST_EMPTY_COLUMN_WIDTH_VARIABLE_NAME
     ] = `${lastColumnWidth}px`;
     return styles;
-  }, [
-    visibleRecordFields,
-    lastColumnWidth,
-    isRecordTableDragColumnHidden,
-    isRecordTableCheckboxColumnHidden,
-  ]);
+  }, [visibleRecordFields, lastColumnWidth]);
 
   const sourceData = source?.data as RecordTableRowDragData | undefined;
 
@@ -213,8 +186,8 @@ export const RecordTableRowDragOverlayContent = ({
           onClick={() => {}}
         >
           <RecordTableRowDraggableContextProvider value={{ isDragging: true }}>
-            {!isRecordTableDragColumnHidden && <RecordTableCellDragAndDrop />}
-            {!isRecordTableCheckboxColumnHidden && <RecordTableCellCheckbox />}
+            <RecordTableCellDragAndDrop />
+            <RecordTableCellCheckbox />
             <RecordTableFieldsCells />
             <RecordTablePlusButtonCellPlaceholder />
             <RecordTableLastEmptyCell />

@@ -38,8 +38,8 @@ export class WorkspaceCacheMetricsService {
   private readonly logger = new Logger(WorkspaceCacheMetricsService.name);
   private readonly recomputeDurationHistogram: Histogram;
   private readonly redisWriteDurationHistogram: Histogram;
-  private readonly packingDurationHistogram: Histogram;
-  private readonly unpackingDurationHistogram: Histogram;
+  private readonly demotionDurationHistogram: Histogram;
+  private readonly hydrationDurationHistogram: Histogram;
 
   private localCache?: LocalCache;
   private cacheSizeByKeyName: Record<string, number> = {};
@@ -48,7 +48,7 @@ export class WorkspaceCacheMetricsService {
   private sizeStartupTimer?: ReturnType<typeof setTimeout>;
   private statsCache?: { computedAt: number } & LocalCacheStats;
   private sizeSampleInFlight = false;
-  private packingBacklog = 0;
+  private demotionBacklog = 0;
 
   constructor(private readonly metricsService: MetricsService) {
     const meter = this.metricsService.getMeter();
@@ -71,19 +71,20 @@ export class WorkspaceCacheMetricsService {
         advice: { explicitBucketBoundaries: CACHE_DURATION_BUCKETS_SECONDS },
       },
     );
-    this.packingDurationHistogram = meter.createHistogram(
-      'twenty_workspace_cache_packing_run_duration_seconds',
+    this.demotionDurationHistogram = meter.createHistogram(
+      'twenty_workspace_cache_demotion_slice_duration_seconds',
       {
-        description: 'Event loop time consumed by one packing run',
+        description:
+          'Event loop time consumed by one cold-storage demotion slice',
         unit: 's',
         advice: { explicitBucketBoundaries: CACHE_DURATION_BUCKETS_SECONDS },
       },
     );
-    this.unpackingDurationHistogram = meter.createHistogram(
-      'twenty_workspace_cache_unpacking_duration_seconds',
+    this.hydrationDurationHistogram = meter.createHistogram(
+      'twenty_workspace_cache_hydration_duration_seconds',
       {
         description:
-          'Wall-clock time to unpack one packed cache version back into objects on read',
+          'Wall-clock time to hydrate one cold cache entry back into objects on read',
         unit: 's',
         advice: { explicitBucketBoundaries: CACHE_DURATION_BUCKETS_SECONDS },
       },
@@ -113,30 +114,30 @@ export class WorkspaceCacheMetricsService {
     this.redisWriteDurationHistogram.record(seconds);
   }
 
-  recordPackingRun({
+  recordDemotionSlice({
     durationSeconds,
-    packed,
-    pending,
+    demoted,
+    remaining,
   }: {
     durationSeconds: number;
-    packed: number;
-    pending: number;
+    demoted: number;
+    remaining: number;
   }): void {
-    this.packingBacklog = pending;
+    this.demotionBacklog = remaining;
 
-    if (packed === 0) {
+    if (demoted === 0) {
       return;
     }
 
-    this.packingDurationHistogram.record(durationSeconds);
+    this.demotionDurationHistogram.record(durationSeconds);
     this.metricsService.incrementCounterBy({
-      key: MetricsKeys.WorkspaceMetadataCachePacked,
-      amount: packed,
+      key: MetricsKeys.WorkspaceMetadataCacheDemoted,
+      amount: demoted,
     });
   }
 
-  recordUnpacking(seconds: number, cacheKey: WorkspaceCacheKeyName): void {
-    this.unpackingDurationHistogram.record(seconds, { cache_key: cacheKey });
+  recordHydration(seconds: number, cacheKey: WorkspaceCacheKeyName): void {
+    this.hydrationDurationHistogram.record(seconds, { cache_key: cacheKey });
   }
 
   recordEviction(amount: number): void {
@@ -215,7 +216,7 @@ export class WorkspaceCacheMetricsService {
 
         for (const version of entry.versions.values()) {
           entryBytes +=
-            version.state === 'packed'
+            version.state === 'cold'
               ? version.blob.byteLength
               : deepSizeBytes(version.data, SIZE_WALK_NODE_CAP);
         }
@@ -318,59 +319,59 @@ export class WorkspaceCacheMetricsService {
       metricName: 'twenty_workspace_cache_local_versions_by_state',
       options: {
         description:
-          'Local workspace metadata cache versions by tier (live or packed) and provider',
+          'Local workspace metadata cache versions by storage state and provider',
       },
       callback: async () => {
         const stats = this.getStats();
 
         return [
-          ...Object.entries(stats.liveVersionsByKeyName).map(
+          ...Object.entries(stats.hotVersionsByKeyName).map(
             ([keyName, value]) => ({
               value,
-              attributes: { provider: keyName, state: 'live' },
+              attributes: { provider: keyName, state: 'hot' },
             }),
           ),
-          ...Object.entries(stats.packedVersionsByKeyName).map(
+          ...Object.entries(stats.coldVersionsByKeyName).map(
             ([keyName, value]) => ({
               value,
-              attributes: { provider: keyName, state: 'packed' },
+              attributes: { provider: keyName, state: 'cold' },
             }),
           ),
         ];
       },
     });
     this.metricsService.createObservableGauge({
-      metricName: 'twenty_workspace_cache_local_live_versions',
+      metricName: 'twenty_workspace_cache_local_hot_versions',
       options: {
         description:
-          'Total live (object graph) versions in the local workspace metadata cache',
+          'Total hot (live object) versions in the local workspace metadata cache',
       },
-      callback: async () => this.getStats().liveVersionsTotal,
+      callback: async () => this.getStats().hotVersionsTotal,
     });
     this.metricsService.createObservableGauge({
-      metricName: 'twenty_workspace_cache_local_packed_versions',
+      metricName: 'twenty_workspace_cache_local_cold_versions',
       options: {
         description:
-          'Total packed (serialized buffer) versions in the local workspace metadata cache',
+          'Total cold (serialized buffer) versions in the local workspace metadata cache',
       },
-      callback: async () => this.getStats().packedVersionsTotal,
+      callback: async () => this.getStats().coldVersionsTotal,
     });
     this.metricsService.createObservableGauge({
-      metricName: 'twenty_workspace_cache_local_packed_bytes',
+      metricName: 'twenty_workspace_cache_local_cold_bytes',
       options: {
         description:
-          'Exact retained bytes held as packed buffers in the local workspace metadata cache',
+          'Exact retained bytes held as cold buffers in the local workspace metadata cache',
         unit: 'By',
       },
-      callback: async () => this.getStats().packedBytesTotal,
+      callback: async () => this.getStats().coldBytesTotal,
     });
     this.metricsService.createObservableGauge({
-      metricName: 'twenty_workspace_cache_packing_backlog',
+      metricName: 'twenty_workspace_cache_demotion_backlog',
       options: {
         description:
-          'Versions currently eligible for packing, whether or not the last run reached them',
+          'Entries still awaiting demotion when the last demotion slice ran out of budget',
       },
-      callback: async () => this.packingBacklog,
+      callback: async () => this.demotionBacklog,
     });
   }
 }

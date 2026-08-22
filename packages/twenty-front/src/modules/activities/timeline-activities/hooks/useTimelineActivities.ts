@@ -2,12 +2,11 @@ import { useCallback, useMemo } from 'react';
 
 import { useLinkedObjectsTitle } from '@/activities/timeline-activities/hooks/useLinkedObjectsTitle';
 import { type TimelineActivity } from '@/activities/timeline-activities/types/TimelineActivity';
-import { getTimelineActivityRecordGqlFields } from '@/activities/timeline-activities/utils/getTimelineActivityRecordGqlFields';
 import { type ActivityTargetableObject } from '@/activities/types/ActivityTargetableEntity';
 import { useListenToObjectRecordOperationBrowserEvent } from '@/browser-event/hooks/useListenToObjectRecordOperationBrowserEvent';
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
-import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
+import { useGenerateDepthRecordGqlFieldsFromObject } from '@/object-record/graphql/record-gql-fields/hooks/useGenerateDepthRecordGqlFieldsFromObject';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useListenToEventsForQuery } from '@/sse-db-event/hooks/useListenToEventsForQuery';
 import {
@@ -16,6 +15,7 @@ import {
 } from 'twenty-shared/types';
 import { capitalize, isDefined } from 'twenty-shared/utils';
 
+// do we need to test this?
 export const useTimelineActivities = (
   targetableObject: ActivityTargetableObject,
 ) => {
@@ -36,8 +36,6 @@ export const useTimelineActivities = (
     });
 
   const { objectMetadataItems } = useFilteredObjectMetadataItems();
-  const { objectMetadataItems: allObjectMetadataItems } =
-    useObjectMetadataItems();
 
   const noteObjectMetadataItem = objectMetadataItems.find(
     (objectMetadataItem) =>
@@ -59,14 +57,11 @@ export const useTimelineActivities = (
       ),
   );
 
-  const recordGqlFields = useMemo(
-    () =>
-      getTimelineActivityRecordGqlFields({
-        objectMetadataItems: allObjectMetadataItems,
-        fields: timelineActivityMetadata.fields,
-      }),
-    [allObjectMetadataItems, timelineActivityMetadata.fields],
-  );
+  const { recordGqlFields: depthOneRecordGqlFields } =
+    useGenerateDepthRecordGqlFieldsFromObject({
+      objectNameSingular: CoreObjectNameSingular.TimelineActivity,
+      depth: 1,
+    });
 
   const {
     records: timelineActivities,
@@ -82,7 +77,7 @@ export const useTimelineActivities = (
         createdAt: 'DescNullsFirst',
       },
     ],
-    recordGqlFields,
+    recordGqlFields: depthOneRecordGqlFields,
     fetchPolicy: 'cache-and-network',
   });
 

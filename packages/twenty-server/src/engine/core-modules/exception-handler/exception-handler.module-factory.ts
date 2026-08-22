@@ -6,6 +6,12 @@ import { type OPTIONS_TYPE } from 'src/engine/core-modules/exception-handler/exc
 import { ExceptionHandlerDriver } from 'src/engine/core-modules/exception-handler/interfaces';
 import { type TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
+/**
+ * ExceptionHandler Module factory
+ * @returns ExceptionHandlerModuleOptions
+ * @param twentyConfigService
+ * @param adapterHost
+ */
 export const exceptionHandlerModuleFactory = async (
   twentyConfigService: TwentyConfigService,
   adapterHost: HttpAdapterHost,

@@ -42,7 +42,6 @@ describe('exchangeCodeForToken', () => {
     expect(result).toEqual({
       accessToken: 'lin_access',
       refreshToken: 'lin_refresh',
-      idToken: null,
       scopes: ['read', 'write'],
     });
 
@@ -141,7 +140,6 @@ describe('exchangeRefreshTokenForToken', () => {
     expect(result).toEqual({
       accessToken: 'new_access',
       refreshToken: 'new_refresh',
-      idToken: null,
       scopes: null,
     });
 

@@ -14,7 +14,7 @@ import { WorkspaceCache } from 'src/engine/workspace-cache/decorators/workspace-
 import { WorkspaceCacheProvider } from 'src/engine/workspace-cache/interfaces/workspace-cache-provider.service';
 
 @Injectable()
-@WorkspaceCache('workflowAutomatedTriggerMaps', { packingPonderation: 1 })
+@WorkspaceCache('workflowAutomatedTriggerMaps')
 export class WorkspaceWorkflowAutomatedTriggerMapCacheService extends WorkspaceCacheProvider<WorkflowAutomatedTriggerMaps> {
   constructor(
     @InjectWorkspaceScopedRepository(WorkflowVersionEntity)

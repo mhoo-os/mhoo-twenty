@@ -67,6 +67,7 @@ describe('useIncrementalUpdateManyRecords', () => {
 
   it('should call incrementalFetchAndMutate and execute mutations via useUpdateManyRecords', async () => {
     mockIncrementalFetchAndMutate.mockImplementation(async (callback) => {
+      // Simulate one batch
       await callback({
         recordIds: ['1', '2'],
         totalCount: 2,

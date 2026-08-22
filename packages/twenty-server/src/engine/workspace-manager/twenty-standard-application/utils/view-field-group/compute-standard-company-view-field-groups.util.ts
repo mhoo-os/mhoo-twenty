@@ -1,5 +1,3 @@
-import { msg } from '@lingui/core/macro';
-import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import { type FlatViewFieldGroup } from 'src/engine/metadata-modules/flat-view-field-group/types/flat-view-field-group.type';
 import {
   createStandardViewFieldGroupFlatMetadata,
@@ -16,9 +14,7 @@ export const computeStandardCompanyViewFieldGroups = (
       context: {
         viewName: 'companyRecordPageFields',
         viewFieldGroupName: 'general',
-        name: i18nLabel(
-          msg({ message: `General`, context: 'viewFieldGroup.name' }),
-        ),
+        name: 'General',
         position: 0,
         isVisible: true,
       },
@@ -29,9 +25,7 @@ export const computeStandardCompanyViewFieldGroups = (
       context: {
         viewName: 'companyRecordPageFields',
         viewFieldGroupName: 'business',
-        name: i18nLabel(
-          msg({ message: `Business`, context: 'viewFieldGroup.name' }),
-        ),
+        name: 'Business',
         position: 1,
         isVisible: true,
       },
@@ -42,9 +36,7 @@ export const computeStandardCompanyViewFieldGroups = (
       context: {
         viewName: 'companyRecordPageFields',
         viewFieldGroupName: 'contact',
-        name: i18nLabel(
-          msg({ message: `Contact`, context: 'viewFieldGroup.name' }),
-        ),
+        name: 'Contact',
         position: 2,
         isVisible: true,
       },
@@ -55,9 +47,7 @@ export const computeStandardCompanyViewFieldGroups = (
       context: {
         viewName: 'companyRecordPageFields',
         viewFieldGroupName: 'system',
-        name: i18nLabel(
-          msg({ message: `System`, context: 'viewFieldGroup.name' }),
-        ),
+        name: 'System',
         position: 3,
         isVisible: true,
       },

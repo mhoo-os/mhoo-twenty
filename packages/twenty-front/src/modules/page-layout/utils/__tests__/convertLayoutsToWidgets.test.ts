@@ -11,8 +11,6 @@ import { convertLayoutsToWidgets } from '@/page-layout/utils/convertLayoutsToWid
 describe('convertLayoutsToWidgets', () => {
   const mockWidgets: PageLayoutWidget[] = [
     {
-      isSystemSideEffect: false,
-      universalIdentifier: 'universal-identifier-mock',
       id: 'widget-1',
       applicationId: '',
       isActive: true,
@@ -37,8 +35,6 @@ describe('convertLayoutsToWidgets', () => {
       deletedAt: null,
     },
     {
-      isSystemSideEffect: false,
-      universalIdentifier: 'universal-identifier-mock',
       id: 'widget-2',
       applicationId: '',
       isActive: true,

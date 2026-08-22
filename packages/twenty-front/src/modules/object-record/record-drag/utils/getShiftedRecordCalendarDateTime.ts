@@ -2,8 +2,9 @@ import { getShiftedRecordCalendarEndDateTime } from '@/object-record/record-drag
 import { Temporal } from 'temporal-polyfill';
 
 type GetShiftedRecordCalendarDateTimeArgs = {
-  dayOffset: number;
+  destinationDay: Temporal.PlainDate;
   endDateTime?: unknown;
+  sourceDay: Temporal.PlainDate;
   startDateTime?: unknown;
   timeZone: string;
 };
@@ -14,8 +15,9 @@ export type ShiftedRecordCalendarDateTime = {
 };
 
 export const getShiftedRecordCalendarDateTime = ({
-  dayOffset,
+  destinationDay,
   endDateTime,
+  sourceDay,
   startDateTime,
   timeZone,
 }: GetShiftedRecordCalendarDateTimeArgs): ShiftedRecordCalendarDateTime | null => {
@@ -25,6 +27,7 @@ export const getShiftedRecordCalendarDateTime = ({
 
   try {
     const currentStartInstant = Temporal.Instant.from(startDateTime);
+    const dayOffset = sourceDay.until(destinationDay).days;
     const shiftedStartInstant = currentStartInstant
       .toZonedDateTimeISO(timeZone)
       .add({ days: dayOffset })

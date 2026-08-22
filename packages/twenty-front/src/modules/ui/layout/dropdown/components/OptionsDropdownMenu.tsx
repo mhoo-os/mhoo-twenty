@@ -8,8 +8,8 @@ import { useSelectableList } from '@/ui/layout/selectable-list/hooks/useSelectab
 import { useHotkeysOnFocusedElement } from '@/ui/utilities/hotkey/hooks/useHotkeysOnFocusedElement';
 import { useLingui } from '@lingui/react/macro';
 import { type ReactNode, useId } from 'react';
-import { IconDotsVertical } from 'twenty-ui/icon';
-import { IconButton } from 'twenty-ui/input';
+import { Button } from 'twenty-ui/input';
+import { getOsControlSymbol } from 'twenty-ui/utilities';
 
 type OptionsDropdownMenuProps = {
   dropdownId?: string;
@@ -66,11 +66,10 @@ export const OptionsDropdownMenu = ({
       dropdownId={dropdownId}
       data-select-disable
       clickableComponent={
-        <IconButton
-          Icon={IconDotsVertical}
-          ariaLabel={t`Options`}
+        <Button
+          title={t`Options`}
+          hotkeys={[getOsControlSymbol(), 'O']}
           size="small"
-          variant="primary"
         />
       }
       dropdownPlacement="top-end"

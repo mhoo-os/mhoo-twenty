@@ -310,6 +310,7 @@ export class WorkspaceService {
         ...payload,
       });
     } catch (error) {
+      // revert custom domain registration on error
       if (payload.customDomain && customDomainRegistered) {
         this.dnsManagerService
           .deleteHostnameSilently(payload.customDomain)
@@ -785,7 +786,6 @@ export class WorkspaceService {
     if (isDefined(userWorkspaceOfRemovedWorkspaceMember)) {
       await this.userWorkspaceService.deleteUserWorkspace({
         userWorkspaceId: userWorkspaceOfRemovedWorkspaceMember.id,
-        workspaceId,
         softDelete,
       });
       await this.coreEntityCacheService.invalidate(

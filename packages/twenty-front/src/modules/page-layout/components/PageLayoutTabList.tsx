@@ -17,7 +17,6 @@ import { activeTabIdComponentState } from '@/ui/layout/tab-list/states/activeTab
 import { TabListComponentInstanceContext } from '@/ui/layout/tab-list/states/contexts/TabListComponentInstanceContext';
 import { type TabListProps } from '@/ui/layout/tab-list/types/TabListProps';
 import { NodeDimension } from '@/ui/utilities/dimensions/components/NodeDimension';
-import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { useClickOutsideListener } from '@/ui/utilities/pointer-event/hooks/useClickOutsideListener';
 import { useAtomComponentState } from '@/ui/utilities/state/jotai/hooks/useAtomComponentState';
 import { useSetAtomComponentState } from '@/ui/utilities/state/jotai/hooks/useSetAtomComponentState';
@@ -111,7 +110,6 @@ export const PageLayoutTabList = ({
   }));
 
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
 
   const [activeTabId, setActiveTabId] = useAtomComponentState(
     activeTabIdComponentState,
@@ -337,12 +335,9 @@ export const PageLayoutTabList = ({
 
   const canReorderTabs = isReorderEnabled;
 
-  const shouldScrollTabs = isMobile && !canReorderTabs;
-
   const shouldRenderReorderableDropdown = hasHiddenTabs && canReorderTabs;
 
-  const shouldRenderStaticDropdown =
-    hasHiddenTabs && !canReorderTabs && !shouldScrollTabs;
+  const shouldRenderStaticDropdown = hasHiddenTabs && !canReorderTabs;
 
   // Record pages accept widget drops on vertical-list tabs (dnd-kit drags);
   // dashboards accept them on grid tabs (react-grid-layout drags bridged by
@@ -372,7 +367,7 @@ export const PageLayoutTabList = ({
         tabListIds={tabsWithIcons.map((tab) => tab.id)}
       />
 
-      {tabsWithIcons.length > 1 && !shouldScrollTabs && (
+      {tabsWithIcons.length > 1 && (
         <TabListHiddenMeasurements
           visibleTabs={tabsWithIcons}
           activeTabId={activeTabId}
@@ -401,10 +396,7 @@ export const PageLayoutTabList = ({
         <StyledContainer className={className}>
           <PageLayoutTabListVisibleTabs
             visibleTabs={tabsWithIcons}
-            visibleTabCount={
-              shouldScrollTabs ? tabsWithIcons.length : visibleTabCount
-            }
-            isScrollable={shouldScrollTabs}
+            visibleTabCount={visibleTabCount}
             activeTabId={activeTabId}
             behaveAsLinks={behaveAsLinks}
             loading={loading}

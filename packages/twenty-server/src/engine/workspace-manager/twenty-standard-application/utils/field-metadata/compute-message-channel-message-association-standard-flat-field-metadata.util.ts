@@ -40,12 +40,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'id',
         type: FieldMetadataType.UUID,
-        label: i18nLabel(
-          msg({ message: `Id`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({ message: `Id`, context: 'fieldMetadata.description' }),
-        ),
+        label: i18nLabel(msg`Id`),
+        description: i18nLabel(msg`Id`),
         icon: 'Icon123',
         isSystem: true,
         isNullable: false,
@@ -63,15 +59,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'createdAt',
         type: FieldMetadataType.DATE_TIME,
-        label: i18nLabel(
-          msg({ message: `Creation date`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Creation date`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Creation date`),
+        description: i18nLabel(msg`Creation date`),
         icon: 'IconCalendar',
         isSystem: true,
         isNullable: false,
@@ -90,15 +79,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'updatedAt',
         type: FieldMetadataType.DATE_TIME,
-        label: i18nLabel(
-          msg({ message: `Last update`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Last time the record was changed`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Last update`),
+        description: i18nLabel(msg`Last time the record was changed`),
         icon: 'IconCalendarClock',
         isSystem: true,
         isNullable: false,
@@ -117,15 +99,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'deletedAt',
         type: FieldMetadataType.DATE_TIME,
-        label: i18nLabel(
-          msg({ message: `Deleted at`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Date when the record was deleted`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Deleted at`),
+        description: i18nLabel(msg`Date when the record was deleted`),
         icon: 'IconCalendarMinus',
         isSystem: true,
         isNullable: true,
@@ -143,15 +118,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'createdBy',
         type: FieldMetadataType.ACTOR,
-        label: i18nLabel(
-          msg({ message: `Created by`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `The creator of the record`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Created by`),
+        description: i18nLabel(msg`The creator of the record`),
         icon: 'IconCreativeCommonsSa',
         isSystem: true,
         isUIEditable: false,
@@ -173,14 +141,9 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'updatedBy',
         type: FieldMetadataType.ACTOR,
-        label: i18nLabel(
-          msg({ message: `Updated by`, context: 'fieldMetadata.label' }),
-        ),
+        label: i18nLabel(msg`Updated by`),
         description: i18nLabel(
-          msg({
-            message: `The workspace member who last updated the record`,
-            context: 'fieldMetadata.description',
-          }),
+          msg`The workspace member who last updated the record`,
         ),
         icon: 'IconUserCircle',
         isSystem: true,
@@ -203,14 +166,9 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'position',
         type: FieldMetadataType.POSITION,
-        label: i18nLabel(
-          msg({ message: `Position`, context: 'fieldMetadata.label' }),
-        ),
+        label: i18nLabel(msg`Position`),
         description: i18nLabel(
-          msg({
-            message: `Message channel message association record position`,
-            context: 'fieldMetadata.description',
-          }),
+          msg`Message channel message association record position`,
         ),
         icon: 'IconHierarchy2',
         isSystem: true,
@@ -228,15 +186,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'searchVector',
         type: FieldMetadataType.TS_VECTOR,
-        label: i18nLabel(
-          msg({ message: `Search vector`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Field used for full-text search`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Search vector`),
+        description: i18nLabel(msg`Field used for full-text search`),
         icon: 'IconUser',
         isSystem: true,
         isNullable: true,
@@ -252,18 +203,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'messageExternalId',
         type: FieldMetadataType.TEXT,
-        label: i18nLabel(
-          msg({
-            message: `Message External Id`,
-            context: 'fieldMetadata.label',
-          }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Message id from the messaging provider`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Message External Id`),
+        description: i18nLabel(msg`Message id from the messaging provider`),
         icon: 'IconHash',
         isNullable: true,
         isUIEditable: false,
@@ -279,18 +220,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'messageThreadExternalId',
         type: FieldMetadataType.TEXT,
-        label: i18nLabel(
-          msg({
-            message: `Thread External Id`,
-            context: 'fieldMetadata.label',
-          }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Thread id from the messaging provider`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Thread External Id`),
+        description: i18nLabel(msg`Thread id from the messaging provider`),
         icon: 'IconHash',
         isNullable: true,
         isUIEditable: false,
@@ -306,15 +237,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'direction',
         type: FieldMetadataType.SELECT,
-        label: i18nLabel(
-          msg({ message: `Direction`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Message Direction`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Direction`),
+        description: i18nLabel(msg`Message Direction`),
         icon: 'IconDirection',
         isNullable: false,
         isUIEditable: false,
@@ -323,18 +247,14 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
           {
             id: '20202020-3075-4e35-b6a1-27db444a4668',
             value: MessageDirection.INCOMING,
-            label: i18nLabel(
-              msg({ message: `Incoming`, context: 'fieldMetadata.label' }),
-            ),
+            label: i18nLabel(msg`Incoming`),
             position: 0,
             color: 'green',
           },
           {
             id: '20202020-a15f-4512-9202-391a3c0bbed3',
             value: MessageDirection.OUTGOING,
-            label: i18nLabel(
-              msg({ message: `Outgoing`, context: 'fieldMetadata.label' }),
-            ),
+            label: i18nLabel(msg`Outgoing`),
             position: 1,
             color: 'blue',
           },
@@ -351,18 +271,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
       context: {
         fieldName: 'messageChannelId',
         type: FieldMetadataType.UUID,
-        label: i18nLabel(
-          msg({
-            message: `Message Channel Id`,
-            context: 'fieldMetadata.label',
-          }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Message Channel Id`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Message Channel Id`),
+        description: i18nLabel(msg`Message Channel Id`),
         icon: 'IconHash',
         isNullable: true,
         isUIEditable: false,
@@ -379,15 +289,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
         type: FieldMetadataType.RELATION,
         morphId: null,
         fieldName: 'messageThread',
-        label: i18nLabel(
-          msg({ message: `Message Thread Id`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Message Thread Id`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Message Thread Id`),
+        description: i18nLabel(msg`Message Thread Id`),
         icon: 'IconHash',
         isNullable: true,
         isUIEditable: false,
@@ -411,12 +314,8 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
         type: FieldMetadataType.RELATION,
         morphId: null,
         fieldName: 'message',
-        label: i18nLabel(
-          msg({ message: `Message Id`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({ message: `Message Id`, context: 'fieldMetadata.description' }),
-        ),
+        label: i18nLabel(msg`Message Id`),
+        description: i18nLabel(msg`Message Id`),
         icon: 'IconHash',
         isNullable: true,
         isUIEditable: false,
@@ -440,14 +339,9 @@ export const buildMessageChannelMessageAssociationStandardFlatFieldMetadatas =
         type: FieldMetadataType.RELATION,
         morphId: null,
         fieldName: 'messageFolders',
-        label: i18nLabel(
-          msg({ message: `Message Folders`, context: 'fieldMetadata.label' }),
-        ),
+        label: i18nLabel(msg`Message Folders`),
         description: i18nLabel(
-          msg({
-            message: `Message Folders (supports multiple folders/labels)`,
-            context: 'fieldMetadata.description',
-          }),
+          msg`Message Folders (supports multiple folders/labels)`,
         ),
         icon: 'IconFolders',
         isNullable: true,

@@ -48,6 +48,7 @@ describe('WorkspaceSchemaEnumOperations', () => {
         },
       ];
 
+      // Simulate failure on second enum
       (mockSchemaManagerService.enumManager.createEnum as jest.Mock)
         .mockResolvedValueOnce(undefined)
         .mockRejectedValueOnce(new Error('Enum collision'))
@@ -62,6 +63,7 @@ describe('WorkspaceSchemaEnumOperations', () => {
         }),
       ).rejects.toThrow(WorkspaceMigrationActionExecutionException);
 
+      // All operations should be attempted in parallel despite failure
       expect(
         mockSchemaManagerService.enumManager.createEnum,
       ).toHaveBeenCalledTimes(3);
@@ -215,6 +217,7 @@ describe('WorkspaceSchemaEnumOperations', () => {
         operation: EnumOperation.CREATE,
       });
 
+      // Relation fields should not generate enum operations
       expect(enumOps).toEqual([]);
     });
   });

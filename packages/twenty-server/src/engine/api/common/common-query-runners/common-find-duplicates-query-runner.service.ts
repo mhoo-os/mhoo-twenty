@@ -45,6 +45,7 @@ export class CommonFindDuplicatesQueryRunnerService extends CommonBaseQueryRunne
     queryRunnerContext: CommonExtendedQueryRunnerContext,
   ): Promise<CommonFindDuplicatesOutputItem[]> {
     const {
+      repository,
       flatObjectMetadata,
       flatObjectMetadataMaps,
       flatFieldMetadataMaps,
@@ -54,9 +55,7 @@ export class CommonFindDuplicatesQueryRunnerService extends CommonBaseQueryRunne
       rolePermissionConfig,
     } = queryRunnerContext;
 
-    const readRepository = this.getReadRepository(queryRunnerContext);
-
-    const existingRecordsQueryBuilder = readRepository.createQueryBuilder(
+    const existingRecordsQueryBuilder = repository.createQueryBuilder(
       flatObjectMetadata.nameSingular,
     );
 
@@ -111,8 +110,9 @@ export class CommonFindDuplicatesQueryRunnerService extends CommonBaseQueryRunne
             };
           }
 
-          const duplicateRecordsQueryBuilder =
-            readRepository.createQueryBuilder(flatObjectMetadata.nameSingular);
+          const duplicateRecordsQueryBuilder = repository.createQueryBuilder(
+            flatObjectMetadata.nameSingular,
+          );
 
           commonQueryParser.applyFilterToBuilder(
             duplicateRecordsQueryBuilder,
@@ -170,7 +170,6 @@ export class CommonFindDuplicatesQueryRunnerService extends CommonBaseQueryRunne
         workspaceDataSource,
         rolePermissionConfig,
         selectedFields: args.selectedFieldsResult.select,
-        ...this.getNestedRelationsReadPathOptions(queryRunnerContext),
       });
     }
 

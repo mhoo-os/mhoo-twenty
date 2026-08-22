@@ -36,6 +36,7 @@ export const StyledMenuItemSelect = forwardRef<
     data-disabled={disabled || undefined}
     data-focused={focused || undefined}
     data-key-selected={isKeySelected || undefined}
+    // oxlint-disable-next-line react/jsx-props-no-spreading
     {...rest}
   >
     {children}

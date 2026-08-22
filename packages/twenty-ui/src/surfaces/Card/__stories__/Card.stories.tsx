@@ -11,6 +11,7 @@ const meta: Meta<typeof Card> = {
   component: Card,
   decorators: [ComponentDecorator],
   render: (args) => (
+    // oxlint-disable-next-line react/jsx-props-no-spreading
     <Card {...args}>
       <CardHeader>Lorem ipsum</CardHeader>
       <CardContent>

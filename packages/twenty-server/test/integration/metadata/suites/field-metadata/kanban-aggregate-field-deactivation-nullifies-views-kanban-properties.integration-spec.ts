@@ -223,6 +223,7 @@ describe('kanban-aggregate-field-deactivation-nullifies-kanban-properties', () =
 
     await verifyKanbanPropertiesAreNull(testSetup.viewWithAggregateId);
 
+    // View without aggregate should remain unchanged
     const {
       data: { getView: updatedViewWithoutAggregate },
     } = await findOneView({
@@ -327,6 +328,7 @@ describe('kanban-aggregate-field-deactivation-nullifies-kanban-properties', () =
     await verifyKanbanPropertiesAreNull(testSetup.viewWithAggregateId);
     await verifyKanbanPropertiesAreNull(secondViewWithAggregate.id);
 
+    // View without aggregate should remain unchanged
     const {
       data: { getView: updatedViewWithoutAggregate },
     } = await findOneView({
@@ -415,6 +417,7 @@ describe('kanban-aggregate-field-deactivation-nullifies-kanban-properties', () =
     await verifyKanbanPropertiesAreNull(viewWithMin.id);
     await verifyKanbanPropertiesAreNull(viewWithAvg.id);
 
+    // View without aggregate should remain unchanged
     const {
       data: { getView: updatedViewWithoutAggregate },
     } = await findOneView({

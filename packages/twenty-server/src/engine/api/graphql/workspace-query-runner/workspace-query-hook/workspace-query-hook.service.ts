@@ -38,6 +38,7 @@ export class WorkspaceQueryHookService {
     }
 
     for (const preHookInstance of preHookInstances) {
+      // Deep merge all return of handleHook into payload before returning it
       const hookPayload = await this.workspaceQueryHookExplorer.handlePreHook(
         [authContext, objectName, payload],
         preHookInstance.instance,

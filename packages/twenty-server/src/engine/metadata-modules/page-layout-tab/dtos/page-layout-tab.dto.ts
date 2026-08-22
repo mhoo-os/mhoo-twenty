@@ -21,12 +21,6 @@ export class PageLayoutTabDTO {
   id: string;
 
   @Field(() => UUIDScalarType, { nullable: false })
-  universalIdentifier: string;
-
-  @Field({ nullable: false })
-  isSystemSideEffect: boolean;
-
-  @Field(() => UUIDScalarType, { nullable: false })
   applicationId: string;
 
   @Field({ nullable: false })

@@ -5,7 +5,7 @@ import { FormSelectFieldInput } from '@/object-record/record-field/ui/form-types
 import { type VariablePickerComponent } from '@/object-record/record-field/ui/form-types/types/VariablePickerComponent';
 import { type FormFieldCurrencyValue } from '@/object-record/record-field/ui/types/FieldMetadata';
 import { CURRENCIES } from '@/settings/data-model/constants/Currencies';
-import { Field } from 'twenty-ui/input';
+import { InputLabel } from '@/ui/input/components/InputLabel';
 import { t } from '@lingui/core/macro';
 import { useMemo } from 'react';
 import { type CurrencyCode } from 'twenty-shared/constants';
@@ -55,7 +55,7 @@ export const FormCurrencyFieldInput = ({
 
   return (
     <FormFieldInputContainer>
-      {label ? <Field.Label>{label}</Field.Label> : null}
+      {label ? <InputLabel>{label}</InputLabel> : null}
       <FormNestedFieldInputContainer>
         <FormSelectFieldInput
           label={t`Currency Code`}

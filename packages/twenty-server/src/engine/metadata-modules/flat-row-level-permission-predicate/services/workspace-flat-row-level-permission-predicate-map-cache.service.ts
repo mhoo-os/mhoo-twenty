@@ -23,9 +23,7 @@ import { createIdToUniversalIdentifierMap } from 'src/engine/workspace-cache/uti
 import { addFlatEntityToFlatEntityMapsThroughMutationOrThrow } from 'src/engine/workspace-manager/workspace-migration/utils/add-flat-entity-to-flat-entity-maps-through-mutation-or-throw.util';
 
 @Injectable()
-@WorkspaceCache('flatRowLevelPermissionPredicateMaps', {
-  packingPonderation: 1,
-})
+@WorkspaceCache('flatRowLevelPermissionPredicateMaps')
 export class WorkspaceFlatRowLevelPermissionPredicateMapCacheService extends WorkspaceCacheProvider<FlatRowLevelPermissionPredicateMaps> {
   constructor(
     @InjectWorkspaceScopedRepository(RowLevelPermissionPredicateEntity)

@@ -296,7 +296,7 @@ describe('parseSlackAssistantRequest', () => {
     });
   });
 
-  it('should flag an empty direct message and thread the hint on it', () => {
+  it('should flag an empty direct message without a thread target', () => {
     const result = parseSlackAssistantRequest({
       type: 'event_callback',
       event_id: 'Ev456',
@@ -316,7 +316,7 @@ describe('parseSlackAssistantRequest', () => {
       emptyRequest: {
         slackChannelId: 'D123',
         slackMessageTimestamp: '1700000000.000200',
-        parentMessageTimestamp: '1700000000.000200',
+        parentMessageTimestamp: undefined,
         isInExistingThread: false,
       },
     });

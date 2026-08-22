@@ -7,6 +7,7 @@ describe('uuidToBase36', () => {
 
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(0);
+    // base36 only contains alphanumeric characters
     expect(result).toMatch(/^[0-9a-z]+$/);
   });
 

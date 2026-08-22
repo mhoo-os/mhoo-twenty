@@ -1,3 +1,4 @@
+/* oxlint-disable react/jsx-props-no-spreading */
 import { type Meta, type StoryObj } from '@storybook/react-vite';
 import {
   IconCheckbox,

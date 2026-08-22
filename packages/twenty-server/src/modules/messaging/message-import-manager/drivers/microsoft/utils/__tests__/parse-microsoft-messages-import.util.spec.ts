@@ -27,15 +27,15 @@ describe('parseMicrosoftMessagesImportError', () => {
     );
   });
 
-  it('should be temporary when access is denied because Graph 403s can be transient mailbox-level denials', () => {
+  it('should be insufficient permissions when access is denied', () => {
     const exception = parseMicrosoftMessagesImportError({
       statusCode: 403,
       code: 'ErrorAccessDenied',
-      message: 'Access is denied. Check credentials and try again.',
+      message: 'Access is denied.',
     });
 
     expect(exception.code).toBe(
-      MessageImportDriverExceptionCode.TEMPORARY_ERROR,
+      MessageImportDriverExceptionCode.INSUFFICIENT_PERMISSIONS,
     );
     expect(exception.message).toContain('ErrorAccessDenied');
   });
@@ -58,54 +58,6 @@ describe('parseMicrosoftMessagesImportError', () => {
       statusCode: 404,
       code: 'MailboxNotEnabledForRESTAPI',
       message: 'Some reworded message from Microsoft.',
-    });
-
-    expect(exception.code).toBe(
-      MessageImportDriverExceptionCode.INSUFFICIENT_PERMISSIONS,
-    );
-  });
-
-  it('should be insufficient permissions when the account has no valid licence', () => {
-    const exception = parseMicrosoftMessagesImportError({
-      statusCode: 403,
-      code: 'ErrorInvalidLicense',
-      message: 'The license of the user is invalid.',
-    });
-
-    expect(exception.code).toBe(
-      MessageImportDriverExceptionCode.INSUFFICIENT_PERMISSIONS,
-    );
-  });
-
-  it('should be insufficient permissions when a shared mailbox is not enabled for the REST API', () => {
-    const exception = parseMicrosoftMessagesImportError({
-      statusCode: 404,
-      code: 'RESTAPINotEnabledForComponentSharedMailbox',
-      message: 'REST API is not yet supported for this mailbox.',
-    });
-
-    expect(exception.code).toBe(
-      MessageImportDriverExceptionCode.INSUFFICIENT_PERMISSIONS,
-    );
-  });
-
-  it('should be insufficient permissions on a dead-account code regardless of status code', () => {
-    const exception = parseMicrosoftMessagesImportError({
-      statusCode: 500,
-      code: 'ErrorNonExistentMailbox',
-      message: 'The SMTP address has no mailbox associated with it.',
-    });
-
-    expect(exception.code).toBe(
-      MessageImportDriverExceptionCode.INSUFFICIENT_PERMISSIONS,
-    );
-  });
-
-  it('should be insufficient permissions when the tenant is marked for removal', () => {
-    const exception = parseMicrosoftMessagesImportError({
-      statusCode: 403,
-      code: 'ErrorOrganizationAccessBlocked',
-      message: 'The tenant is marked for removal.',
     });
 
     expect(exception.code).toBe(
@@ -155,14 +107,12 @@ describe('parseMicrosoftMessagesImportError', () => {
     );
   });
 
-  it('should be temporary for an unhandled status code so channels are never killed on unrecognized errors', () => {
+  it('should be unknown for an unhandled status code', () => {
     const exception = parseMicrosoftMessagesImportError({
       statusCode: 418,
       message: 'I am a teapot.',
     });
 
-    expect(exception.code).toBe(
-      MessageImportDriverExceptionCode.TEMPORARY_ERROR,
-    );
+    expect(exception.code).toBe(MessageImportDriverExceptionCode.UNKNOWN);
   });
 });

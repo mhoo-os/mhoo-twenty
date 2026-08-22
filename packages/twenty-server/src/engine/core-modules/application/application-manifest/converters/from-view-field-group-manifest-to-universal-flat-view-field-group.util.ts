@@ -21,7 +21,6 @@ export const fromViewFieldGroupManifestToUniversalFlatViewFieldGroup = ({
     position: viewFieldGroupManifest.position,
     isVisible: viewFieldGroupManifest.isVisible ?? true,
     isActive: true,
-    isSystemSideEffect: false,
     overrides: null,
     viewFieldUniversalIdentifiers: [],
     createdAt: now,

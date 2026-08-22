@@ -18,7 +18,7 @@ import { WorkspaceCache } from 'src/engine/workspace-cache/decorators/workspace-
 import { createIdToUniversalIdentifierMap } from 'src/engine/workspace-cache/utils/create-id-to-universal-identifier-map.util';
 
 @Injectable()
-@WorkspaceCache('flatRoleTargetByAgentIdMaps', { packingPonderation: 1 })
+@WorkspaceCache('flatRoleTargetByAgentIdMaps')
 export class WorkspaceFlatRoleTargetByAgentIdService extends WorkspaceCacheProvider<FlatRoleTargetByAgentIdMaps> {
   constructor(
     @InjectWorkspaceScopedRepository(RoleTargetEntity)

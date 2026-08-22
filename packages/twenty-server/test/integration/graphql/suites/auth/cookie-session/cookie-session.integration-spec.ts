@@ -1,7 +1,10 @@
 import request from 'supertest';
+import { deleteConfigVariable } from 'test/integration/twenty-config/utils/delete-config-variable.util';
+import { updateConfigVariable } from 'test/integration/twenty-config/utils/update-config-variable.util';
 
 import { USER_SESSION_COOKIE_NAME } from 'src/engine/core-modules/user-session/constants/user-session-cookie-name.constant';
 
+const AUTH_COOKIE_SESSIONS_ENABLED_KEY = 'AUTH_COOKIE_SESSIONS_ENABLED';
 const SERVER_URL = `http://localhost:${APP_PORT}`;
 
 const buildAppleOrigin = (): string => {
@@ -145,7 +148,17 @@ describe('Cookie sessions (integration)', () => {
   let sessionCookie: string;
 
   beforeAll(async () => {
+    await updateConfigVariable({
+      input: { key: AUTH_COOKIE_SESSIONS_ENABLED_KEY, value: true },
+    });
+
     sessionCookie = await signInAndGetSessionCookie();
+  });
+
+  afterAll(async () => {
+    await deleteConfigVariable({
+      input: { key: AUTH_COOKIE_SESSIONS_ENABLED_KEY },
+    });
   });
 
   it('should set a session cookie when exchanging a login token', () => {

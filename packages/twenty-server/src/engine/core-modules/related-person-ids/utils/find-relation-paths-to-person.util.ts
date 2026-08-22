@@ -5,7 +5,6 @@ import { RelationType } from 'src/engine/metadata-modules/field-metadata/interfa
 import { computeMorphOrRelationFieldJoinColumnName } from 'src/engine/metadata-modules/field-metadata/utils/compute-morph-or-relation-field-join-column-name.util';
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { findFlatEntityByIdInFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps.util';
-import { findFlatEntityByIdInFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps-or-throw.util';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { isFlatFieldMetadataOfType } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-flat-field-metadata-of-type.util';
 import { resolveRelationFromFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/resolve-relation-from-flat-field-metadata.util';
@@ -85,26 +84,24 @@ export const findRelationPathsToPerson = ({
           continue;
         }
 
-        const joinColumnOwnerFlatFieldMetadata =
+        const joinColumnOwner =
           relation.type === RelationType.MANY_TO_ONE
-            ? field
-            : findFlatEntityByIdInFlatEntityMapsOrThrow({
-                flatEntityId: field.relationTargetFieldMetadataId,
-                flatEntityMaps: flatFieldMetadataMaps,
-              });
-
-        const joinColumnOwnerObjectMetadata =
-          relation.type === RelationType.MANY_TO_ONE
-            ? relation.sourceObjectMetadata
-            : relation.targetObjectMetadata;
+            ? {
+                object: relation.sourceObjectMetadata,
+                field: relation.sourceFieldMetadata,
+              }
+            : {
+                object: relation.targetObjectMetadata,
+                field: relation.targetFieldMetadata,
+              };
 
         const nextPath: RelationPathToPerson = [
           ...path,
           {
             direction: relation.type,
-            queryObjectNameSingular: joinColumnOwnerObjectMetadata.nameSingular,
+            queryObjectNameSingular: joinColumnOwner.object.nameSingular,
             joinColumnName: computeMorphOrRelationFieldJoinColumnName({
-              name: joinColumnOwnerFlatFieldMetadata.name,
+              name: joinColumnOwner.field.name,
             }),
           },
         ];

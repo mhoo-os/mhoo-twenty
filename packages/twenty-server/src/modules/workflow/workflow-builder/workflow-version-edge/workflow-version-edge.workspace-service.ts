@@ -187,10 +187,13 @@ export class WorkflowVersionEdgeWorkspaceService {
 
     await this.workflowVersionCoreSyncService.writeWorkflowVersionAndMirror(
       workspaceId,
-      async (workflowVersionRepository) => {
-        await workflowVersionRepository.update(workflowVersion.id, {
-          trigger: updatedTrigger,
-        });
+      async (workflowVersionRepository, entityManager) => {
+        await workflowVersionRepository.update(
+          workflowVersion.id,
+          { trigger: updatedTrigger },
+          undefined,
+          entityManager,
+        );
 
         return workflowVersion.id;
       },
@@ -260,10 +263,13 @@ export class WorkflowVersionEdgeWorkspaceService {
     if (shouldPersist) {
       await this.workflowVersionCoreSyncService.writeWorkflowVersionAndMirror(
         workspaceId,
-        async (workflowVersionRepository) => {
-          await workflowVersionRepository.update(workflowVersion.id, {
-            steps: updatedSteps,
-          });
+        async (workflowVersionRepository, entityManager) => {
+          await workflowVersionRepository.update(
+            workflowVersion.id,
+            { steps: updatedSteps },
+            undefined,
+            entityManager,
+          );
 
           return workflowVersion.id;
         },
@@ -404,10 +410,13 @@ export class WorkflowVersionEdgeWorkspaceService {
 
     await this.workflowVersionCoreSyncService.writeWorkflowVersionAndMirror(
       workspaceId,
-      async (workflowVersionRepository) => {
-        await workflowVersionRepository.update(workflowVersion.id, {
-          trigger: updatedTrigger,
-        });
+      async (workflowVersionRepository, entityManager) => {
+        await workflowVersionRepository.update(
+          workflowVersion.id,
+          { trigger: updatedTrigger },
+          undefined,
+          entityManager,
+        );
 
         return workflowVersion.id;
       },
@@ -491,10 +500,13 @@ export class WorkflowVersionEdgeWorkspaceService {
 
     await this.workflowVersionCoreSyncService.writeWorkflowVersionAndMirror(
       workspaceId,
-      async (workflowVersionRepository) => {
-        await workflowVersionRepository.update(workflowVersion.id, {
-          steps: updatedSteps,
-        });
+      async (workflowVersionRepository, entityManager) => {
+        await workflowVersionRepository.update(
+          workflowVersion.id,
+          { steps: updatedSteps },
+          undefined,
+          entityManager,
+        );
 
         return workflowVersion.id;
       },

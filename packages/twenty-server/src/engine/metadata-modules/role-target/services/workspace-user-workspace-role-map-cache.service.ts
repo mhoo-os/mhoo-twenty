@@ -12,7 +12,7 @@ import { WorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scope
 import { WorkspaceCache } from 'src/engine/workspace-cache/decorators/workspace-cache.decorator';
 
 @Injectable()
-@WorkspaceCache('userWorkspaceRoleMap', { packingPonderation: 1 })
+@WorkspaceCache('userWorkspaceRoleMap')
 export class WorkspaceUserWorkspaceRoleMapCacheService extends WorkspaceCacheProvider<UserWorkspaceRoleMap> {
   constructor(
     @InjectWorkspaceScopedRepository(RoleTargetEntity)

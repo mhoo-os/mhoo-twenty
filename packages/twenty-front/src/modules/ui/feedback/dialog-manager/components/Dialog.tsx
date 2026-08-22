@@ -17,12 +17,12 @@ const StyledDialogOverlayBase = styled.div`
   align-items: center;
   background: ${themeCssVariables.background.overlayPrimary};
   display: flex;
-  height: calc(100dvh / var(--t-zoom, 1));
+  height: 100dvh;
   justify-content: center;
   left: 0;
   position: fixed;
   top: 0;
-  width: calc(100vw / var(--t-zoom, 1));
+  width: 100vw;
   z-index: ${RootStackingContextZIndices.Dialog};
 `;
 const StyledDialogOverlay = motion.create(StyledDialogOverlayBase);

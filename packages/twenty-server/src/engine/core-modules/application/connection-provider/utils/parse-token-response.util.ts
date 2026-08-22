@@ -21,10 +21,6 @@ export const parseTokenResponse = (
       typeof json.refresh_token === 'string'
         ? (json.refresh_token as PlaintextString)
         : null,
-    idToken:
-      typeof json.id_token === 'string'
-        ? (json.id_token as PlaintextString)
-        : null,
     scopes:
       typeof json.scope === 'string'
         ? json.scope.split(/[\s,]+/).filter(Boolean)

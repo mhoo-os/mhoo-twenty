@@ -1,3 +1,4 @@
+// Finds the index of T in a readonly string tuple.
 export type IndexOf<
   T extends string,
   Arr extends readonly string[],

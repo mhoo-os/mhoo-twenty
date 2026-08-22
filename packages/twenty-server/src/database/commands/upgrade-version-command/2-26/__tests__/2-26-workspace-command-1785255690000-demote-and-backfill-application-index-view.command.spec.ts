@@ -1,5 +1,4 @@
 import {
-  SYSTEM_VIEW_KEYS,
   getSystemViewUniversalIdentifier,
   getSystemViewFieldUniversalIdentifier,
 } from 'twenty-shared/application';
@@ -26,7 +25,7 @@ const FIELD_UNIVERSAL_IDENTIFIER = '20202020-0000-4000-8000-0000000000cc';
 const DERIVED_VIEW_UNIVERSAL_IDENTIFIER = getSystemViewUniversalIdentifier({
   objectMetadataApplicationUniversalIdentifier: EXTERNAL_APPLICATION_UNIVERSAL_IDENTIFIER,
   objectUniversalIdentifier: OBJECT_UNIVERSAL_IDENTIFIER,
-  viewKey: SYSTEM_VIEW_KEYS.INDEX,
+  viewKey: ViewKey.INDEX,
 });
 
 // An external application object with one displayable field.

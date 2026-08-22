@@ -52,6 +52,14 @@ export class TwoFactorAuthenticationService {
     });
   }
 
+  /**
+   * Validates two-factor authentication requirements for a workspace.
+   *
+   * @throws {AuthException} with TWO_FACTOR_AUTHENTICATION_VERIFICATION_REQUIRED if 2FA is set up and needs verification
+   * @throws {AuthException} with TWO_FACTOR_AUTHENTICATION_PROVISION_REQUIRED if 2FA is enforced but not set up
+   * @param targetWorkspace - The workspace to check 2FA requirements for
+   * @param userTwoFactorAuthenticationMethods - Optional array of user's 2FA methods
+   */
   async validateTwoFactorAuthenticationRequirement(
     targetWorkspace: WorkspaceEntity,
     userTwoFactorAuthenticationMethods?: TwoFactorAuthenticationMethodEntity[],
@@ -133,16 +141,13 @@ export class TwoFactorAuthenticationService {
       { workspaceId },
     );
 
-    await this.twoFactorAuthenticationMethodRepository.upsert(
-      workspaceId,
-      {
-        userWorkspaceId: userWorkspace.id,
-        secret: encryptedSecret,
-        status: context.status,
-        strategy: TwoFactorAuthenticationStrategy.TOTP,
-      },
-      ['userWorkspaceId', 'strategy'],
-    );
+    await this.twoFactorAuthenticationMethodRepository.save(workspaceId, {
+      id: existing2FAMethod?.id,
+      userWorkspace: userWorkspace,
+      secret: encryptedSecret,
+      status: context.status,
+      strategy: TwoFactorAuthenticationStrategy.TOTP,
+    });
 
     return uri;
   }
@@ -199,11 +204,10 @@ export class TwoFactorAuthenticationService {
       );
     }
 
-    await this.twoFactorAuthenticationMethodRepository.update(
-      workspaceId,
-      { id: userTwoFactorAuthenticationMethod.id },
-      { status: OTPStatus.VERIFIED },
-    );
+    await this.twoFactorAuthenticationMethodRepository.save(workspaceId, {
+      ...userTwoFactorAuthenticationMethod,
+      status: OTPStatus.VERIFIED,
+    });
   }
 
   async verifyTwoFactorAuthenticationMethodForAuthenticatedUser(

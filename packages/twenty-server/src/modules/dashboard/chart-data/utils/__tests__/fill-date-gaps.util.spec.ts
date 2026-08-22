@@ -279,6 +279,7 @@ describe('fillDateGapsTwoDimensional', () => {
       expect(result.data).toHaveLength(6);
       expect(result.wasTruncated).toBe(false);
 
+      // Check that all dates have both secondary values
       const day1A = result.data.find(
         (d) =>
           d.groupByDimensionValues[0] === '2024-01-01' &&

@@ -19,7 +19,6 @@ const exampleSourcesBuiltPreactDir = path.resolve(
 const SOURCE_SCAN_ROOTS = [
   'html-tag',
   'host-api',
-  'media',
   'showcase',
   'twenty-ui-gallery',
 ];

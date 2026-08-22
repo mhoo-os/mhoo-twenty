@@ -1,4 +1,3 @@
-import { CommandMenuItemContainerType } from '@/command-menu-item/types/CommandMenuItemContainerType';
 import { RecordIndexCommandMenuDropdown } from '@/command-menu-item/components/RecordIndexCommandMenuDropdown';
 import { CommandMenuContextProvider } from '@/command-menu-item/contexts/CommandMenuContextProvider';
 import { PinnedCommandMenuItemButtons } from '@/command-menu-item/display/components/PinnedCommandMenuItemButtons';
@@ -8,6 +7,7 @@ import { contextStoreCurrentObjectMetadataItemIdComponentState } from '@/context
 import { isLayoutCustomizationModeEnabledState } from '@/layout-customization/states/isLayoutCustomizationModeEnabledState';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+import { useIsMobile } from 'twenty-ui/utilities';
 
 export const RecordIndexCommandMenu = () => {
   const contextStoreCurrentObjectMetadataItemId = useAtomComponentStateValue(
@@ -15,6 +15,7 @@ export const RecordIndexCommandMenu = () => {
     MAIN_CONTEXT_STORE_INSTANCE_ID,
   );
 
+  const isMobile = useIsMobile();
   const isLayoutCustomizationModeEnabled = useAtomStateValue(
     isLayoutCustomizationModeEnabledState,
   );
@@ -26,15 +27,15 @@ export const RecordIndexCommandMenu = () => {
           <CommandMenuContextProvider
             isInSidePanel={false}
             displayType="button"
-            containerType={CommandMenuItemContainerType.IndexPageHeader}
+            containerType="index-page-header"
             isInPreviewMode={isLayoutCustomizationModeEnabled}
           >
-            <PinnedCommandMenuItemButtons />
+            {!isMobile && <PinnedCommandMenuItemButtons />}
           </CommandMenuContextProvider>
           <CommandMenuContextProvider
             isInSidePanel={false}
             displayType="dropdownItem"
-            containerType={CommandMenuItemContainerType.IndexPageDropdown}
+            containerType="index-page-dropdown"
           >
             <RecordIndexCommandMenuDropdown />
           </CommandMenuContextProvider>

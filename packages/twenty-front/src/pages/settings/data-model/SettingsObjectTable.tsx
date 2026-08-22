@@ -38,7 +38,6 @@ import {
   ThemeContext,
   themeCssVariables,
 } from 'twenty-ui/theme-constants';
-import { useNavigateSettings } from '~/hooks/useNavigateSettings';
 import { GET_SETTINGS_OBJECT_TABLE_METADATA } from '~/pages/settings/data-model/constants/SettingsObjectTableMetadata';
 import type { SettingsObjectTableItem } from '~/pages/settings/data-model/types/SettingsObjectTableItem';
 import { normalizeSearchText } from '~/utils/normalizeSearchText';
@@ -74,7 +73,6 @@ export const SettingsObjectTable = ({
   const { theme } = useContext(ThemeContext);
   const { t } = useLingui();
   const getIsMetadataItemCustom = useGetIsMetadataItemCustom();
-  const navigate = useNavigateSettings();
 
   const isAdvancedModeEnabled = useAtomStateValue(isAdvancedModeEnabledState);
   const isDDLLocked = useAtomStateValue(isDDLLockedState);
@@ -263,21 +261,13 @@ export const SettingsObjectTable = ({
                               stroke={theme.icon.stroke.sm}
                             />
                           </StyledIconChevronRightContainer>
-                        ) : (
+                        ) : isDDLLocked ? null : (
                           <SettingsObjectInactiveMenuDropDown
                             isCustomObject={getIsMetadataItemCustom(
                               objectSettingsItem.objectMetadataItem,
                             )}
-                            isReadOnly={isDDLLocked}
                             objectMetadataItemNamePlural={
                               objectSettingsItem.objectMetadataItem.namePlural
-                            }
-                            onEdit={() =>
-                              navigate(SettingsPath.ObjectDetail, {
-                                objectNamePlural:
-                                  objectSettingsItem.objectMetadataItem
-                                    .namePlural,
-                              })
                             }
                             onActivate={() =>
                               updateOneObjectMetadataItem({

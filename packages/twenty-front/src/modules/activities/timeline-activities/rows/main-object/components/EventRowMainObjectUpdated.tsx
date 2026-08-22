@@ -4,12 +4,11 @@ import { useState } from 'react';
 
 import { EventCard } from '@/activities/timeline-activities/rows/components/EventCard';
 import { EventCardToggleButton } from '@/activities/timeline-activities/rows/components/EventCardToggleButton';
-import { EventRowDate } from '@/activities/timeline-activities/rows/components/EventRowDate';
 import { EventRowItem } from '@/activities/timeline-activities/rows/components/EventRowItem';
 import { EventFieldDiffContainer } from '@/activities/timeline-activities/rows/main-object/components/EventFieldDiffContainer';
 import { type TimelineActivity } from '@/activities/timeline-activities/types/TimelineActivity';
 import { type EnrichedObjectMetadataItem } from '@/object-metadata/types/EnrichedObjectMetadataItem';
-import { themeCssVariables } from 'twenty-ui/theme-constants';
+import { MOBILE_VIEWPORT, themeCssVariables } from 'twenty-ui/theme-constants';
 
 type EventRowMainObjectUpdatedProps = {
   mainObjectMetadataItem: EnrichedObjectMetadataItem;
@@ -24,6 +23,14 @@ const StyledRowContainer = styled.div`
   display: flex;
   gap: ${themeCssVariables.spacing[1]};
   justify-content: space-between;
+`;
+
+const StyledItemTitleDate = styled.div`
+  @media (max-width: ${MOBILE_VIEWPORT}px) {
+    display: none;
+  }
+  color: ${themeCssVariables.font.color.tertiary};
+  padding: 0 ${themeCssVariables.spacing[1]};
 `;
 
 const StyledRow = styled.div`
@@ -82,7 +89,7 @@ export const EventRowMainObjectUpdated = ({
             </>
           )}
         </StyledRow>
-        <EventRowDate createdAt={createdAt} />
+        <StyledItemTitleDate>{createdAt}</StyledItemTitleDate>
       </StyledRowContainer>
       {diffEntries.length > 1 && (
         <EventCard isOpen={isOpen}>

@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 
-import { getUiZoom } from '@/ui/theme/utils/getUiZoom';
 import { useTrackPointer } from '@/ui/utilities/pointer-event/hooks/useTrackPointer';
 import { type PointerEventListener } from '@/ui/utilities/pointer-event/types/PointerEventListener';
 
@@ -36,15 +35,11 @@ export const useResizablePanel = ({
   const [startWidth, setStartWidth] = useState<number>(0);
   const [hasDragged, setHasDragged] = useState(false);
 
-  // captured once per drag: reading computed style on every move would
-  // force a synchronous style recalc, and the zoom cannot change mid-drag
-  const [dragUiZoom, setDragUiZoom] = useState(1);
-
   const handleResizeMove = useCallback<PointerEventListener>(
     ({ x }) => {
       if (startX === null) return;
 
-      const deltaX = (x - startX) / dragUiZoom;
+      const deltaX = x - startX;
 
       if (!hasDragged && Math.abs(deltaX) > RESIZE_DRAG_THRESHOLD_PX) {
         setHasDragged(true);
@@ -68,7 +63,6 @@ export const useResizablePanel = ({
       }
     },
     [
-      dragUiZoom,
       startX,
       startWidth,
       hasDragged,
@@ -87,7 +81,7 @@ export const useResizablePanel = ({
         return;
       }
 
-      const deltaX = (x - startX) / dragUiZoom;
+      const deltaX = x - startX;
 
       if (!hasDragged) {
         onCollapse();
@@ -105,7 +99,6 @@ export const useResizablePanel = ({
       setIsResizing(false);
     },
     [
-      dragUiZoom,
       startX,
       startWidth,
       hasDragged,
@@ -126,7 +119,6 @@ export const useResizablePanel = ({
   const handleMouseDown = useCallback(
     (event: React.MouseEvent) => {
       event.preventDefault();
-      setDragUiZoom(getUiZoom());
       setStartX(event.clientX);
       setStartWidth(currentWidth);
       setHasDragged(false);

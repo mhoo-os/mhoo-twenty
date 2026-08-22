@@ -30,10 +30,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'id',
       type: FieldMetadataType.UUID,
-      label: i18nLabel(msg({ message: `Id`, context: 'fieldMetadata.label' })),
-      description: i18nLabel(
-        msg({ message: `Id`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Id`),
+      description: i18nLabel(msg`Id`),
       icon: 'Icon123',
       isSystem: true,
       isNullable: false,
@@ -51,12 +49,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'createdAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Creation date`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `Creation date`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Creation date`),
+      description: i18nLabel(msg`Creation date`),
       icon: 'IconCalendar',
       isSystem: true,
       isNullable: false,
@@ -75,15 +69,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'updatedAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Last update`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Last time the record was changed`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Last update`),
+      description: i18nLabel(msg`Last time the record was changed`),
       icon: 'IconCalendarClock',
       isSystem: true,
       isNullable: false,
@@ -102,15 +89,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'deletedAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Deleted at`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Date when the record was deleted`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Deleted at`),
+      description: i18nLabel(msg`Date when the record was deleted`),
       icon: 'IconCalendarMinus',
       isSystem: true,
       isNullable: true,
@@ -128,15 +108,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'createdBy',
       type: FieldMetadataType.ACTOR,
-      label: i18nLabel(
-        msg({ message: `Created by`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `The creator of the record`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Created by`),
+      description: i18nLabel(msg`The creator of the record`),
       icon: 'IconCreativeCommonsSa',
       isSystem: true,
       isUIEditable: false,
@@ -158,14 +131,9 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'updatedBy',
       type: FieldMetadataType.ACTOR,
-      label: i18nLabel(
-        msg({ message: `Updated by`, context: 'fieldMetadata.label' }),
-      ),
+      label: i18nLabel(msg`Updated by`),
       description: i18nLabel(
-        msg({
-          message: `The workspace member who last updated the record`,
-          context: 'fieldMetadata.description',
-        }),
+        msg`The workspace member who last updated the record`,
       ),
       icon: 'IconUserCircle',
       isSystem: true,
@@ -188,15 +156,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'position',
       type: FieldMetadataType.POSITION,
-      label: i18nLabel(
-        msg({ message: `Position`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Calendar event record position`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Position`),
+      description: i18nLabel(msg`Calendar event record position`),
       icon: 'IconHierarchy2',
       isSystem: true,
       isNullable: false,
@@ -213,15 +174,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'searchVector',
       type: FieldMetadataType.TS_VECTOR,
-      label: i18nLabel(
-        msg({ message: `Search vector`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Field used for full-text search`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Search vector`),
+      description: i18nLabel(msg`Field used for full-text search`),
       icon: 'IconUser',
       isSystem: true,
       isNullable: true,
@@ -237,12 +191,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'title',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Title`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `Title`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Title`),
+      description: i18nLabel(msg`Title`),
       icon: 'IconH1',
       isNullable: true,
       isUIEditable: false,
@@ -258,12 +208,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'isCanceled',
       type: FieldMetadataType.BOOLEAN,
-      label: i18nLabel(
-        msg({ message: `Is canceled`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `Is canceled`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Is canceled`),
+      description: i18nLabel(msg`Is canceled`),
       icon: 'IconCalendarCancel',
       isNullable: false,
       isUIEditable: false,
@@ -280,12 +226,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'isFullDay',
       type: FieldMetadataType.BOOLEAN,
-      label: i18nLabel(
-        msg({ message: `Is Full Day`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `Is Full Day`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Is Full Day`),
+      description: i18nLabel(msg`Is Full Day`),
       icon: 'IconHours24',
       isNullable: false,
       isUIEditable: false,
@@ -302,12 +244,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'startsAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Start Date`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `Start Date`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Start Date`),
+      description: i18nLabel(msg`Start Date`),
       icon: 'IconCalendarClock',
       isNullable: true,
       isUIEditable: false,
@@ -323,12 +261,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'endsAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `End Date`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `End Date`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`End Date`),
+      description: i18nLabel(msg`End Date`),
       icon: 'IconCalendarClock',
       isNullable: true,
       isUIEditable: false,
@@ -344,15 +278,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'externalCreatedAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Creation DateTime`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Creation DateTime`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Creation DateTime`),
+      description: i18nLabel(msg`Creation DateTime`),
       icon: 'IconCalendarPlus',
       isNullable: true,
       isUIEditable: false,
@@ -368,15 +295,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'externalUpdatedAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Update DateTime`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Update DateTime`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Update DateTime`),
+      description: i18nLabel(msg`Update DateTime`),
       icon: 'IconCalendarCog',
       isNullable: true,
       isUIEditable: false,
@@ -392,12 +312,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'description',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Description`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `Description`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Description`),
+      description: i18nLabel(msg`Description`),
       icon: 'IconFileDescription',
       isNullable: true,
       isUIEditable: false,
@@ -414,12 +330,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'location',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Location`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `Location`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Location`),
+      description: i18nLabel(msg`Location`),
       icon: 'IconMapPin',
       isNullable: true,
       isUIEditable: false,
@@ -435,12 +347,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'iCalUid',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `iCal UID`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `iCal UID`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`iCal UID`),
+      description: i18nLabel(msg`iCal UID`),
       icon: 'IconKey',
       isNullable: true,
       isUIEditable: false,
@@ -456,15 +364,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'conferenceSolution',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Conference Solution`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Conference Solution`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Conference Solution`),
+      description: i18nLabel(msg`Conference Solution`),
       icon: 'IconScreenShare',
       isNullable: true,
       isUIEditable: false,
@@ -480,12 +381,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'conferenceLink',
       type: FieldMetadataType.LINKS,
-      label: i18nLabel(
-        msg({ message: `Meet Link`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `Meet Link`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Meet Link`),
+      description: i18nLabel(msg`Meet Link`),
       icon: 'IconLink',
       isNullable: true,
       isUIEditable: false,
@@ -502,18 +399,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'calendarChannelEventAssociations',
-      label: i18nLabel(
-        msg({
-          message: `Calendar Channel Event Associations`,
-          context: 'fieldMetadata.label',
-        }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Calendar Channel Event Associations`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Calendar Channel Event Associations`),
+      description: i18nLabel(msg`Calendar Channel Event Associations`),
       icon: 'IconCalendar',
       isNullable: false,
       isUIEditable: false,
@@ -535,15 +422,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'calendarEventParticipants',
-      label: i18nLabel(
-        msg({ message: `Event Participants`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Event Participants`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Event Participants`),
+      description: i18nLabel(msg`Event Participants`),
       icon: 'IconUserCircle',
       isNullable: false,
       isUIEditable: false,
@@ -565,15 +445,8 @@ export const buildCalendarEventStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'callRecordings',
-      label: i18nLabel(
-        msg({ message: `Call Recordings`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Call Recordings`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Call Recordings`),
+      description: i18nLabel(msg`Call Recordings`),
       icon: 'IconPhone',
       isNullable: false,
       isUIEditable: false,

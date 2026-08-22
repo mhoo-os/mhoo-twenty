@@ -9,9 +9,9 @@ export const buildAgentRolePermissionConfig = ({
   agentRoleId: string;
   runAsRoleId?: string;
 }): RolePermissionConfig => {
-  if (isDefined(runAsRoleId)) {
-    return { intersectionOf: [runAsRoleId] };
+  if (!isDefined(runAsRoleId) || runAsRoleId === agentRoleId) {
+    return { intersectionOf: [agentRoleId] };
   }
 
-  return { intersectionOf: [agentRoleId] };
+  return { intersectionOf: [agentRoleId, runAsRoleId] };
 };

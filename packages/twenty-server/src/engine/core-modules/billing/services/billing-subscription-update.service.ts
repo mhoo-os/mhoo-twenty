@@ -15,6 +15,7 @@ import type Stripe from 'stripe';
 
 import { billingValidator } from 'src/engine/core-modules/billing/billing.validate';
 import { BillingPriceEntity } from 'src/engine/core-modules/billing/entities/billing-price.entity';
+import { BillingSubscriptionItemEntity } from 'src/engine/core-modules/billing/entities/billing-subscription-item.entity';
 import { BillingSubscriptionEntity } from 'src/engine/core-modules/billing/entities/billing-subscription.entity';
 import { BillingPlanKey } from 'src/engine/core-modules/billing/enums/billing-plan-key.enum';
 import { BillingProductKey } from 'src/engine/core-modules/billing/enums/billing-product-key.enum';
@@ -56,6 +57,8 @@ export class BillingSubscriptionUpdateService {
     private readonly billingProductService: BillingProductService,
     @InjectRepository(BillingPriceEntity)
     private readonly billingPriceRepository: Repository<BillingPriceEntity>,
+    @InjectRepository(BillingSubscriptionItemEntity)
+    private readonly billingSubscriptionItemRepository: Repository<BillingSubscriptionItemEntity>,
     @InjectWorkspaceScopedRepository(BillingSubscriptionEntity)
     private readonly billingSubscriptionRepository: WorkspaceScopedRepository<BillingSubscriptionEntity>,
     private readonly stripeSubscriptionScheduleService: StripeSubscriptionScheduleService,
@@ -297,6 +300,13 @@ export class BillingSubscriptionUpdateService {
         seats: toUpdateCurrentPrices.seats,
         ...subscriptionOptions,
       });
+
+      if (subscriptionUpdate.type !== SubscriptionUpdateType.SEATS) {
+        await this.billingSubscriptionItemRepository.update(
+          { stripeSubscriptionId: subscription.stripeSubscriptionId },
+          { hasReachedCurrentPeriodCap: false },
+        );
+      }
 
       if (isDefined(nextPhase)) {
         assertIsDefinedOrThrow(schedule);

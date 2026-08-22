@@ -28,13 +28,10 @@ export class ApiKeyService {
   ) {}
 
   async create(
-    apiKeyData: Pick<ApiKeyEntity, 'name' | 'expiresAt' | 'revokedAt'> & {
-      roleId: string;
-      workspaceId: string;
-    },
+    apiKeyData: Partial<ApiKeyEntity> & { roleId: string; workspaceId: string },
   ): Promise<ApiKeyEntity> {
     const { roleId, workspaceId, ...apiKeyFields } = apiKeyData;
-    const savedApiKey = await this.apiKeyRepository.insertAndReturnOne(
+    const savedApiKey = await this.apiKeyRepository.save(
       workspaceId,
       apiKeyFields,
     );

@@ -37,7 +37,7 @@ const WORKSPACE_MEMBER_OBJECT_UNIVERSAL_IDENTIFIER =
   STANDARD_OBJECTS.workspaceMember.universalIdentifier;
 
 @Injectable()
-@WorkspaceCache('rolesPermissions', { packingPonderation: 2 })
+@WorkspaceCache('rolesPermissions')
 export class WorkspaceRolesPermissionsCacheService extends WorkspaceCacheProvider<ObjectsPermissionsByRoleId> {
   constructor(
     @InjectRepository(ObjectMetadataEntity)

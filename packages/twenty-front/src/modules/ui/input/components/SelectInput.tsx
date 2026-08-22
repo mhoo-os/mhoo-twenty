@@ -41,6 +41,7 @@ export const SelectInput = ({
 }: SelectInputProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Get the SelectableList instance id from context
   const selectableListInstanceId = useAvailableComponentInstanceIdOrThrow(
     SelectableListComponentInstanceContext,
   );

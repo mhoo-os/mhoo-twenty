@@ -359,6 +359,7 @@ describe('getAllStepIdsInLoop', () => {
         steps,
       });
 
+      // Should still include all steps but not get stuck in infinite loop
       expect(result).toEqual(['step2', 'step3', 'step4']);
     });
   });

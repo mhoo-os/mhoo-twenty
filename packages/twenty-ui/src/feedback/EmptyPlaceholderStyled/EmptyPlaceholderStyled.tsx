@@ -29,19 +29,31 @@ export const AnimatedPlaceholderEmptyTextContainer = ({
   className,
   ...rest
 }: ComponentPropsWithoutRef<'div'>) => (
-  <div className={clsx(styles.emptyTextContainer, className)} {...rest} />
+  <div
+    className={clsx(styles.emptyTextContainer, className)}
+    // oxlint-disable-next-line react/jsx-props-no-spreading
+    {...rest}
+  />
 );
 
 export const AnimatedPlaceholderEmptyTitle = ({
   className,
   ...rest
 }: ComponentPropsWithoutRef<'div'>) => (
-  <div className={clsx(styles.emptyTitle, className)} {...rest} />
+  <div
+    className={clsx(styles.emptyTitle, className)}
+    // oxlint-disable-next-line react/jsx-props-no-spreading
+    {...rest}
+  />
 );
 
 export const AnimatedPlaceholderEmptySubTitle = ({
   className,
   ...rest
 }: ComponentPropsWithoutRef<'div'>) => (
-  <div className={clsx(styles.emptySubTitle, className)} {...rest} />
+  <div
+    className={clsx(styles.emptySubTitle, className)}
+    // oxlint-disable-next-line react/jsx-props-no-spreading
+    {...rest}
+  />
 );

@@ -1,4 +1,8 @@
-import { Brackets, type WhereExpressionBuilder } from 'typeorm';
+import {
+  Brackets,
+  type ObjectLiteral,
+  type WhereExpressionBuilder,
+} from 'typeorm';
 
 import { type ObjectRecordFilter } from 'src/engine/api/graphql/workspace-query-builder/interfaces/object-record.interface';
 
@@ -6,9 +10,9 @@ import { applyFilterEntriesToWhereExpression } from 'src/engine/api/graphql/grap
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
+import { type WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/repository/workspace-select-query-builder';
 
 import { GraphqlQueryFilterFieldParser } from './graphql-query-filter-field.parser';
-import { type RecordQueryBuilder } from 'src/engine/api/graphql/graphql-query-runner/types/record-query-builder.type';
 
 export class GraphqlQueryFilterConditionParser {
   private queryFilterFieldParser: GraphqlQueryFilterFieldParser;
@@ -28,15 +32,15 @@ export class GraphqlQueryFilterConditionParser {
   }
 
   public parse(
-    queryBuilder: RecordQueryBuilder,
+    queryBuilder: WorkspaceSelectQueryBuilder<ObjectLiteral>,
     objectNameSingular: string,
     filter: Partial<ObjectRecordFilter>,
-  ): RecordQueryBuilder {
+  ): WorkspaceSelectQueryBuilder<ObjectLiteral> {
     if (!filter || Object.keys(filter).length === 0) {
       return queryBuilder;
     }
 
-    queryBuilder.where(
+    return queryBuilder.where(
       new Brackets((qb) => {
         this.applyFilterEntriesToWhereBrackets(
           qb,
@@ -46,13 +50,11 @@ export class GraphqlQueryFilterConditionParser {
         );
       }),
     );
-
-    return queryBuilder;
   }
 
   public applyFilterEntriesToWhereBrackets(
     innerQueryBuilder: WhereExpressionBuilder,
-    outerQueryBuilder: RecordQueryBuilder,
+    outerQueryBuilder: WorkspaceSelectQueryBuilder<ObjectLiteral>,
     objectNameSingular: string,
     filter: Partial<ObjectRecordFilter>,
   ): void {

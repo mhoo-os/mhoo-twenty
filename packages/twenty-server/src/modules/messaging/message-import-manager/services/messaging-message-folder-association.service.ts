@@ -2,12 +2,15 @@ import { Injectable } from '@nestjs/common';
 
 import { In } from 'typeorm';
 
+import { type WorkspaceEntityManager } from 'src/engine/twenty-orm/entity-manager/workspace-entity-manager';
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
-import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/global-workspace-datasource/types/workspace-transaction-scope.type';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { type MessageChannelMessageAssociationMessageFolderWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel-message-association-message-folder.workspace-entity';
-import { type MessageChannelMessageAssociationFolderAssociation } from 'src/modules/messaging/message-import-manager/types/message-channel-message-association-folder-association.type';
-import { buildMessageFolderAssociationsToInsert } from 'src/modules/messaging/message-import-manager/utils/build-message-folder-associations-to-insert.util';
+
+export type MessageChannelMessageAssociationFolderAssociation = {
+  messageChannelMessageAssociationId: string;
+  messageFolderIds: string[];
+};
 
 @Injectable()
 export class MessagingMessageFolderAssociationService {
@@ -18,17 +21,9 @@ export class MessagingMessageFolderAssociationService {
   async saveMessageFolderAssociations(
     associations: MessageChannelMessageAssociationFolderAssociation[],
     workspaceId: string,
-    transactionScope: WorkspaceTransactionScope,
+    transactionManager?: WorkspaceEntityManager,
   ): Promise<void> {
-    const associationIds = [
-      ...new Set(
-        associations
-          .filter((association) => association.messageFolderIds.length > 0)
-          .map((association) => association.messageChannelMessageAssociationId),
-      ),
-    ];
-
-    if (associationIds.length === 0) {
+    if (associations.length === 0) {
       return;
     }
 
@@ -37,23 +32,54 @@ export class MessagingMessageFolderAssociationService {
     await this.globalWorkspaceOrmManager.executeInWorkspaceContext(
       async () => {
         const repository =
-          transactionScope.getRepository<MessageChannelMessageAssociationMessageFolderWorkspaceEntity>(
+          await this.globalWorkspaceOrmManager.getRepository<MessageChannelMessageAssociationMessageFolderWorkspaceEntity>(
+            workspaceId,
             'messageChannelMessageAssociationMessageFolder',
           );
 
-        const existingRecords = await repository.find({
-          where: {
-            messageChannelMessageAssociationId: In(associationIds),
-          },
-        });
+        const records = associations.flatMap((association) =>
+          association.messageFolderIds.map((folderId) => ({
+            messageChannelMessageAssociationId:
+              association.messageChannelMessageAssociationId,
+            messageFolderId: folderId,
+          })),
+        );
 
-        const recordsToInsert = buildMessageFolderAssociationsToInsert({
-          associations,
-          existingRecords,
-        });
+        if (records.length === 0) {
+          return;
+        }
+
+        const associationIds = [
+          ...new Set(
+            records.map((record) => record.messageChannelMessageAssociationId),
+          ),
+        ];
+
+        const existingRecords = await repository.find(
+          {
+            where: {
+              messageChannelMessageAssociationId: In(associationIds),
+            },
+          },
+          transactionManager,
+        );
+
+        const existingKeys = new Set(
+          existingRecords.map(
+            (record) =>
+              `${record.messageChannelMessageAssociationId}:${record.messageFolderId}`,
+          ),
+        );
+
+        const recordsToInsert = records.filter(
+          (record) =>
+            !existingKeys.has(
+              `${record.messageChannelMessageAssociationId}:${record.messageFolderId}`,
+            ),
+        );
 
         if (recordsToInsert.length > 0) {
-          await repository.insert(recordsToInsert);
+          await repository.insert(recordsToInsert, transactionManager);
         }
       },
       authContext,

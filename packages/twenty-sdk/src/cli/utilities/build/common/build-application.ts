@@ -7,7 +7,6 @@ import {
   type Manifest,
 } from 'twenty-shared/application';
 import { FileFolder } from 'twenty-shared/types';
-import { isDefined } from 'twenty-shared/utils';
 
 import { copyReadmeToOutput } from '@/cli/utilities/build/common/copy-readme-to-output';
 import { type GeneratedAsset } from '@/cli/utilities/build/cover/generated-asset.type';
@@ -17,8 +16,6 @@ import { getBaseFrontComponentBuildOptions } from '@/cli/utilities/build/common/
 import { getFrontComponentBuildPlugins } from '@/cli/utilities/build/common/front-component-build/utils/get-front-component-build-plugins';
 import { createStubTwentySdkDefinePlugin } from '@/cli/utilities/build/common/plugins/stub-twenty-sdk-define.plugin';
 import { type OnFileBuiltCallback } from '@/cli/utilities/build/common/restartable-watcher-interface';
-import { buildSharedDependenciesBundle } from '@/cli/utilities/build/common/front-component-build/shared-dependencies-build/build-shared-dependencies-bundle';
-import { type SharedDependenciesBuildContext } from '@/cli/utilities/build/common/front-component-build/shared-dependencies-build/types/shared-dependencies-build-context.type';
 import { type EntityFilePaths } from '@/cli/utilities/build/manifest/manifest-extract-config';
 import { loadFrontComponentTranslationCatalogs } from '@/cli/utilities/translations/load-front-component-translation-catalogs';
 import {
@@ -70,8 +67,6 @@ export const buildApplication = async (
   };
 
   const { logicFunctions, frontComponents } = options.filePaths;
-  const sharedDependencies =
-    options.manifest.application.frontComponentSharedDependencies;
 
   // Bake the app's compiled translation catalogs into every front-component
   // bundle so the runtime t()/<Trans> resolves them in the sandboxed worker
@@ -112,15 +107,6 @@ export const buildApplication = async (
     onFileBuilt: collectFileBuilt,
   });
 
-  const sharedDependenciesBuildContext: SharedDependenciesBuildContext | null =
-    isDefined(sharedDependencies)
-      ? await buildSharedDependenciesBundle({
-          appPath: options.appPath,
-          sharedDependencies,
-          onFileBuilt: collectFileBuilt,
-        })
-      : null;
-
   await esbuildOneShotBuild({
     appPath: options.appPath,
     sourcePaths: frontComponents,
@@ -137,10 +123,7 @@ export const buildApplication = async (
         ? { banner: frontComponentTranslationsBanner }
         : {}),
       plugins: [
-        ...getFrontComponentBuildPlugins({
-          getSharedDependenciesBuildContext: () =>
-            sharedDependenciesBuildContext,
-        }),
+        ...getFrontComponentBuildPlugins(),
         createStubTwentySdkDefinePlugin(),
       ],
     },

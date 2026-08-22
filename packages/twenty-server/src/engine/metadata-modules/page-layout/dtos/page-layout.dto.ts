@@ -33,12 +33,6 @@ export class PageLayoutDTO {
   @Field(() => UUIDScalarType, { nullable: false })
   universalIdentifier: string;
 
-  @Field(() => UUIDScalarType, { nullable: false })
-  applicationId: string;
-
-  @Field({ nullable: false })
-  isSystemSideEffect: boolean;
-
   @Field()
   createdAt: Date;
 

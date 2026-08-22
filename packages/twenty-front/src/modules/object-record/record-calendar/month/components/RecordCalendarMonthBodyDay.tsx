@@ -18,7 +18,7 @@ import {
 } from 'twenty-shared/utils';
 import { RecordCalendarAddNew } from '@/object-record/record-calendar/components/RecordCalendarAddNew';
 import { RECORD_CALENDAR_CARD_DND_TYPE } from '@/object-record/record-calendar/month/constants/RecordCalendarCardDndType';
-import { RECORD_CALENDAR_MONTH_DAY_COLLISION_PRIORITY } from '@/object-record/record-calendar/month/constants/RecordCalendarMonthDayCollisionPriority';
+import { DND_KIT_COLLISION_PRIORITY } from '@/ui/utilities/drag-and-drop/constants/DndKitCollisionPriority';
 import { DragDropItemDropTarget } from '@/ui/utilities/drag-and-drop/components/DragDropItemDropTarget';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 
@@ -136,7 +136,7 @@ export const RecordCalendarMonthBodyDay = ({
 
   const { isDropTarget, ref: dropRef } = useDroppable({
     id: dayKey,
-    collisionPriority: RECORD_CALENDAR_MONTH_DAY_COLLISION_PRIORITY,
+    collisionPriority: DND_KIT_COLLISION_PRIORITY,
     collisionDetector: pointerIntersection,
     type: RECORD_CALENDAR_CARD_DND_TYPE,
     accept: RECORD_CALENDAR_CARD_DND_TYPE,
@@ -149,7 +149,6 @@ export const RecordCalendarMonthBodyDay = ({
 
   return (
     <StyledContainer
-      ref={dropRef}
       isOtherMonth={isOtherMonth}
       isDayOfWeekend={isDayOfWeekend}
       onMouseEnter={() => setHovered(true)}
@@ -161,7 +160,7 @@ export const RecordCalendarMonthBodyDay = ({
           <StyledDayHeaderDay isToday={isToday}>{day.day}</StyledDayHeaderDay>
         </StyledDayHeaderDayContainer>
       </StyledDayHeader>
-      <StyledCardsContainer isDraggedOver={isDropTarget}>
+      <StyledCardsContainer ref={dropRef} isDraggedOver={isDropTarget}>
         {visibleRecordIds.map((recordId, index) => (
           <Fragment key={`${recordId}-${dayKey}`}>
             <DragDropItemDropTarget

@@ -20,6 +20,9 @@ const filterData = <DataT>(
   where: Record<string, any>,
 ): Array<DataT> =>
   data.filter((item) => {
+    // { firstName: {contains: '%string%' }}
+    // { lastName: {equals: 'string' }}
+    // { is: { company: { equals: 'string' }}}
     let isMatch: boolean = (
       Object.keys(where) as Array<keyof typeof where>
     ).every((key) => {

@@ -23,6 +23,7 @@ describe('workspace permissions', () => {
   let originalWorkspaceState: Record<string, unknown>;
 
   beforeAll(async () => {
+    // Store original workspace state
     const query = gql`
       query getWorkspace {
         currentWorkspace {
@@ -43,6 +44,7 @@ describe('workspace permissions', () => {
   });
 
   afterAll(async () => {
+    // Restore workspace state
     const restoreQuery = gql`
       mutation updateWorkspace {
         updateWorkspace(data: {

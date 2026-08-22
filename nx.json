@@ -112,17 +112,16 @@
       "options": {
         "jestConfig": "{projectRoot}/jest.config.mjs",
         "silent": true,
+        "coverage": true,
         "coverageReporters": ["text-summary"],
         "cacheDirectory": "../../.cache/jest/{projectRoot}"
       },
       "configurations": {
         "ci": {
           "ci": true,
-          "maxWorkers": 1,
-          "coverage": true
+          "maxWorkers": 1
         },
         "coverage": {
-          "coverage": true,
           "coverageReporters": ["lcov", "text"]
         },
         "watch": {

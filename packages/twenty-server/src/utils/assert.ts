@@ -6,6 +6,9 @@ type Assert = (
   ErrorType?: new (message?: string) => HttpException,
 ) => asserts condition;
 
+/**
+ * assert condition and throws a HttpException
+ */
 export const assert: Assert = (condition, message, ErrorType) => {
   if (!condition) {
     if (ErrorType) {

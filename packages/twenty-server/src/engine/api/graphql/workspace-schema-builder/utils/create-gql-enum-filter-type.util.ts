@@ -20,10 +20,6 @@ export const createGqlEnumFilterType = (
       containsAny: { type: new GraphQLList(enumType) },
       is: { type: FilterIs },
       isEmptyArray: { type: GraphQLBoolean },
-      gt: { type: enumType },
-      gte: { type: enumType },
-      lt: { type: enumType },
-      lte: { type: enumType },
     }),
   });
 };

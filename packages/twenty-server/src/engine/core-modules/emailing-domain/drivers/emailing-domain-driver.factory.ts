@@ -1,11 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { isNonEmptyString } from '@sniptt/guards';
-
-import {
-  type AwsSesDriverConfig,
-  type ResendDriverConfig,
-} from 'src/engine/core-modules/emailing-domain/drivers/interfaces/driver-config.interface';
+import { type AwsSesDriverConfig } from 'src/engine/core-modules/emailing-domain/drivers/interfaces/driver-config.interface';
 import { type EmailingDomainDriverInterface } from 'src/engine/core-modules/emailing-domain/drivers/interfaces/emailing-domain-driver.interface';
 
 import { AwsSesClientProvider } from 'src/engine/core-modules/emailing-domain/drivers/aws-ses/providers/aws-ses-client.provider';
@@ -14,10 +9,7 @@ import { AwsSesDriver } from 'src/engine/core-modules/emailing-domain/drivers/aw
 import { AwsSesHandleErrorService } from 'src/engine/core-modules/emailing-domain/drivers/aws-ses/services/aws-ses-handle-error.service';
 import { AwsSesSendEmailService } from 'src/engine/core-modules/emailing-domain/drivers/aws-ses/services/aws-ses-send-email.service';
 import { LogEmailingDomainDriver } from 'src/engine/core-modules/emailing-domain/drivers/log/services/log-emailing-domain-driver.service';
-import { ResendApiClientService } from 'src/engine/core-modules/emailing-domain/drivers/resend/services/resend-api-client.service';
-import { ResendDriver } from 'src/engine/core-modules/emailing-domain/drivers/resend/services/resend-driver.service';
 import { EmailingDomainDriver } from 'src/engine/core-modules/emailing-domain/drivers/types/emailing-domain-driver.type';
-import { EmailGroupAccessService } from 'src/engine/core-modules/emailing-domain/services/email-group-access.service';
 import { UnsubscribeContentService } from 'src/engine/core-modules/emailing-domain/services/unsubscribe-content.service';
 import { DriverFactoryBase } from 'src/engine/core-modules/twenty-config/dynamic-factory.base';
 import { ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
@@ -34,17 +26,9 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
     private readonly awsSesRegisterDomainService: AwsSesRegisterDomainService,
     private readonly awsSesSendEmailService: AwsSesSendEmailService,
     private readonly logEmailingDomainDriver: LogEmailingDomainDriver,
-    private readonly resendApiClientService: ResendApiClientService,
     private readonly unsubscribeContentService: UnsubscribeContentService,
-    private readonly emailGroupAccessService: EmailGroupAccessService,
   ) {
     super(twentyConfigService, configGroupHashService);
-  }
-
-  override getCurrentDriver(): EmailingDomainDriverInterface {
-    this.emailGroupAccessService.validateEmailGroupAccessOrThrow();
-
-    return super.getCurrentDriver();
   }
 
   protected buildConfigKey(): string {
@@ -57,13 +41,6 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
         );
 
         return `aws-ses|${awsConfigHash}`;
-      }
-      case EmailingDomainDriver.RESEND: {
-        const resendConfigHash = this.configGroupHashService.computeHash(
-          ConfigVariablesGroup.RESEND_SETTINGS,
-        );
-
-        return `resend|${resendConfigHash}`;
       }
       case EmailingDomainDriver.LOG:
         return 'log';
@@ -104,23 +81,6 @@ export class EmailingDomainDriverFactory extends DriverFactoryBase<EmailingDomai
           this.awsSesHandleErrorService,
           this.awsSesRegisterDomainService,
           this.awsSesSendEmailService,
-          this.unsubscribeContentService,
-        );
-      }
-
-      case EmailingDomainDriver.RESEND: {
-        const domainRegion = this.twentyConfigService.get(
-          'RESEND_DOMAIN_REGION',
-        );
-
-        const resendConfig: ResendDriverConfig = {
-          driver: EmailingDomainDriver.RESEND,
-          ...(isNonEmptyString(domainRegion) ? { domainRegion } : {}),
-        };
-
-        return new ResendDriver(
-          resendConfig,
-          this.resendApiClientService,
           this.unsubscribeContentService,
         );
       }

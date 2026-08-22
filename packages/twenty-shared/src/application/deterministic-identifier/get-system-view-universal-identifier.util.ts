@@ -1,12 +1,5 @@
 import { computeDeterministicUuid } from '@/application/deterministic-identifier/compute-deterministic-uuid.util';
-
-export const SYSTEM_VIEW_KEYS = {
-  INDEX: 'INDEX',
-  FIELDS_WIDGET: 'FIELDS_WIDGET',
-} as const;
-
-export type SystemViewKey =
-  (typeof SYSTEM_VIEW_KEYS)[keyof typeof SYSTEM_VIEW_KEYS];
+import { type ViewKey } from '@/types/ViewKey';
 
 export const getSystemViewUniversalIdentifier = ({
   objectMetadataApplicationUniversalIdentifier,
@@ -15,7 +8,7 @@ export const getSystemViewUniversalIdentifier = ({
 }: {
   objectMetadataApplicationUniversalIdentifier: string;
   objectUniversalIdentifier: string;
-  viewKey: SystemViewKey;
+  viewKey: ViewKey;
 }): string =>
   computeDeterministicUuid({
     entityNamespace: 'view',

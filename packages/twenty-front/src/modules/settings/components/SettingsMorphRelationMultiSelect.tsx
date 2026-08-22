@@ -1,17 +1,15 @@
 import { styled } from '@linaria/react';
-import { plural, t } from '@lingui/core/macro';
-import { Fragment, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { plural } from '@lingui/core/macro';
+import { useMemo, useRef, useState, type MouseEvent } from 'react';
 
 import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
 import { DropdownMenuSearchInput } from '@/ui/layout/dropdown/components/DropdownMenuSearchInput';
-import { DropdownMenuSectionLabel } from '@/ui/layout/dropdown/components/DropdownMenuSectionLabel';
 import { DropdownMenuSeparator } from '@/ui/layout/dropdown/components/DropdownMenuSeparator';
 
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useObjectMetadataSelectHelpers } from '@/object-metadata/hooks/useObjectMetadataSelectHelpers';
-import { isAdvancedRelationTargetObjectMetadata } from '@/object-metadata/utils/isAdvancedRelationTargetObjectMetadata';
-import { isObjectMetadataEligibleAsRelationTarget } from '@/object-metadata/utils/isObjectMetadataEligibleAsRelationTarget';
+import { isObjectMetadataAvailableForRelation } from '@/object-metadata/utils/isObjectMetadataAvailableForRelation';
 import { MultiSelectControl } from '@/ui/input/components/MultiSelectControl';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
@@ -113,14 +111,13 @@ export const SettingsMorphRelationMultiSelect = ({
     useState<string[]>(selectedObjectMetadataIds);
 
   const options = activeObjectMetadataItems
-    .filter(isObjectMetadataEligibleAsRelationTarget)
+    .filter(isObjectMetadataAvailableForRelation)
     .sort((item1, item2) =>
       item1.labelSingular.localeCompare(item2.labelSingular),
     )
     .map((objectMetadataItem) => ({
       label: objectMetadataItem.labelSingular,
       objectMetadataId: objectMetadataItem.id,
-      isAdvanced: isAdvancedRelationTargetObjectMetadata(objectMetadataItem),
       ...getSelectIconPropsFromObjectMetadataItem(objectMetadataItem),
     }));
 
@@ -128,21 +125,14 @@ export const SettingsMorphRelationMultiSelect = ({
     localSelectedObjectMetadataIds.includes(option.objectMetadataId),
   );
 
-  const filteredOptions = useMemo(() => {
-    const matchingOptions = searchInputValue
-      ? options.filter(({ label }) =>
-          label.toLowerCase().includes(searchInputValue.toLowerCase()),
-        )
-      : options;
-
-    return [
-      ...matchingOptions.filter(({ isAdvanced }) => !isAdvanced),
-      ...matchingOptions.filter(({ isAdvanced }) => isAdvanced),
-    ];
-  }, [options, searchInputValue]);
-
-  const advancedSectionStartIndex = filteredOptions.findIndex(
-    ({ isAdvanced }) => isAdvanced,
+  const filteredOptions = useMemo(
+    () =>
+      searchInputValue
+        ? options.filter(({ label }) =>
+            label.toLowerCase().includes(searchInputValue.toLowerCase()),
+          )
+        : options,
+    [options, searchInputValue],
   );
 
   const isDisabled =
@@ -156,9 +146,7 @@ export const SettingsMorphRelationMultiSelect = ({
       ? selectContainerRef.current?.clientWidth
       : dropdownWidth;
 
-  const selectableItemIdArray = filteredOptions.map(
-    (option) => option.objectMetadataId,
-  );
+  const selectableItemIdArray = filteredOptions.map((option) => option.label);
 
   const selectedItemId = useAtomComponentStateValue(
     selectedItemIdComponentState,
@@ -169,7 +157,7 @@ export const SettingsMorphRelationMultiSelect = ({
 
   const handleDropdownOpen = () => {
     if (selectedOptions.length > 0 && !searchInputValue) {
-      setSelectedItemId(selectedOptions[0].objectMetadataId);
+      setSelectedItemId(selectedOptions[0].label);
     }
   };
 
@@ -250,18 +238,37 @@ export const SettingsMorphRelationMultiSelect = ({
                     focusId={dropdownId}
                     selectableItemIdArray={selectableItemIdArray}
                   >
-                    {filteredOptions.map((option, optionIndex) => (
-                      <Fragment key={option.objectMetadataId}>
-                        {optionIndex === advancedSectionStartIndex && (
-                          <>
-                            {optionIndex > 0 && <DropdownMenuSeparator />}
-                            <DropdownMenuSectionLabel label={t`Advanced`} />
-                          </>
-                        )}
-                        <SelectableListItem
-                          itemId={option.objectMetadataId}
-                          onEnter={() => {
-                            const newSelectedObjectMetadataIds =
+                    {filteredOptions.map((option) => (
+                      <SelectableListItem
+                        key={`${option.objectMetadataId}-${option.label}`}
+                        itemId={option.label}
+                        onEnter={() => {
+                          const newSelectedObjectMetadataIds =
+                            addOrRemoveFromArray(
+                              localSelectedObjectMetadataIds,
+                              option.objectMetadataId,
+                            );
+                          setLocalSelectedObjectMetadataIds(
+                            newSelectedObjectMetadataIds,
+                          );
+                          onChange?.(newSelectedObjectMetadataIds);
+                          onBlur?.();
+                          closeDropdown(dropdownId);
+                        }}
+                      >
+                        <MenuItemMultiSelect
+                          className=""
+                          LeftIcon={option.Icon ?? undefined}
+                          iconThemeColor={option.iconThemeColor}
+                          text={option.label}
+                          selected={selectedObjectMetadataIds.some(
+                            (selectedObjectMetadataId) =>
+                              selectedObjectMetadataId ===
+                              option.objectMetadataId,
+                          )}
+                          isKeySelected={selectedItemId === option.label}
+                          onSelectChange={() => {
+                            let newSelectedObjectMetadataIds =
                               addOrRemoveFromArray(
                                 localSelectedObjectMetadataIds,
                                 option.objectMetadataId,
@@ -271,37 +278,9 @@ export const SettingsMorphRelationMultiSelect = ({
                             );
                             onChange?.(newSelectedObjectMetadataIds);
                             onBlur?.();
-                            closeDropdown(dropdownId);
                           }}
-                        >
-                          <MenuItemMultiSelect
-                            className=""
-                            LeftIcon={option.Icon ?? undefined}
-                            iconThemeColor={option.iconThemeColor}
-                            text={option.label}
-                            selected={selectedObjectMetadataIds.some(
-                              (selectedObjectMetadataId) =>
-                                selectedObjectMetadataId ===
-                                option.objectMetadataId,
-                            )}
-                            isKeySelected={
-                              selectedItemId === option.objectMetadataId
-                            }
-                            onSelectChange={() => {
-                              const newSelectedObjectMetadataIds =
-                                addOrRemoveFromArray(
-                                  localSelectedObjectMetadataIds,
-                                  option.objectMetadataId,
-                                );
-                              setLocalSelectedObjectMetadataIds(
-                                newSelectedObjectMetadataIds,
-                              );
-                              onChange?.(newSelectedObjectMetadataIds);
-                              onBlur?.();
-                            }}
-                          />
-                        </SelectableListItem>
-                      </Fragment>
+                        />
+                      </SelectableListItem>
                     ))}
                   </SelectableList>
                 </DropdownMenuItemsContainer>

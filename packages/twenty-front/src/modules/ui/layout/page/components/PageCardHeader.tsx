@@ -92,7 +92,8 @@ export const PageCardHeader = ({
   const isMobile = useIsMobile();
   const isNavigationDrawerExpanded = useNavigationDrawerExpanded();
 
-  const hasTitleContent = isDefined(icon) || isDefined(title) || isDefined(tag);
+  const hasTitleContent =
+    !isMobile && (isDefined(icon) || isDefined(title) || isDefined(tag));
   const shouldCenterTitle = centerTitle && hasTitleContent;
 
   const titleContent = (
@@ -106,7 +107,7 @@ export const PageCardHeader = ({
   return (
     <StyledHeader centerTitle={shouldCenterTitle}>
       <StyledLeft>
-        {!isMobile && !isNavigationDrawerExpanded && (
+        {!isNavigationDrawerExpanded && (
           <NavigationDrawerCollapseButton direction="right" />
         )}
         {isDefined(breadcrumb)

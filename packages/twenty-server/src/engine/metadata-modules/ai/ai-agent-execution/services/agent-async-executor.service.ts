@@ -62,7 +62,7 @@ import {
 } from 'src/engine/metadata-modules/ai/ai-billing/utils/extract-cache-creation-tokens.util';
 import { mergeLanguageModelUsage } from 'src/engine/metadata-modules/ai/ai-billing/utils/merge-language-model-usage.util';
 import { getCallLevelProviderOptions } from 'src/engine/metadata-modules/ai/ai-chat/utils/provider-options.util';
-import { buildAiTelemetry } from 'src/engine/metadata-modules/ai/ai-models/utils/build-ai-telemetry.util';
+import { AI_TELEMETRY_CONFIG } from 'src/engine/metadata-modules/ai/ai-models/constants/ai-telemetry.const';
 import { AiModelConfigService } from 'src/engine/metadata-modules/ai/ai-models/services/ai-model-config.service';
 import { AiModelRegistryService } from 'src/engine/metadata-modules/ai/ai-models/services/ai-model-registry.service';
 import { NativeToolBinderService } from 'src/engine/metadata-modules/ai/ai-models/services/native-tool-binder.service';
@@ -388,12 +388,7 @@ export class AgentAsyncExecutorService {
           stepCountIs(AGENT_CONFIG.MAX_STEPS)(step) ||
           hasNoMoreAvailableCredits,
         providerOptions,
-        experimental_telemetry: buildAiTelemetry({
-          functionId: 'agent-execution',
-          workspaceId,
-          userWorkspaceId,
-          agentId: agent?.id,
-        }),
+        experimental_telemetry: AI_TELEMETRY_CONFIG,
         experimental_onToolCallFinish: (event) => {
           this.metricsService.recordHistogram({
             key: MetricsKeys.WorkflowAgentToolExecutionDurationMs,
@@ -503,12 +498,7 @@ export class AgentAsyncExecutorService {
             providerOptions: undefined,
             promptCacheKey: agent?.id,
           }),
-          experimental_telemetry: buildAiTelemetry({
-            functionId: 'agent-structured-output',
-            workspaceId,
-            userWorkspaceId,
-            agentId: agent?.id,
-          }),
+          experimental_telemetry: AI_TELEMETRY_CONFIG,
           onStepFinish: async (step) => {
             const { hasNoMoreAvailableCredits: stepHasNoMoreAvailableCredits } =
               await this.aiBillingService.decrementAndCheckAvailableCredits(

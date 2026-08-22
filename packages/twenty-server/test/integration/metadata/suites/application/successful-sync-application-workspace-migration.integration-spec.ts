@@ -94,6 +94,7 @@ describe('syncApplication', () => {
       extractRecordIdsAndDatesAsExpectAny(firstSyncData),
     );
 
+    // Verify database state after first sync
     const { objects: objectsAfterSync } = await findManyObjectMetadata({
       input: {
         filter: {},

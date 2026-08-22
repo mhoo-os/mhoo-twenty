@@ -9,17 +9,8 @@ export const useSkipSyncEmailOnboardingStep = () => {
     SkipSyncEmailOnboardingStepDocument,
   );
 
-  return useCallback(
-    async ({ isAutoSkipped }: { isAutoSkipped: boolean }) => {
-      await skipSyncEmailOnboardingStepMutation({
-        variables: { isAutoSkipped },
-      });
-      setNextOnboardingStatus({
-        stepHistoryEffect: isAutoSkipped
-          ? 'leaveUnchanged'
-          : 'recordAsReversible',
-      });
-    },
-    [skipSyncEmailOnboardingStepMutation, setNextOnboardingStatus],
-  );
+  return useCallback(async () => {
+    await skipSyncEmailOnboardingStepMutation();
+    setNextOnboardingStatus();
+  }, [skipSyncEmailOnboardingStepMutation, setNextOnboardingStatus]);
 };

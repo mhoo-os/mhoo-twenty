@@ -11,7 +11,6 @@ import {
   type ConcurrencyLimiter,
   createConcurrencyLimiter,
 } from 'src/engine/api/common/common-nested-relations-processor/utils/create-concurrency-limiter.util';
-import { getUniqueRelationIds } from 'src/engine/api/common/common-nested-relations-processor/utils/get-unique-relation-ids.util';
 import { STANDARD_ERROR_MESSAGE } from 'src/engine/api/common/common-query-runners/errors/standard-error-message.constant';
 import {
   GraphqlQueryRunnerException,
@@ -225,7 +224,7 @@ export class ProcessNestedRelationsV2Helper {
       name: sourceFieldName,
     });
 
-    const relationIds = getUniqueRelationIds({
+    const relationIds = this.getUniqueIds({
       records: parentObjectRecords,
       idField:
         relationType === RelationType.ONE_TO_MANY ? 'id' : joinColumnName,
@@ -362,6 +361,17 @@ export class ProcessNestedRelationsV2Helper {
     const targetRelationName = targetRelation?.name;
 
     return { targetRelationName, targetObjectMetadata, targetRelation };
+  }
+
+  private getUniqueIds({
+    records,
+    idField,
+  }: {
+    records: ObjectRecord[];
+    idField: string;
+    // oxlint-disable-next-line typescript/no-explicit-any
+  }): any[] {
+    return [...new Set(records.map((item) => item[idField]))];
   }
 
   private async findRelations({

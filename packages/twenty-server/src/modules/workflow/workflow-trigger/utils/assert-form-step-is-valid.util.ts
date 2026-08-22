@@ -28,6 +28,7 @@ export function assertFormStepIsValid(settings: WorkflowFormActionSettings) {
     );
   }
 
+  // Check all fields have unique and defined names
   const fieldNames = settings.input.map((fieldMetadata) => fieldMetadata.name);
   const uniqueFieldNames = new Set(fieldNames);
 
@@ -41,6 +42,7 @@ export function assertFormStepIsValid(settings: WorkflowFormActionSettings) {
     );
   }
 
+  // Check all fields have defined labels and types
   settings.input.forEach((fieldMetadata) => {
     if (
       !isNonEmptyString(fieldMetadata.label) ||

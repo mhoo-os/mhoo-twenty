@@ -63,13 +63,12 @@ export class MessagingMessagesImportService {
     messageChannel: MessageChannelEntity,
     connectedAccount: ConnectedAccountEntity,
     workspaceId: string,
-    batchSize?: number,
   ) {
     let messageIdsToFetch: string[] = [];
 
-    const messagesGetBatchSize =
-      batchSize ??
-      this.twentyConfigService.get('MESSAGING_MESSAGES_GET_BATCH_SIZE');
+    const messagesGetBatchSize = this.twentyConfigService.get(
+      'MESSAGING_MESSAGES_GET_BATCH_SIZE',
+    );
 
     const authContext = buildSystemAuthContext(workspaceId);
 
@@ -127,6 +126,7 @@ export class MessagingMessagesImportService {
               messageChannel,
             );
 
+          // Map external folder IDs to internal folder IDs
           const messageFolders = messageChannel.messageFolders ?? [];
           const foldersWithExternalId = messageFolders.filter(
             (folder): folder is typeof folder & { externalId: string } =>

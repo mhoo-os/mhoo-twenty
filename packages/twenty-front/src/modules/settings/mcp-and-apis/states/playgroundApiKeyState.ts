@@ -8,6 +8,7 @@ export const playgroundApiKeyState = createAtomState<AuthToken | null>({
   defaultValue: null,
 });
 
+// Returns true when the token is still valid `bufferMs` from now.
 export const isPlaygroundApiKeyFresh = (
   token: AuthToken | null,
   bufferMs = 0,

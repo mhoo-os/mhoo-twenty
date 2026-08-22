@@ -4,6 +4,7 @@ import { useObjectMetadataItemById } from '@/object-metadata/hooks/useObjectMeta
 import { recordStoreFamilyState } from '@/object-record/record-store/states/recordStoreFamilyState';
 import { currentPageLayoutIdState } from '@/page-layout/states/currentPageLayoutIdState';
 import { recordPageLayoutByObjectMetadataIdFamilySelector } from '@/page-layout/states/selectors/recordPageLayoutByObjectMetadataIdFamilySelector';
+import { getDefaultRecordPageLayoutId } from '@/page-layout/utils/getDefaultRecordPageLayoutId';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { useAtomFamilySelectorValue } from '@/ui/utilities/state/jotai/hooks/useAtomFamilySelectorValue';
 import { useAtomFamilyStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomFamilyStateValue';
@@ -54,7 +55,9 @@ export const usePageLayoutIdFromContextStore = () => {
     ? (recordStore?.pageLayoutId ?? currentPageLayoutId)
     : isDefined(recordPageLayout)
       ? recordPageLayout.id
-      : null;
+      : getDefaultRecordPageLayoutId({
+          targetObjectNameSingular: objectMetadataItem.nameSingular,
+        });
 
   return {
     pageLayoutId,

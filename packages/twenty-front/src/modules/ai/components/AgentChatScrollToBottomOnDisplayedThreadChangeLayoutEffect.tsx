@@ -1,62 +1,73 @@
-import { useStore } from 'jotai';
-import { useEffect } from 'react';
-import { isDefined } from 'twenty-shared/utils';
-
-import { agentChatDisplayedThreadState } from '@/ai/states/agentChatDisplayedThreadState';
+import { AI_CHAT_SCROLL_WRAPPER_ID } from '@/ai/constants/AiChatScrollWrapperId';
 import { agentChatIsInitialScrollPendingOnThreadChangeState } from '@/ai/states/agentChatIsInitialScrollPendingOnThreadChangeState';
-import { pinAiChatScrollToBottom } from '@/ai/utils/pinAiChatScrollToBottom';
-import { useScrollWrapperHTMLElement } from '@/ui/utilities/scroll/hooks/useScrollWrapperHTMLElement';
-import { scrollWrapperScrollBottomComponentState } from '@/ui/utilities/scroll/states/scrollWrapperScrollBottomComponentState';
-import { getScrollBottomInPx } from '@/ui/utilities/scroll/utils/getScrollBottomInPx';
+import { scrollAiChatToBottom } from '@/ai/utils/scrollAiChatToBottom';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
-import { useSetAtomComponentState } from '@/ui/utilities/state/jotai/hooks/useSetAtomComponentState';
 import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
+import { useEffect } from 'react';
+
+const SCROLL_SETTLE_DELAY_MS = 150;
 
 export const AgentChatScrollToBottomOnDisplayedThreadChangeLayoutEffect =
   () => {
-    const agentChatDisplayedThread = useAtomStateValue(
-      agentChatDisplayedThreadState,
+    const agentChatIsInitialScrollPendingOnThreadChange = useAtomStateValue(
+      agentChatIsInitialScrollPendingOnThreadChangeState,
     );
 
     const setAgentChatIsInitialScrollPendingOnThreadChange = useSetAtomState(
       agentChatIsInitialScrollPendingOnThreadChangeState,
     );
 
-    const store = useStore();
-
-    const { getScrollWrapperElement } = useScrollWrapperHTMLElement();
-
-    const setScrollWrapperScrollBottom = useSetAtomComponentState(
-      scrollWrapperScrollBottomComponentState,
-    );
-
     useEffect(() => {
-      if (!store.get(agentChatIsInitialScrollPendingOnThreadChangeState.atom)) {
+      if (!agentChatIsInitialScrollPendingOnThreadChange) {
         return;
       }
 
-      const { scrollWrapperElement } = getScrollWrapperElement();
+      const scrollWrapperElement = document.getElementById(
+        `scroll-wrapper-${AI_CHAT_SCROLL_WRAPPER_ID}`,
+      );
 
-      if (!isDefined(scrollWrapperElement)) {
-        setAgentChatIsInitialScrollPendingOnThreadChange(false);
+      if (!scrollWrapperElement) {
         return;
       }
 
-      return pinAiChatScrollToBottom({
-        scrollWrapperElement,
-        onContentSettled: () =>
-          setAgentChatIsInitialScrollPendingOnThreadChange(false),
-        onPinningStopped: () =>
-          setScrollWrapperScrollBottom(
-            getScrollBottomInPx(scrollWrapperElement),
-          ),
+      let settleTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+      const scheduleSettle = () => {
+        if (settleTimeoutId !== null) {
+          clearTimeout(settleTimeoutId);
+        }
+
+        scrollAiChatToBottom();
+
+        settleTimeoutId = setTimeout(() => {
+          scrollAiChatToBottom();
+          setAgentChatIsInitialScrollPendingOnThreadChange(false);
+          mutationObserver.disconnect();
+        }, SCROLL_SETTLE_DELAY_MS);
+      };
+
+      const mutationObserver = new MutationObserver(() => {
+        scheduleSettle();
       });
+
+      mutationObserver.observe(scrollWrapperElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class'],
+      });
+
+      scheduleSettle();
+
+      return () => {
+        if (settleTimeoutId !== null) {
+          clearTimeout(settleTimeoutId);
+        }
+        mutationObserver.disconnect();
+      };
     }, [
-      agentChatDisplayedThread,
-      store,
+      agentChatIsInitialScrollPendingOnThreadChange,
       setAgentChatIsInitialScrollPendingOnThreadChange,
-      getScrollWrapperElement,
-      setScrollWrapperScrollBottom,
     ]);
 
     return null;

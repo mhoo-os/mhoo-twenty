@@ -1,5 +1,7 @@
-import { getPageLayoutUniversalIdentifier } from '@/application/deterministic-identifier/get-page-layout-universal-identifier.util';
-import { getSystemRecordPageLayoutUniversalIdentifier } from '@/application/deterministic-identifier/get-system-record-page-layout-universal-identifier.util';
+import {
+  getPageLayoutUniversalIdentifier,
+  getRecordPageLayoutUniversalIdentifier,
+} from '@/application/deterministic-identifier/get-page-layout-universal-identifier.util';
 
 const APP = '11111111-1111-4111-8111-111111111111';
 const OBJECT = '22222222-2222-4222-8222-222222222222';
@@ -25,11 +27,11 @@ describe('getPageLayoutUniversalIdentifier', () => {
   });
 });
 
-describe('getSystemRecordPageLayoutUniversalIdentifier', () => {
+describe('getRecordPageLayoutUniversalIdentifier', () => {
   it('derives a deterministic id from the RECORD_PAGE role within its object', () => {
     expect(
-      getSystemRecordPageLayoutUniversalIdentifier({
-        objectMetadataApplicationUniversalIdentifier: APP,
+      getRecordPageLayoutUniversalIdentifier({
+        applicationUniversalIdentifier: APP,
         objectUniversalIdentifier: OBJECT,
       }),
     ).toBe('80289fa4-d714-5883-bd1d-bc59c7b9a1c2');

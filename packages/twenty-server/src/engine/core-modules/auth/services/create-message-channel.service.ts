@@ -54,7 +54,8 @@ export class CreateMessageChannelService {
           connectedAccountId,
           type: MessageChannelType.EMAIL,
           handle,
-          visibility: messageVisibility || MessageChannelVisibility.METADATA,
+          visibility:
+            messageVisibility || MessageChannelVisibility.SHARE_EVERYTHING,
           syncStatus: skipMessageChannelConfiguration
             ? MessageChannelSyncStatus.ONGOING
             : MessageChannelSyncStatus.NOT_SYNCED,

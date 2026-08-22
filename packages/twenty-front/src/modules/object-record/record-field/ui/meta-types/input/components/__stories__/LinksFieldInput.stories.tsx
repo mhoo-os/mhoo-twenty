@@ -589,6 +589,7 @@ export const CanNotSetPrimaryLinkAsPrimaryLink: Story = {
     });
     await userEvent.click(openDropdownButton);
 
+    // Should not see "Set as Primary" option for primary link
     const setPrimaryOption = within(
       canvasElement.ownerDocument.body,
     ).queryByText('Set as Primary');

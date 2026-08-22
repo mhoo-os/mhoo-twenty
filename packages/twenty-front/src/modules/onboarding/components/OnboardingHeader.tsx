@@ -112,13 +112,11 @@ const StyledInfoTag = styled.div`
 
 type OnboardingHeaderProps = {
   onBack?: () => void;
-  isBackDisabled?: boolean;
   freeCredits?: number;
 };
 
 export const OnboardingHeader = ({
   onBack,
-  isBackDisabled,
   freeCredits,
 }: OnboardingHeaderProps) => {
   const { t } = useLingui();
@@ -133,7 +131,6 @@ export const OnboardingHeader = ({
             accent="tertiary"
             size="small"
             onClick={onBack}
-            disabled={isBackDisabled}
             aria-label={t`Go back`}
           />
         )}

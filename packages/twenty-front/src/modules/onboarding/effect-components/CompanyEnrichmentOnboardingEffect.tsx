@@ -2,10 +2,7 @@ import { useMutation } from '@apollo/client/react';
 import { useStore } from 'jotai';
 import { useEffect } from 'react';
 import { isDefined } from 'twenty-shared/utils';
-import {
-  type WorkspaceCompanyEnrichment,
-  type WorkspacePersonEnrichment,
-} from 'twenty-shared/workspace';
+import { type WorkspaceCompanyEnrichment } from 'twenty-shared/workspace';
 
 import { currentUserState } from '@/auth/states/currentUserState';
 import { isCompanyEnrichmentEnabledState } from '@/client-config/states/isCompanyEnrichmentEnabledState';
@@ -13,7 +10,6 @@ import { useOnboardingStatus } from '@/onboarding/hooks/useOnboardingStatus';
 import { companyEnrichmentState } from '@/onboarding/states/companyEnrichmentState';
 import { hasAttemptedCompanyEnrichmentFetchState } from '@/onboarding/states/hasAttemptedCompanyEnrichmentFetchState';
 import { isCompanyEnrichmentFetchInFlightState } from '@/onboarding/states/isCompanyEnrichmentFetchInFlightState';
-import { personEnrichmentState } from '@/onboarding/states/personEnrichmentState';
 import { getHasAdvancedPastBookCallStep } from '@/onboarding/utils/getHasAdvancedPastBookCallStep';
 import { setIsBookCallOnboardingStepPending } from '@/onboarding/utils/setIsBookCallOnboardingStepPending';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
@@ -24,7 +20,6 @@ import {
   EnrichWorkspaceCompanyDocument,
   OnboardingStatus,
   WorkspaceCompanyEnrichmentOutcome,
-  WorkspacePersonEnrichmentOutcome,
 } from '~/generated-metadata/graphql';
 
 export const CompanyEnrichmentOnboardingEffect = () => {
@@ -43,7 +38,6 @@ export const CompanyEnrichmentOnboardingEffect = () => {
   const setIsCompanyEnrichmentFetchInFlight = useSetAtomState(
     isCompanyEnrichmentFetchInFlightState,
   );
-  const setPersonEnrichment = useSetAtomState(personEnrichmentState);
   const setCurrentUser = useSetAtomState(currentUserState);
   const isCompanyEnrichmentEnabled = useAtomStateValue(
     isCompanyEnrichmentEnabledState,
@@ -85,9 +79,7 @@ export const CompanyEnrichmentOnboardingEffect = () => {
 
         const dropBookCallStep = async () => {
           try {
-            await completeBookCallOnboardingStep({
-              variables: { hasBookedCall: false, isAutoSkipped: true },
-            });
+            await completeBookCallOnboardingStep();
 
             return true;
           } catch {
@@ -117,15 +109,6 @@ export const CompanyEnrichmentOnboardingEffect = () => {
         if (isDefined(enrichment)) {
           setCompanyEnrichment(enrichment);
         }
-
-        const personEnrichment: WorkspacePersonEnrichment | null =
-          result.personOutcome === WorkspacePersonEnrichmentOutcome.matched
-            ? (result.personEnrichment ?? null)
-            : null;
-
-        if (isDefined(personEnrichment)) {
-          setPersonEnrichment(personEnrichment);
-        }
       } catch {
         return;
       } finally {
@@ -142,7 +125,6 @@ export const CompanyEnrichmentOnboardingEffect = () => {
     setHasAttemptedCompanyEnrichmentFetch,
     setIsCompanyEnrichmentFetchInFlight,
     setCompanyEnrichment,
-    setPersonEnrichment,
     setCurrentUser,
     store,
     enrichWorkspaceCompany,

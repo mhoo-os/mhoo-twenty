@@ -37,26 +37,16 @@ describe('buildWidgetVisibilityContext', () => {
     expect(result).toEqual({ device: 'DESKTOP', selectedRecords: [] });
   });
 
-  it('should expose the target record as a single-record selection', () => {
+  it('should pass through selectedRecords', () => {
     const result = buildWidgetVisibilityContext({
       isMobile: false,
       isInSidePanel: false,
-      targetRecord: { id: 'a', status: 'DRAFT' },
+      selectedRecords: [{ id: 'a', status: 'DRAFT' }],
     });
 
     expect(result).toEqual({
       device: 'DESKTOP',
       selectedRecords: [{ id: 'a', status: 'DRAFT' }],
     });
-  });
-
-  it('should expose an empty selection when there is no target record', () => {
-    const result = buildWidgetVisibilityContext({
-      isMobile: false,
-      isInSidePanel: false,
-      targetRecord: undefined,
-    });
-
-    expect(result.selectedRecords).toEqual([]);
   });
 });

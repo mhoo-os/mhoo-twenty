@@ -4,6 +4,7 @@ import chunk from 'lodash.chunk';
 import { isDefined } from 'twenty-shared/utils';
 import { Any, In } from 'typeorm';
 
+import { type WorkspaceEntityManager } from 'src/engine/twenty-orm/entity-manager/workspace-entity-manager';
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { WorkspaceEventEmitter } from 'src/engine/workspace-event-emitter/workspace-event-emitter';
@@ -46,6 +47,7 @@ type MatchParticipantsArgs<
 > = {
   participants: ParticipantWorkspaceEntity[];
   objectMetadataName: ObjectMetadataName;
+  transactionManager?: WorkspaceEntityManager;
   matchWith: 'workspaceMemberOnly' | 'personOnly' | 'workspaceMemberAndPerson';
   workspaceId: string;
 };
@@ -81,6 +83,7 @@ export class MatchParticipantService<
   public async matchParticipants({
     participants,
     objectMetadataName,
+    transactionManager,
     matchWith = 'workspaceMemberAndPerson',
     workspaceId,
   }: MatchParticipantsArgs<ParticipantWorkspaceEntity>) {
@@ -124,11 +127,14 @@ export class MatchParticipantService<
         .orderBy('person.createdAt', 'ASC')
         .getMany();
 
-      const workspaceMembers = await workspaceMemberRepository.find({
-        where: {
-          userEmail: Any(uniqueParticipantsHandles),
+      const workspaceMembers = await workspaceMemberRepository.find(
+        {
+          where: {
+            userEmail: Any(uniqueParticipantsHandles),
+          },
         },
-      });
+        transactionManager,
+      );
 
       const partipantsToBeUpdated = participants
         .map((participant) => ({

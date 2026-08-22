@@ -80,7 +80,6 @@ export class WorkspaceSoftDeleteQueryBuilder<
         flatFieldMetadataMaps: this.internalContext.flatFieldMetadataMaps,
         objectIdByNameSingular: this.internalContext.objectIdByNameSingular,
         shouldBypassPermissionChecks: this.shouldBypassPermissionChecks,
-        authContext: this.authContext,
       });
 
       const mainAliasTarget = this.getMainAliasTarget();

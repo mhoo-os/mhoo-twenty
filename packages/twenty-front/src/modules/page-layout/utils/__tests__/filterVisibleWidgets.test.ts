@@ -10,8 +10,6 @@ describe('filterVisibleWidgets', () => {
     id: string,
     conditionalDisplay?: any,
   ): PageLayoutTab['widgets'][0] => ({
-    isSystemSideEffect: false,
-    universalIdentifier: 'universal-identifier-mock',
     __typename: 'PageLayoutWidget',
     id,
     applicationId: '',

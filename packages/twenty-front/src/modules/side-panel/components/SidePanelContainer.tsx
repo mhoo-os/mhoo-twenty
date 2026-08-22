@@ -8,14 +8,20 @@ import { ContextStoreComponentInstanceContext } from '@/context-store/states/con
 import { objectMetadataItemsSelector } from '@/object-metadata/states/objectMetadataItemsSelector';
 import { RecordComponentInstanceContextsWrapper } from '@/object-record/components/RecordComponentInstanceContextsWrapper';
 import { getRecordIndexIdFromObjectNamePluralAndViewId } from '@/object-record/utils/getRecordIndexIdFromObjectNamePluralAndViewId';
+import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 
-const StyledSidePanelContainer = styled.div`
+const StyledSidePanelContainer = styled.div<{ isMobile: boolean }>`
   display: flex;
   flex: 1;
   flex-direction: column;
-  max-height: 100%;
+  max-height: ${({ isMobile }) => {
+    const mobileOffset = isMobile ? themeCssVariables.spacing[16] : '0px';
+
+    return `calc(100% - ${mobileOffset})`;
+  }};
   min-height: 0;
 `;
 
@@ -28,6 +34,7 @@ export const SidePanelContainer = ({ children }: SidePanelContainerProps) => {
     contextStoreCurrentObjectMetadataItemIdComponentState,
     MAIN_CONTEXT_STORE_INSTANCE_ID,
   );
+  const isMobile = useIsMobile();
 
   const objectMetadataItems = useAtomStateValue(objectMetadataItemsSelector);
 
@@ -54,7 +61,9 @@ export const SidePanelContainer = ({ children }: SidePanelContainerProps) => {
         <CommandMenuComponentInstanceContext.Provider
           value={{ instanceId: SIDE_PANEL_COMPONENT_INSTANCE_ID }}
         >
-          <StyledSidePanelContainer>{children}</StyledSidePanelContainer>
+          <StyledSidePanelContainer isMobile={isMobile}>
+            {children}
+          </StyledSidePanelContainer>
         </CommandMenuComponentInstanceContext.Provider>
       </ContextStoreComponentInstanceContext.Provider>
     </RecordComponentInstanceContextsWrapper>

@@ -37,10 +37,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'id',
       type: FieldMetadataType.UUID,
-      label: i18nLabel(msg({ message: `Id`, context: 'fieldMetadata.label' })),
-      description: i18nLabel(
-        msg({ message: `Id`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Id`),
+      description: i18nLabel(msg`Id`),
       icon: 'Icon123',
       isSystem: true,
       isNullable: false,
@@ -58,12 +56,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'createdAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Creation date`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `Creation date`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Creation date`),
+      description: i18nLabel(msg`Creation date`),
       icon: 'IconCalendar',
       isSystem: true,
       isNullable: false,
@@ -82,15 +76,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'updatedAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Last update`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Last time the record was changed`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Last update`),
+      description: i18nLabel(msg`Last time the record was changed`),
       icon: 'IconCalendarClock',
       isSystem: true,
       isNullable: false,
@@ -109,15 +96,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'deletedAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Deleted at`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Date when the record was deleted`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Deleted at`),
+      description: i18nLabel(msg`Date when the record was deleted`),
       icon: 'IconCalendarMinus',
       isSystem: true,
       isNullable: true,
@@ -135,15 +115,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'position',
       type: FieldMetadataType.POSITION,
-      label: i18nLabel(
-        msg({ message: `Position`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Workspace member position`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Position`),
+      description: i18nLabel(msg`Workspace member position`),
       icon: 'IconHierarchy2',
       isSystem: true,
       isNullable: false,
@@ -161,15 +134,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'name',
       type: FieldMetadataType.FULL_NAME,
-      label: i18nLabel(
-        msg({ message: `Name`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Workspace member name`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Name`),
+      description: i18nLabel(msg`Workspace member name`),
       icon: 'IconCircleUser',
       isNullable: false,
       isUIEditable: false,
@@ -185,46 +151,13 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'colorScheme',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Color Scheme`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Preferred color scheme`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Color Scheme`),
+      description: i18nLabel(msg`Preferred color scheme`),
       icon: 'IconColorSwatch',
       isSystem: true,
       isNullable: false,
       isUIEditable: false,
       defaultValue: "'System'",
-    },
-    standardObjectMetadataRelatedEntityIds,
-    dependencyFlatEntityMaps,
-    twentyStandardApplicationId,
-    now,
-  }),
-  uiScale: createStandardFieldFlatMetadata({
-    objectName,
-    workspaceId,
-    context: {
-      fieldName: 'uiScale',
-      type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Interface Scale`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Preferred interface scale`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
-      icon: 'IconZoomScan',
-      isSystem: true,
-      isNullable: false,
-      isUIEditable: false,
-      defaultValue: "'Default'",
     },
     standardObjectMetadataRelatedEntityIds,
     dependencyFlatEntityMaps,
@@ -237,14 +170,9 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'openRecordIn',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Open Records In`, context: 'fieldMetadata.label' }),
-      ),
+      label: i18nLabel(msg`Open Records In`),
       description: i18nLabel(
-        msg({
-          message: `Where records open for objects that follow the member's preference`,
-          context: 'fieldMetadata.description',
-        }),
+        msg`Where records open for objects that follow the member's preference`,
       ),
       icon: 'IconLayoutSidebarRight',
       isSystem: true,
@@ -263,15 +191,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'locale',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Language`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Preferred language`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Language`),
+      description: i18nLabel(msg`Preferred language`),
       icon: 'IconLanguage',
       isSystem: true,
       isNullable: false,
@@ -289,15 +210,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'avatarUrl',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Avatar Url`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Workspace member avatar`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Avatar Url`),
+      description: i18nLabel(msg`Workspace member avatar`),
       icon: 'IconFileUpload',
       isSystem: true,
       isNullable: true,
@@ -314,15 +228,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'userEmail',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `User Email`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Related user email address`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`User Email`),
+      description: i18nLabel(msg`Related user email address`),
       icon: 'IconMail',
       isSystem: true,
       isNullable: true,
@@ -340,15 +247,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'jobTitle',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Job Title`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Workspace member job title`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Job Title`),
+      description: i18nLabel(msg`Workspace member job title`),
       icon: 'IconBriefcase',
       isSystem: true,
       isNullable: true,
@@ -365,15 +265,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'calendarStartDay',
       type: FieldMetadataType.NUMBER,
-      label: i18nLabel(
-        msg({ message: `Start of the week`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `User's preferred start day of the week`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Start of the week`),
+      description: "User's preferred start day of the week",
       icon: 'IconCalendar',
       isSystem: true,
       isNullable: false,
@@ -394,15 +287,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'userId',
       type: FieldMetadataType.UUID,
-      label: i18nLabel(
-        msg({ message: `User Id`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Associated User Id`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`User Id`),
+      description: i18nLabel(msg`Associated User Id`),
       icon: 'IconCircleUsers',
       isSystem: true,
       isNullable: false,
@@ -419,15 +305,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'timeZone',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Time zone`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `User time zone`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Time zone`),
+      description: i18nLabel(msg`User time zone`),
       icon: 'IconTimezone',
       isSystem: true,
       isNullable: false,
@@ -445,15 +324,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'dateFormat',
       type: FieldMetadataType.SELECT,
-      label: i18nLabel(
-        msg({ message: `Date format`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `User's preferred date format`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Date format`),
+      description: "User's preferred date format",
       icon: 'IconCalendarEvent',
       isSystem: true,
       isNullable: false,
@@ -463,36 +335,28 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
         {
           id: '20202020-4b6a-4a08-8506-09bd59ef118e',
           value: 'SYSTEM',
-          label: i18nLabel(
-            msg({ message: `System`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`System`),
           position: 0,
           color: 'turquoise',
         },
         {
           id: '20202020-6981-4e21-bb11-43ac1081be04',
           value: 'MONTH_FIRST',
-          label: i18nLabel(
-            msg({ message: `Month First`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Month First`),
           position: 1,
           color: 'red',
         },
         {
           id: '20202020-bf56-4199-b013-27ee921d046d',
           value: 'DAY_FIRST',
-          label: i18nLabel(
-            msg({ message: `Day First`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Day First`),
           position: 2,
           color: 'purple',
         },
         {
           id: '20202020-fd23-47d3-b01d-0479c11e5a2d',
           value: 'YEAR_FIRST',
-          label: i18nLabel(
-            msg({ message: `Year First`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Year First`),
           position: 3,
           color: 'sky',
         },
@@ -509,15 +373,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'timeFormat',
       type: FieldMetadataType.SELECT,
-      label: i18nLabel(
-        msg({ message: `Time format`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `User's preferred time format`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Time format`),
+      description: "User's preferred time format",
       icon: 'IconClock2',
       isSystem: true,
       isNullable: false,
@@ -527,27 +384,21 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
         {
           id: '20202020-349f-4ff8-82be-3eb52e7ec5f5',
           value: 'SYSTEM',
-          label: i18nLabel(
-            msg({ message: `System`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`System`),
           position: 0,
           color: 'sky',
         },
         {
           id: '20202020-592c-4e33-a457-f4dcde59a3fc',
           value: 'HOUR_24',
-          label: i18nLabel(
-            msg({ message: `24HRS`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`24HRS`),
           position: 1,
           color: 'red',
         },
         {
           id: '20202020-151c-43c2-a463-5bc42e5ce434',
           value: 'HOUR_12',
-          label: i18nLabel(
-            msg({ message: `12HRS`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`12HRS`),
           position: 2,
           color: 'purple',
         },
@@ -564,15 +415,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'numberFormat',
       type: FieldMetadataType.SELECT,
-      label: i18nLabel(
-        msg({ message: `Number format`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `User's preferred number format`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Number format`),
+      description: "User's preferred number format",
       icon: 'IconNumbers',
       isSystem: true,
       isNullable: false,
@@ -582,51 +426,35 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
         {
           id: '20202020-8b5b-4cee-8449-ca48d7c65c11',
           value: WorkspaceMemberNumberFormatEnum.SYSTEM,
-          label: i18nLabel(
-            msg({ message: `System`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`System`),
           position: 0,
           color: 'turquoise',
         },
         {
           id: '20202020-657d-409b-9c2a-d8c3b8842859',
           value: WorkspaceMemberNumberFormatEnum.COMMAS_AND_DOT,
-          label: i18nLabel(
-            msg({ message: `Commas and dot`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Commas and dot`),
           position: 1,
           color: 'blue',
         },
         {
           id: '20202020-8703-4475-a92b-42e631851d8b',
           value: WorkspaceMemberNumberFormatEnum.SPACES_AND_COMMA,
-          label: i18nLabel(
-            msg({
-              message: `Spaces and comma`,
-              context: 'fieldMetadata.label',
-            }),
-          ),
+          label: i18nLabel(msg`Spaces and comma`),
           position: 2,
           color: 'green',
         },
         {
           id: '20202020-2ea4-4b99-b72b-bebac01fd7db',
           value: WorkspaceMemberNumberFormatEnum.DOTS_AND_COMMA,
-          label: i18nLabel(
-            msg({ message: `Dots and comma`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Dots and comma`),
           position: 3,
           color: 'orange',
         },
         {
           id: '20202020-9d07-4353-8ce9-d067d639abf5',
           value: WorkspaceMemberNumberFormatEnum.APOSTROPHE_AND_DOT,
-          label: i18nLabel(
-            msg({
-              message: `Apostrophe and dot`,
-              context: 'fieldMetadata.label',
-            }),
-          ),
+          label: i18nLabel(msg`Apostrophe and dot`),
           position: 4,
           color: 'purple',
         },
@@ -643,15 +471,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'searchVector',
       type: FieldMetadataType.TS_VECTOR,
-      label: i18nLabel(
-        msg({ message: `Search vector`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Field used for full-text search`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Search vector`),
+      description: i18nLabel(msg`Field used for full-text search`),
       icon: 'IconUser',
       isSystem: true,
       isNullable: true,
@@ -669,15 +490,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'assignedTasks',
-      label: i18nLabel(
-        msg({ message: `Assigned tasks`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Tasks assigned to the workspace member`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Assigned tasks`),
+      description: i18nLabel(msg`Tasks assigned to the workspace member`),
       icon: 'IconCheckbox',
       isNullable: false,
       isUIEditable: false,
@@ -699,18 +513,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'accountOwnerForCompanies',
-      label: i18nLabel(
-        msg({
-          message: `Account Owner For Companies`,
-          context: 'fieldMetadata.label',
-        }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Account owner for companies`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Account Owner For Companies`),
+      description: i18nLabel(msg`Account owner for companies`),
       icon: 'IconBriefcase',
       isNullable: false,
       isUIEditable: false,
@@ -732,18 +536,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'messageParticipants',
-      label: i18nLabel(
-        msg({
-          message: `Message Participants`,
-          context: 'fieldMetadata.label',
-        }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Message Participants`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Message Participants`),
+      description: i18nLabel(msg`Message Participants`),
       icon: 'IconUserCircle',
       isNullable: false,
       isUIEditable: false,
@@ -765,15 +559,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'blocklist',
-      label: i18nLabel(
-        msg({ message: `Blocklist`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Blocklisted handles`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Blocklist`),
+      description: i18nLabel(msg`Blocklisted handles`),
       icon: 'IconForbid2',
       isNullable: false,
       isUIEditable: false,
@@ -795,18 +582,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'calendarEventParticipants',
-      label: i18nLabel(
-        msg({
-          message: `Calendar Event Participants`,
-          context: 'fieldMetadata.label',
-        }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Calendar Event Participants`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Calendar Event Participants`),
+      description: i18nLabel(msg`Calendar Event Participants`),
       icon: 'IconCalendar',
       isNullable: false,
       isUIEditable: false,
@@ -828,15 +605,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'timelineActivities',
-      label: i18nLabel(
-        msg({ message: `Events`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Events linked to the workspace member`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Events`),
+      description: i18nLabel(msg`Events linked to the workspace member`),
       icon: 'IconTimelineEvent',
       isNullable: true,
       isUIEditable: false,
@@ -858,15 +628,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'ownedOpportunities',
-      label: i18nLabel(
-        msg({ message: `Owned opportunities`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Opportunities owned by the workspace member`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Owned opportunities`),
+      description: i18nLabel(msg`Opportunities owned by the workspace member`),
       icon: 'IconTargetArrow',
       isNullable: false,
       isUIEditable: false,
@@ -887,15 +650,8 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'createdBy',
       type: FieldMetadataType.ACTOR,
-      label: i18nLabel(
-        msg({ message: `Created by`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `The creator of the record`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Created by`),
+      description: i18nLabel(msg`The creator of the record`),
       icon: 'IconCreativeCommonsSa',
       isSystem: true,
       isUIEditable: false,
@@ -917,14 +673,9 @@ export const buildWorkspaceMemberStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'updatedBy',
       type: FieldMetadataType.ACTOR,
-      label: i18nLabel(
-        msg({ message: `Updated by`, context: 'fieldMetadata.label' }),
-      ),
+      label: i18nLabel(msg`Updated by`),
       description: i18nLabel(
-        msg({
-          message: `The workspace member who last updated the record`,
-          context: 'fieldMetadata.description',
-        }),
+        msg`The workspace member who last updated the record`,
       ),
       icon: 'IconUserCircle',
       isSystem: true,

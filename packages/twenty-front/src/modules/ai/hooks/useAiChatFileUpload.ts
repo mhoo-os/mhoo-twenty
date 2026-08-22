@@ -2,9 +2,9 @@ import { agentChatSelectedFilesState } from '@/ai/states/agentChatSelectedFilesS
 import { agentChatUploadedFilesState } from '@/ai/states/agentChatUploadedFilesState';
 import { useDirectFileUpload } from '@/file/hooks/useDirectFileUpload';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
-import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
+import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useLingui } from '@lingui/react/macro';
-import { isDefined, isNonEmptyArray } from 'twenty-shared/utils';
+import { isDefined } from 'twenty-shared/utils';
 
 import { type AgentChatFileUIPart } from '@/ai/types/agent-chat-file-ui-part.type';
 import { FileFolder } from '~/generated-metadata/graphql';
@@ -13,10 +13,10 @@ export const useAiChatFileUpload = () => {
   const { uploadFile: directUploadFile } = useDirectFileUpload();
   const { t } = useLingui();
   const { enqueueErrorSnackBar } = useSnackBar();
-  const setAgentChatSelectedFiles = useSetAtomState(
+  const [agentChatSelectedFiles, setAgentChatSelectedFiles] = useAtomState(
     agentChatSelectedFilesState,
   );
-  const setAgentChatUploadedFiles = useSetAtomState(
+  const [agentChatUploadedFiles, setAgentChatUploadedFiles] = useAtomState(
     agentChatUploadedFilesState,
   );
 
@@ -26,6 +26,9 @@ export const useAiChatFileUpload = () => {
         fileFolder: FileFolder.AgentChat,
       });
 
+      setAgentChatSelectedFiles(
+        agentChatSelectedFiles.filter((f) => f.name !== file.name),
+      );
       return {
         filename: file.name,
         mediaType: file.type,
@@ -39,12 +42,6 @@ export const useAiChatFileUpload = () => {
         message: t`Failed to upload file: ${fileName}`,
       });
       return null;
-    } finally {
-      setAgentChatSelectedFiles((previousSelectedFiles) =>
-        previousSelectedFiles.filter(
-          (selectedFile) => selectedFile.name !== file.name,
-        ),
-      );
     }
   };
 
@@ -63,9 +60,9 @@ export const useAiChatFileUpload = () => {
       [],
     );
 
-    if (isNonEmptyArray(successfulUploads)) {
-      setAgentChatUploadedFiles((previousUploadedFiles) => [
-        ...previousUploadedFiles,
+    if (successfulUploads.length > 0) {
+      setAgentChatUploadedFiles([
+        ...agentChatUploadedFiles,
         ...successfulUploads,
       ]);
     }

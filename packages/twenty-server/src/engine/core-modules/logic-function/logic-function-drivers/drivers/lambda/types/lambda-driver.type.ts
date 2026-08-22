@@ -1,5 +1,4 @@
 import { type LambdaClientConfig } from '@aws-sdk/client-lambda';
-import { type LogicFunctionExecutionContext } from 'twenty-shared/logic-function';
 
 import { type CacheLockService } from 'src/engine/core-modules/cache-lock/cache-lock.service';
 import { type LogicFunctionResourceService } from 'src/engine/core-modules/logic-function/logic-function-resource/logic-function-resource.service';
@@ -9,7 +8,6 @@ import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/
 export type LambdaDriverExecutorPayload = {
   code?: string;
   params: object;
-  context: LogicFunctionExecutionContext;
   env: Record<string, string>;
   handlerName: string;
 };

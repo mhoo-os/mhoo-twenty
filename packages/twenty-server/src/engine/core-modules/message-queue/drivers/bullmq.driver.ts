@@ -221,8 +221,6 @@ export class BullMQDriver
             data: job.data,
             id: job.id ?? '',
             name: job.name,
-            retryLimit: Math.max(0, (job.opts.attempts ?? 1) - 1),
-            updateData: (data) => job.updateData(data),
             abortSignal,
           });
           const timeEnd = performance.now();
@@ -342,13 +340,6 @@ export class BullMQDriver
       priority:
         options?.priority ?? MESSAGE_QUEUE_WORKER_CONFIG[queueName].priority,
       attempts: 1 + (options?.retryLimit || 0),
-      backoff: options?.backoff
-        ? {
-            type: options.backoff.strategy,
-            delay: options.backoff.initialDelayMilliseconds,
-            jitter: options.backoff.jitter,
-          }
-        : undefined,
       removeOnComplete: {
         age: QUEUE_RETENTION.completedMaxAge,
         count: QUEUE_RETENTION.completedMaxCount,

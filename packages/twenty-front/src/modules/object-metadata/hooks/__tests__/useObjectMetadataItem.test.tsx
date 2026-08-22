@@ -9,6 +9,7 @@ const Wrapper = getJestMetadataAndApolloMocksWrapper({
   apolloMocks: [],
 });
 
+// Split into tests for each new hook
 describe('useObjectMetadataItem', () => {
   const opportunityObjectMetadata =
     getTestEnrichedObjectMetadataItemsMock().find(

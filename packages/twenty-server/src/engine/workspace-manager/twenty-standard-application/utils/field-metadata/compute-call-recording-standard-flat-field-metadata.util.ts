@@ -34,10 +34,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'id',
       type: FieldMetadataType.UUID,
-      label: i18nLabel(msg({ message: `Id`, context: 'fieldMetadata.label' })),
-      description: i18nLabel(
-        msg({ message: `Id`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Id`),
+      description: i18nLabel(msg`Id`),
       icon: 'Icon123',
       isSystem: true,
       isNullable: false,
@@ -55,12 +53,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'createdAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Creation date`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({ message: `Creation date`, context: 'fieldMetadata.description' }),
-      ),
+      label: i18nLabel(msg`Creation date`),
+      description: i18nLabel(msg`Creation date`),
       icon: 'IconCalendar',
       isSystem: true,
       isNullable: false,
@@ -79,15 +73,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'updatedAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Last update`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Last time the record was changed`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Last update`),
+      description: i18nLabel(msg`Last time the record was changed`),
       icon: 'IconCalendarClock',
       isSystem: true,
       isNullable: false,
@@ -106,15 +93,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'deletedAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Deleted at`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Date when the record was deleted`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Deleted at`),
+      description: i18nLabel(msg`Date when the record was deleted`),
       icon: 'IconCalendarMinus',
       isSystem: true,
       isNullable: true,
@@ -132,15 +112,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'title',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `Title`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Meeting title from the calendar event`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Title`),
+      description: i18nLabel(msg`Meeting title from the calendar event`),
       icon: 'IconNotes',
       isNullable: true,
       isUIEditable: false,
@@ -156,15 +129,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'status',
       type: FieldMetadataType.SELECT,
-      label: i18nLabel(
-        msg({ message: `Status`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Recording lifecycle status`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Status`),
+      description: i18nLabel(msg`Recording lifecycle status`),
       icon: 'IconProgress',
       isNullable: false,
       isUIEditable: false,
@@ -173,63 +139,49 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
         {
           id: '7fa515ba-e3cb-48f7-914f-e1f664d5d920',
           value: CallRecordingStatus.SCHEDULED,
-          label: i18nLabel(
-            msg({ message: `Scheduled`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Scheduled`),
           position: 0,
           color: 'sky',
         },
         {
           id: '96844ba3-364b-4975-8abc-886cca92ec99',
           value: CallRecordingStatus.JOINING,
-          label: i18nLabel(
-            msg({ message: `Joining`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Joining`),
           position: 1,
           color: 'blue',
         },
         {
           id: 'eccdad8b-8424-48ba-ad7f-f38517fa83fc',
           value: CallRecordingStatus.RECORDING,
-          label: i18nLabel(
-            msg({ message: `Recording`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Recording`),
           position: 2,
           color: 'red',
         },
         {
           id: 'c8222203-5b44-4ac6-8142-0a7eb2074d7b',
           value: CallRecordingStatus.PROCESSING,
-          label: i18nLabel(
-            msg({ message: `Processing`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Processing`),
           position: 3,
           color: 'orange',
         },
         {
           id: 'd17faf71-af3c-4260-9021-2ffaaa5648c4',
           value: CallRecordingStatus.COMPLETED,
-          label: i18nLabel(
-            msg({ message: `Completed`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Completed`),
           position: 4,
           color: 'green',
         },
         {
           id: '4800777e-54a8-4464-9c01-07d6eefd04da',
           value: CallRecordingStatus.FAILED,
-          label: i18nLabel(
-            msg({ message: `Failed`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Failed`),
           position: 5,
           color: 'gray',
         },
         {
           id: 'cbd14df8-9cc2-4399-92f5-31fc41f3768b',
           value: CallRecordingStatus.NOT_RECORDED,
-          label: i18nLabel(
-            msg({ message: `Not recorded`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Not recorded`),
           position: 6,
           color: 'yellow',
         },
@@ -246,15 +198,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'recordingRequestStatus',
       type: FieldMetadataType.SELECT,
-      label: i18nLabel(
-        msg({ message: `Request Status`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Recording request status`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Request Status`),
+      description: i18nLabel(msg`Recording request status`),
       icon: 'IconCircleCheck',
       isNullable: false,
       isUIEditable: false,
@@ -263,18 +208,14 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
         {
           id: 'fe992923-2f51-494d-bb32-42e96a703778',
           value: CallRecordingRequestStatus.REQUESTED,
-          label: i18nLabel(
-            msg({ message: `Requested`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Requested`),
           position: 0,
           color: 'sky',
         },
         {
           id: '485767c2-2dda-4b83-91d8-6025cdb4b9df',
           value: CallRecordingRequestStatus.CANCELED,
-          label: i18nLabel(
-            msg({ message: `Canceled`, context: 'fieldMetadata.label' }),
-          ),
+          label: i18nLabel(msg`Canceled`),
           position: 1,
           color: 'gray',
         },
@@ -291,14 +232,9 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'applicationId',
       type: FieldMetadataType.UUID,
-      label: i18nLabel(
-        msg({ message: `Application ID`, context: 'fieldMetadata.label' }),
-      ),
+      label: i18nLabel(msg`Application ID`),
       description: i18nLabel(
-        msg({
-          message: `Installed source app that manages or ingested this recording`,
-          context: 'fieldMetadata.description',
-        }),
+        msg`Installed source app that manages or ingested this recording`,
       ),
       icon: 'IconApps',
       isNullable: true,
@@ -315,14 +251,9 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'externalBotId',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({ message: `External Bot ID`, context: 'fieldMetadata.label' }),
-      ),
+      label: i18nLabel(msg`External Bot ID`),
       description: i18nLabel(
-        msg({
-          message: `Source app bot/session id, when the source supports bots`,
-          context: 'fieldMetadata.description',
-        }),
+        msg`Source app bot/session id, when the source supports bots`,
       ),
       icon: 'IconRobot',
       isNullable: true,
@@ -339,18 +270,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'externalRecordingId',
       type: FieldMetadataType.TEXT,
-      label: i18nLabel(
-        msg({
-          message: `External Recording ID`,
-          context: 'fieldMetadata.label',
-        }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Source app recording id, when present`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`External Recording ID`),
+      description: i18nLabel(msg`Source app recording id, when present`),
       icon: 'IconId',
       isNullable: true,
       isUIEditable: false,
@@ -366,15 +287,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'startedAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Started At`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Actual recording start`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Started At`),
+      description: i18nLabel(msg`Actual recording start`),
       icon: 'IconCalendarClock',
       isNullable: true,
       isUIEditable: false,
@@ -390,15 +304,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'endedAt',
       type: FieldMetadataType.DATE_TIME,
-      label: i18nLabel(
-        msg({ message: `Ended At`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Actual recording end`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Ended At`),
+      description: i18nLabel(msg`Actual recording end`),
       icon: 'IconCalendarClock',
       isNullable: true,
       isUIEditable: false,
@@ -414,15 +321,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'video',
       type: FieldMetadataType.FILES,
-      label: i18nLabel(
-        msg({ message: `Video`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Video recording`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Video`),
+      description: i18nLabel(msg`Video recording`),
       icon: 'IconVideo',
       isNullable: true,
       isUIEditable: false,
@@ -441,15 +341,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'audio',
       type: FieldMetadataType.FILES,
-      label: i18nLabel(
-        msg({ message: `Audio`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Audio-only recording`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Audio`),
+      description: i18nLabel(msg`Audio-only recording`),
       icon: 'IconHeadphones',
       isNullable: true,
       isUIEditable: false,
@@ -468,15 +361,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'transcript',
       type: FieldMetadataType.RAW_JSON,
-      label: i18nLabel(
-        msg({ message: `Transcript`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Normalized diarized transcript`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Transcript`),
+      description: i18nLabel(msg`Normalized diarized transcript`),
       icon: 'IconFileText',
       isNullable: true,
       isUIEditable: false,
@@ -492,15 +378,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'summary',
       type: FieldMetadataType.RICH_TEXT,
-      label: i18nLabel(
-        msg({ message: `Summary`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Recording summary`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Summary`),
+      description: i18nLabel(msg`Recording summary`),
       icon: 'IconFileText',
       isNullable: true,
       isUIEditable: false,
@@ -517,15 +396,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
       type: FieldMetadataType.RELATION,
       morphId: null,
       fieldName: 'calendarEvent',
-      label: i18nLabel(
-        msg({ message: `Calendar Event`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Calendar Event`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Calendar Event`),
+      description: i18nLabel(msg`Calendar Event`),
       icon: 'IconCalendar',
       isNullable: true,
       isUIEditable: false,
@@ -548,15 +420,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'createdBy',
       type: FieldMetadataType.ACTOR,
-      label: i18nLabel(
-        msg({ message: `Created by`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `The creator of the record`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Created by`),
+      description: i18nLabel(msg`The creator of the record`),
       icon: 'IconCreativeCommonsSa',
       isSystem: true,
       isUIEditable: false,
@@ -578,14 +443,9 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'updatedBy',
       type: FieldMetadataType.ACTOR,
-      label: i18nLabel(
-        msg({ message: `Updated by`, context: 'fieldMetadata.label' }),
-      ),
+      label: i18nLabel(msg`Updated by`),
       description: i18nLabel(
-        msg({
-          message: `The workspace member who last updated the record`,
-          context: 'fieldMetadata.description',
-        }),
+        msg`The workspace member who last updated the record`,
       ),
       icon: 'IconUserCircle',
       isSystem: true,
@@ -608,15 +468,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'position',
       type: FieldMetadataType.POSITION,
-      label: i18nLabel(
-        msg({ message: `Position`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Call recording record position`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Position`),
+      description: i18nLabel(msg`Call recording record position`),
       icon: 'IconHierarchy2',
       isSystem: true,
       isNullable: false,
@@ -633,15 +486,8 @@ export const buildCallRecordingStandardFlatFieldMetadatas = ({
     context: {
       fieldName: 'searchVector',
       type: FieldMetadataType.TS_VECTOR,
-      label: i18nLabel(
-        msg({ message: `Search vector`, context: 'fieldMetadata.label' }),
-      ),
-      description: i18nLabel(
-        msg({
-          message: `Field used for full-text search`,
-          context: 'fieldMetadata.description',
-        }),
-      ),
+      label: i18nLabel(msg`Search vector`),
+      description: i18nLabel(msg`Field used for full-text search`),
       icon: 'IconUser',
       isSystem: true,
       isNullable: true,

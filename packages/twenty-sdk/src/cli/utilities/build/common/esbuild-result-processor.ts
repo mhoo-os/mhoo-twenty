@@ -57,6 +57,7 @@ export const processEsbuildResult = async ({
           imp.external === true &&
           imp.path.startsWith(SDK_CLIENT_IMPORT_PREFIX),
       ) ?? false;
+
     if (onFileBuilt) {
       await onFileBuilt({
         fileFolder,

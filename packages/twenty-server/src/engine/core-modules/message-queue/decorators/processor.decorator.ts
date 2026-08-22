@@ -17,6 +17,10 @@ export interface MessageQueueProcessorOptions {
   scope?: Scope;
 }
 
+/**
+ * Represents a worker that is able to process jobs from the queue.
+ * @param processorOptions processor options
+ */
 export function Processor(
   queueNameOrOptions: string | MessageQueueProcessorOptions,
 ): ClassDecorator {

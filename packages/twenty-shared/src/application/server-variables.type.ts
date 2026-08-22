@@ -7,7 +7,6 @@ type ServerVariableSchema = {
   description?: string;
   isSecret?: boolean;
   isRequired?: boolean;
-  isDeprecated?: boolean;
   type?: ApplicationVariableType;
   options?: ApplicationVariableOption[];
 };

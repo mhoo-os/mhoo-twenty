@@ -12,7 +12,7 @@ import { jestExpectToBeDefined } from 'test/utils/jest-expect-to-be-defined.util
 import { SOURCE_LOCALE } from 'twenty-shared/translations';
 import { isDefined } from 'twenty-shared/utils';
 
-import { generateMessageId } from 'twenty-shared/i18n';
+import { generateMessageId } from 'src/engine/core-modules/i18n/utils/generateMessageId';
 
 const client = request(`http://localhost:${APP_PORT}`);
 
@@ -145,12 +145,9 @@ describe('custom application translation resolve path', () => {
     expect(applicationRegistrationId).toEqual(expect.any(String));
 
     const messages = {
-      [generateMessageId(SOURCE_LABEL_SINGULAR, 'objectMetadata.labelSingular')]:
-        TRANSLATED_LABEL_SINGULAR,
-      [generateMessageId(SOURCE_LABEL_PLURAL, 'objectMetadata.labelPlural')]:
-        TRANSLATED_LABEL_PLURAL,
-      [generateMessageId(SOURCE_DESCRIPTION, 'objectMetadata.description')]:
-        TRANSLATED_DESCRIPTION,
+      [generateMessageId(SOURCE_LABEL_SINGULAR)]: TRANSLATED_LABEL_SINGULAR,
+      [generateMessageId(SOURCE_LABEL_PLURAL)]: TRANSLATED_LABEL_PLURAL,
+      [generateMessageId(SOURCE_DESCRIPTION)]: TRANSLATED_DESCRIPTION,
     };
 
     await testDataSource.query(

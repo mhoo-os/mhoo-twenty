@@ -1,8 +1,5 @@
-import { msg } from '@lingui/core/macro';
-import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import { ViewType, ViewKey } from 'twenty-shared/types';
 
-import { INDEX_VIEW_NAME } from 'src/engine/metadata-modules/view/constants/index-view-name.constant';
 import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-view.type';
 
 import {
@@ -19,7 +16,7 @@ export const computeStandardTaskViews = (
       objectName: 'task',
       context: {
         viewName: 'allTasks',
-        name: INDEX_VIEW_NAME,
+        name: 'All {objectLabelPlural}',
         type: ViewType.TABLE,
         key: ViewKey.INDEX,
         position: 0,
@@ -31,7 +28,7 @@ export const computeStandardTaskViews = (
       objectName: 'task',
       context: {
         viewName: 'byStatus',
-        name: i18nLabel(msg({ message: `By Status`, context: 'view.name' })),
+        name: 'By Status',
         type: ViewType.KANBAN,
         key: null,
         position: 1,
@@ -44,9 +41,7 @@ export const computeStandardTaskViews = (
       objectName: 'task',
       context: {
         viewName: 'assignedToMe',
-        name: i18nLabel(
-          msg({ message: `Assigned to Me`, context: 'view.name' }),
-        ),
+        name: 'Assigned to Me',
         type: ViewType.TABLE,
         key: null,
         position: 2,

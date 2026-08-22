@@ -205,6 +205,7 @@ export class MessageQueueExplorer implements OnModuleInit {
       },
     );
 
+    // Return early if no matching methods found
     if (filteredProcessMethodNames.length === 0) {
       return;
     }
@@ -215,6 +216,7 @@ export class MessageQueueExplorer implements OnModuleInit {
       if (this.moduleRef.registerRequestByContextId) {
         this.moduleRef.registerRequestByContextId(
           {
+            // Add workspaceId to the request object
             req: {
               workspaceId: job.data?.workspaceId,
             },
@@ -254,8 +256,6 @@ export class MessageQueueExplorer implements OnModuleInit {
         // @ts-expect-error legacy noImplicitAny
         await instance[processMethodName].call(instance, job.data, {
           abortSignal: job.abortSignal,
-          retryLimit: job.retryLimit,
-          updateData: job.updateData,
         });
       } catch (err) {
         if (shouldCaptureException(err)) {

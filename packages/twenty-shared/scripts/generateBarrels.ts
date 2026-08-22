@@ -397,6 +397,7 @@ const extractExportsFromSourceFile = (sourceFile: ts.SourceFile) => {
             const isTypeExport =
               node.isTypeOnly || ts.isTypeOnlyExportDeclaration(node);
             if (isTypeExport) {
+              // should handle kind
               exports.push({
                 kind: 'type',
                 name: exportName,

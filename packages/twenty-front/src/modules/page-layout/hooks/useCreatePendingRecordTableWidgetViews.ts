@@ -93,6 +93,7 @@ export const useCreatePendingRecordTableWidgetViews = () => {
               type: view.type,
               isCompact: view.isCompact,
               position: view.position,
+              openRecordIn: view.openRecordIn,
               visibility: view.visibility,
               shouldHideEmptyGroups: view.shouldHideEmptyGroups,
               mainGroupByFieldMetadataId:

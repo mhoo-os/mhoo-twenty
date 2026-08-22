@@ -110,6 +110,7 @@ export class UpdateIndexActionHandlerService extends WorkspaceMigrationRunnerAct
 
     const { entityId, updatedFlatIndex } = flatAction;
 
+    // Get the old index to drop it
     const flatIndexMetadataToDelete = findFlatEntityByIdInFlatEntityMapsOrThrow(
       {
         flatEntityId: entityId,
@@ -119,6 +120,7 @@ export class UpdateIndexActionHandlerService extends WorkspaceMigrationRunnerAct
 
     const schemaName = getWorkspaceSchemaName(workspaceId);
 
+    // Drop old index
     await dropIndexFromWorkspaceSchema({
       indexName: flatIndexMetadataToDelete.name,
       workspaceSchemaManagerService: this.workspaceSchemaManagerService,
@@ -126,6 +128,7 @@ export class UpdateIndexActionHandlerService extends WorkspaceMigrationRunnerAct
       schemaName,
     });
 
+    // Create new index
     const flatObjectMetadata = findFlatEntityByIdInFlatEntityMapsOrThrow({
       flatEntityMaps: flatObjectMetadataMaps,
       flatEntityId: updatedFlatIndex.objectMetadataId,
