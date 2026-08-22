@@ -2,10 +2,18 @@
 
 ## Status
 
-Candidate `mhoo/candidate/v2.30.1-4` is the promotion gate for a durable,
-digest-addressed migration-rehearsal image. Until the tag-triggered workflow
-and sign-only continuation finish and this record is updated with its verified
-signature identity, signed artifact custody remains **PENDING**.
+Candidate `mhoo/candidate/v2.30.1-4` completed the durable publication and
+signed-custody gate: **PASS**. Its frozen source revision is
+`d6f09ee3e0df280d3e3a67c00636532e3fac2536`, and its only approved rehearsal
+identity is the digest-bound GHCR reference recorded below.
+
+The publication phase in
+[run 32594715632](https://github.com/mhoo-os/mhoo-twenty/actions/runs/32594715632)
+built once, pushed once, pulled the resulting digest, and passed exact-digest
+validation. The successful build-free continuation in
+[run 32595638191](https://github.com/mhoo-os/mhoo-twenty/actions/runs/32595638191)
+revalidated and signed that same digest. It did not rebuild or replace the
+image.
 
 The disposable candidate-1 digest is evidence from its CI run only. It is not
 available in a registry and must not be rebuilt or represented as the same
@@ -35,9 +43,11 @@ Candidate 4 publication [run 32594715632](https://github.com/mhoo-os/mhoo-twenty
 built once, pushed the image, pulled it by its exact registry digest, and passed
 the disposable runtime validation. It then failed while the Cosign installer
 requested a detached signature that is not published for Cosign `v3.1.3`.
-No image rebuild is permitted or needed. The digest-fixed sign-only continuation
-uses the installer's verified Cosign `v2.6.1` path, revalidates the existing
-digest, and signs only that object.
+No image rebuild was permitted or needed. The digest-fixed sign-only
+continuation [run 32595638191](https://github.com/mhoo-os/mhoo-twenty/actions/runs/32595638191)
+used the installer's verified Cosign `v2.6.1` path, revalidated the existing
+digest, signed only that object with GitHub Actions OIDC, and passed
+exact-identity signature verification.
 
 ## Promotion boundary
 
@@ -52,13 +62,14 @@ revision. The workflow then:
 4. records the registry manifest digest;
 5. pulls and validates that exact digest in a disposable server, worker,
    PostgreSQL, and Redis environment;
-6. stops without a signature because its Cosign installer failed.
+6. stops before signing because its Cosign installer failed.
 
 The digest-fixed sign-only continuation verifies the immutable candidate tag
 and registry-tag digest, pulls and revalidates the exact published digest,
 signs it with GitHub Actions OIDC, verifies the signature against the exact
 workflow identity, and preserves the completed custody receipt. It contains no
-build step.
+build step. The continuation passed from canonical `main` revision
+`aea228f3964e39618d13c0e819b12621b1c70e03`.
 
 The workflow refuses to run from a branch or lightweight tag and refuses to
 replace an existing registry tag. A rerun therefore cannot silently rebuild or
@@ -66,7 +77,7 @@ move the named promotion candidate.
 
 ## Frozen rehearsal input
 
-Published and validated; signature pending:
+Published, validated, signed, and frozen:
 
 ```text
 ghcr.io/mhoo-os/mhoo-twenty@sha256:c0f7f17aadec0ba66e6fbd94e4733ec33116ba64c5c4c23b1a666e48867cd2f5
@@ -76,19 +87,49 @@ Only the digest-bound reference may become a rehearsal input. The mutable
 registry tag is an operator convenience and is not evidence of artifact
 identity.
 
+The GHCR package is private. A rehearsal host must authenticate to GHCR with a
+least-privilege credential authorized to pull `mhoo-os/mhoo-twenty` before it
+pulls or verifies the digest. The credential must not be committed or included
+in evidence receipts.
+
+## Signature custody
+
+| Identity | Value |
+| --- | --- |
+| Signing workflow | [run 32595638191](https://github.com/mhoo-os/mhoo-twenty/actions/runs/32595638191) |
+| Certificate identity | `https://github.com/mhoo-os/mhoo-twenty/.github/workflows/sign-twenty-v2.30.1-candidate-4.yml@refs/heads/main` |
+| Certificate OIDC issuer | `https://token.actions.githubusercontent.com` |
+| GHCR signature object | `sha256:1f0c686d033c11da4afee7c98f1460311f8114ff4c86bcdc6a99d933271ac806` |
+| Rekor transparency-log index | `2568189563` |
+| Custody artifact | `mhoo-twenty-v2.30.1-candidate-4-signed-custody`, ID `9481517220` |
+| Custody artifact ZIP SHA-256 | `37e61b97039468048d247987ed6e925c2982b467c45ab60e8cacd43208e6d058` |
+| Custody artifact expiry | `2026-11-20T20:05:12Z` |
+
+The Actions custody artifact is a supplemental receipt with finite retention;
+it is not the durable signature store. The signature object remains attached
+to the digest in GHCR, and the signing event is recorded in Sigstore's
+transparency log.
+
 ## Required evidence
 
 | Evidence | State |
 | --- | --- |
 | Exact upstream source tree | Verified by the promotion workflow |
 | Controlled provenance overlay | Verified by the promotion workflow |
+| Candidate source revision | `d6f09ee3e0df280d3e3a67c00636532e3fac2536` |
 | OCI labels | Verified against the published digest |
 | Disposable candidate validation | Passed in run `32594715632` |
 | GHCR digest | `sha256:c0f7f17aadec0ba66e6fbd94e4733ec33116ba64c5c4c23b1a666e48867cd2f5` |
 | Exact-digest disposable validation | Passed in run `32594715632` |
-| Keyless signature | Pending |
-| Exact-identity signature verification | Pending |
-| Digest frozen for rehearsal | Pending |
+| Keyless signature | Passed in run `32595638191` |
+| Exact-identity signature verification | Passed in run `32595638191` |
+| Private-package pull boundary | Authentication required and recorded |
+| Digest frozen for rehearsal | Passed |
+
+The durable candidate artifact and signed artifact custody gates are complete.
+The disposable migration rehearsal is now eligible to be proposed using only
+the frozen digest and canonical infrastructure source; it has not started.
+Production cutover remains **NO-GO**.
 
 ## Non-scope
 
