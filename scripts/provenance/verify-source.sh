@@ -93,6 +93,7 @@ UNEXPECTED_PATHS="$(
   git diff --name-only "$UPSTREAM_COMMIT" HEAD -- . \
     ':(exclude).twenty-source' \
     ':(exclude).github/workflows/publish-twenty-v2.30.1-candidate.yml' \
+    ':(exclude).github/workflows/sign-twenty-v2.30.1-candidate-4.yml' \
     ':(exclude).github/workflows/twenty-v2.30.1-provenance.yml' \
     ':(exclude)docs/provenance/**' \
     ':(exclude)scripts/provenance/**'
