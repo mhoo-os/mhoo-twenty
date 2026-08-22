@@ -220,7 +220,7 @@ docker run --detach \
   node dist/queue-worker/queue-worker >/dev/null
 
 for _ in $(seq 1 90); do
-  if docker logs "$WORKER_CONTAINER" 2>&1 | grep -q 'QueueWorkerModule dependencies initialized'; then
+  if docker logs "$WORKER_CONTAINER" 2>&1 | grep -Eq 'Processing job .* on queue'; then
     break
   fi
   if [[ "$(docker inspect --format '{{.State.Running}}' "$WORKER_CONTAINER")" != "true" ]]; then
@@ -230,8 +230,8 @@ for _ in $(seq 1 90); do
   sleep 2
 done
 
-docker logs "$WORKER_CONTAINER" 2>&1 | grep -q 'QueueWorkerModule dependencies initialized' ||
-  fail "candidate worker did not initialize"
+docker logs "$WORKER_CONTAINER" 2>&1 | grep -Eq 'Processing job .* on queue' ||
+  fail "candidate worker did not process the seeded queue"
 [[ "$(docker inspect --format '{{.State.Running}}' "$WORKER_CONTAINER")" == "true" ]] ||
   fail "candidate worker is not running"
 
