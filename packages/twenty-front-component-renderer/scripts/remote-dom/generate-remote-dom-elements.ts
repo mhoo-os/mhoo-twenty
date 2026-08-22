@@ -59,7 +59,7 @@ const getUtilityComponentSchemas = (): ComponentSchema[] => [
     },
     events: [],
     customHostRenderer: 'RemoteStyleRenderer',
-    customHostRendererPath: '@/host/components/RemoteStyleRenderer',
+    customHostRendererPath: '../components/RemoteStyleRenderer',
   },
 ];
 

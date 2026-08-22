@@ -30,10 +30,7 @@ export const useInstallOnboardingApps = () => {
     setIsCompleting(true);
 
     try {
-      await triggerInstallAppsOnboardingStep({
-        universalIdentifiers,
-        isAutoSkipped: false,
-      });
+      await triggerInstallAppsOnboardingStep(universalIdentifiers);
 
       const creditsRewardPerApp =
         onboardingConfig?.installAppsCreditsRewardPerApp ?? 0;

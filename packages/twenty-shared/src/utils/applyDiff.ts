@@ -171,6 +171,7 @@ const handleRemoval = (
   }
 };
 
+// Handles removal from arrays by marking for deletion and queuing cleanup
 const handleArrayRemoval = (
   rootObj: MutableData,
   fullPath: (string | number)[],

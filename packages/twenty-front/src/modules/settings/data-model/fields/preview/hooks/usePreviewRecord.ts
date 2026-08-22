@@ -61,5 +61,6 @@ export const usePreviewRecord = ({
     [labelIdentifierFieldMetadataItem.name]: fieldPreviewValue,
   };
 
+  // If no record was found, or if the label identifier field value is empty, display a placeholder record
   return placeholderRecord;
 };

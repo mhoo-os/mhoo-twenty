@@ -62,6 +62,7 @@ import { WorkflowCoreConsistencyModule } from 'src/modules/workflow/workflow-cor
     UpgradeVersionCommandModule,
     TypeOrmModule.forFeature([WorkspaceEntity, RoleEntity]),
     WorkspaceExportModule,
+    // Cron command dependencies
     MessagingImportManagerModule,
     CalendarEventImportManagerModule,
     WebhookSubscriptionModule,
@@ -70,6 +71,7 @@ import { WorkflowCoreConsistencyModule } from 'src/modules/workflow/workflow-cor
     FileModule,
     WorkspaceModule,
     WorkflowRunQueueModule,
+    // Data seeding dependencies
     TypeORMModule,
     FieldMetadataModule,
     ObjectMetadataModule,

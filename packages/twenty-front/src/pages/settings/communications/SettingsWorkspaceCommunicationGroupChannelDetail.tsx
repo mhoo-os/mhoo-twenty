@@ -112,9 +112,19 @@ export const SettingsWorkspaceCommunicationGroupChannelDetail = () => {
     }),
   );
 
-  const domainStatus = emailingDomain?.status ?? EmailingDomainStatus.PENDING;
+  const isDomainVerified =
+    verificationRecords.length > 0 &&
+    verificationRecords.every((record) => record.status === 'success');
 
-  const isDomainVerified = domainStatus === EmailingDomainStatus.VERIFIED;
+  const hasFailedRecord = verificationRecords.some(
+    (record) => record.status === 'error',
+  );
+
+  const domainStatus = isDomainVerified
+    ? EmailingDomainStatus.VERIFIED
+    : hasFailedRecord
+      ? EmailingDomainStatus.FAILED
+      : EmailingDomainStatus.PENDING;
 
   const displayName = channel.displayName ?? '';
 

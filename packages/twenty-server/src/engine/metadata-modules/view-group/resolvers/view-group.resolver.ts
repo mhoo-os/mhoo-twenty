@@ -13,8 +13,10 @@ import { UpdateViewGroupInput } from 'src/engine/metadata-modules/view-group/dto
 import { ViewGroupDTO } from 'src/engine/metadata-modules/view-group/dtos/view-group.dto';
 import { ViewGroupService } from 'src/engine/metadata-modules/view-group/services/view-group.service';
 import { ViewGroupGraphqlApiExceptionFilter } from 'src/engine/metadata-modules/view-group/utils/view-group-graphql-api-exception.filter';
-import { CreateViewChildEntityPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/create-view-child-entity-permission.guard';
-import { ViewChildEntityPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/view-child-entity-permission.guard';
+import { CreateViewGroupPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/create-view-group-permission.guard';
+import { DeleteViewGroupPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/delete-view-group-permission.guard';
+import { DestroyViewGroupPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/destroy-view-group-permission.guard';
+import { UpdateViewGroupPermissionGuard } from 'src/engine/metadata-modules/view-permissions/guards/update-view-group-permission.guard';
 
 @MetadataResolver(() => ViewGroupDTO)
 @UseFilters(ViewGroupGraphqlApiExceptionFilter)
@@ -46,7 +48,7 @@ export class ViewGroupResolver {
   }
 
   @Mutation(() => ViewGroupDTO)
-  @UseGuards(CreateViewChildEntityPermissionGuard)
+  @UseGuards(CreateViewGroupPermissionGuard)
   async createViewGroup(
     @Args('input') createViewGroupInput: CreateViewGroupInput,
     @AuthWorkspace() { id: workspaceId }: WorkspaceEntity,
@@ -58,7 +60,7 @@ export class ViewGroupResolver {
   }
 
   @Mutation(() => [ViewGroupDTO])
-  @UseGuards(CreateViewChildEntityPermissionGuard)
+  @UseGuards(CreateViewGroupPermissionGuard)
   async createManyViewGroups(
     @Args('inputs', { type: () => [CreateViewGroupInput] })
     createViewGroupInputs: CreateViewGroupInput[],
@@ -71,7 +73,7 @@ export class ViewGroupResolver {
   }
 
   @Mutation(() => ViewGroupDTO)
-  @UseGuards(ViewChildEntityPermissionGuard('viewGroup'))
+  @UseGuards(UpdateViewGroupPermissionGuard)
   async updateViewGroup(
     @Args('input') updateViewGroupInput: UpdateViewGroupInput,
     @AuthWorkspace() { id: workspaceId }: WorkspaceEntity,
@@ -83,7 +85,7 @@ export class ViewGroupResolver {
   }
 
   @Mutation(() => [ViewGroupDTO])
-  @UseGuards(ViewChildEntityPermissionGuard('viewGroup'))
+  @UseGuards(UpdateViewGroupPermissionGuard)
   async updateManyViewGroups(
     @Args('inputs', { type: () => [UpdateViewGroupInput] })
     updateViewGroupInputs: UpdateViewGroupInput[],
@@ -96,7 +98,7 @@ export class ViewGroupResolver {
   }
 
   @Mutation(() => ViewGroupDTO)
-  @UseGuards(ViewChildEntityPermissionGuard('viewGroup'))
+  @UseGuards(DeleteViewGroupPermissionGuard)
   async deleteViewGroup(
     @Args('input') deleteViewGroupInput: DeleteViewGroupInput,
     @AuthWorkspace() { id: workspaceId }: WorkspaceEntity,
@@ -108,7 +110,7 @@ export class ViewGroupResolver {
   }
 
   @Mutation(() => ViewGroupDTO)
-  @UseGuards(ViewChildEntityPermissionGuard('viewGroup'))
+  @UseGuards(DestroyViewGroupPermissionGuard)
   async destroyViewGroup(
     @Args('input') destroyViewGroupInput: DestroyViewGroupInput,
     @AuthWorkspace() { id: workspaceId }: WorkspaceEntity,

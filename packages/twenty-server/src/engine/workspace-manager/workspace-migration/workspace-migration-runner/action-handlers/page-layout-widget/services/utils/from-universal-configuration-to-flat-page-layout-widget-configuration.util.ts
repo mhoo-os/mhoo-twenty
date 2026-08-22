@@ -56,25 +56,12 @@ const convertUniversalFilterToChartFilter = ({
   return {
     ...filter,
     recordFilters: filter.recordFilters?.map(
-      ({
-        fieldMetadataUniversalIdentifier,
-        relationTargetFieldMetadataUniversalIdentifier,
-        ...rest
-      }) => ({
+      ({ fieldMetadataUniversalIdentifier, ...rest }) => ({
         ...rest,
         fieldMetadataId: resolveFieldMetadataIdOrThrow({
           fieldMetadataUniversalIdentifier,
           flatFieldMetadataMaps,
         }),
-        ...(isDefined(relationTargetFieldMetadataUniversalIdentifier)
-          ? {
-              relationTargetFieldMetadataId: resolveFieldMetadataIdOrThrow({
-                fieldMetadataUniversalIdentifier:
-                  relationTargetFieldMetadataUniversalIdentifier,
-                flatFieldMetadataMaps,
-              }),
-            }
-          : {}),
       }),
     ),
   };

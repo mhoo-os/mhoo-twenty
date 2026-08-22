@@ -1,10 +1,15 @@
-import { Brackets, NotBrackets, type WhereExpressionBuilder } from 'typeorm';
+import {
+  Brackets,
+  NotBrackets,
+  type ObjectLiteral,
+  type WhereExpressionBuilder,
+} from 'typeorm';
 
 import { type GraphqlQueryFilterFieldParser } from 'src/engine/api/graphql/graphql-query-runner/graphql-query-parsers/graphql-query-filter/graphql-query-filter-field.parser';
-import { type RecordQueryBuilder } from 'src/engine/api/graphql/graphql-query-runner/types/record-query-builder.type';
+import { type WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/repository/workspace-select-query-builder';
 
 type FilterWalkContext = {
-  outerQueryBuilder: RecordQueryBuilder;
+  outerQueryBuilder: WorkspaceSelectQueryBuilder<ObjectLiteral>;
   objectNameSingular: string;
   fieldParser: GraphqlQueryFilterFieldParser;
   useDirectTableReference: boolean;
@@ -19,7 +24,7 @@ export const applyFilterEntriesToWhereExpression = ({
   useDirectTableReference = false,
 }: {
   whereExpression: WhereExpressionBuilder;
-  outerQueryBuilder: RecordQueryBuilder;
+  outerQueryBuilder: WorkspaceSelectQueryBuilder<ObjectLiteral>;
   objectNameSingular: string;
   filter: Record<string, unknown>;
   fieldParser: GraphqlQueryFilterFieldParser;

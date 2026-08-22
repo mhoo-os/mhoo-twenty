@@ -11,6 +11,7 @@ import { type MessageChannelEntity } from 'src/engine/metadata-modules/message-c
 import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decorators/message-queue.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
+import { type WorkspaceEntityManager } from 'src/engine/twenty-orm/entity-manager/workspace-entity-manager';
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { type ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
@@ -22,9 +23,11 @@ import {
   type Participant,
   type ParticipantWithMessageId,
 } from 'src/modules/messaging/message-import-manager/drivers/gmail/types/gmail-message.type';
-import { MessagingMessageFolderAssociationService } from 'src/modules/messaging/message-import-manager/services/messaging-message-folder-association.service';
+import {
+  type MessageChannelMessageAssociationFolderAssociation,
+  MessagingMessageFolderAssociationService,
+} from 'src/modules/messaging/message-import-manager/services/messaging-message-folder-association.service';
 import { MessagingMessageService } from 'src/modules/messaging/message-import-manager/services/messaging-message.service';
-import { type MessageChannelMessageAssociationFolderAssociation } from 'src/modules/messaging/message-import-manager/types/message-channel-message-association-folder-association.type';
 import { type MessageWithParticipants } from 'src/modules/messaging/message-import-manager/types/message';
 import { isGroupEmail } from 'src/modules/messaging/message-import-manager/utils/is-group-email';
 import { MessagingMessageParticipantService } from 'src/modules/messaging/message-participant-manager/services/messaging-message-participant.service';
@@ -59,8 +62,11 @@ export class MessagingSaveMessagesAndEnqueueContactCreationService {
     const savedMessagesResult =
       await this.globalWorkspaceOrmManager.executeInWorkspaceContext(
         async () => {
-          return this.globalWorkspaceOrmManager.runInWorkspaceTransaction(
-            async (transactionScope) => {
+          const workspaceDataSource =
+            await this.globalWorkspaceOrmManager.getGlobalWorkspaceDataSource();
+
+          return workspaceDataSource?.transaction(
+            async (transactionManager: WorkspaceEntityManager) => {
               const {
                 messageExternalIdsAndIdsMap,
                 messageExternalIdToMessageChannelMessageAssociationIdMap,
@@ -68,7 +74,7 @@ export class MessagingSaveMessagesAndEnqueueContactCreationService {
               } = await this.messageService.saveMessagesWithinTransaction(
                 messagesToSave,
                 messageChannel.id,
-                transactionScope,
+                transactionManager,
                 workspaceId,
               );
 
@@ -128,7 +134,7 @@ export class MessagingSaveMessagesAndEnqueueContactCreationService {
               await this.messageParticipantService.saveMessageParticipants(
                 participantsWithMessageId,
                 workspaceId,
-                transactionScope,
+                transactionManager,
               );
 
               const folderAssociations: MessageChannelMessageAssociationFolderAssociation[] =
@@ -159,7 +165,7 @@ export class MessagingSaveMessagesAndEnqueueContactCreationService {
               await this.messageFolderAssociationService.saveMessageFolderAssociations(
                 folderAssociations,
                 workspaceId,
-                transactionScope,
+                transactionManager,
               );
 
               return {

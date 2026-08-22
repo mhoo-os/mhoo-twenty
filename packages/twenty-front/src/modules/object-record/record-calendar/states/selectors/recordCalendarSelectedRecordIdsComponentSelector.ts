@@ -1,7 +1,7 @@
-import { RecordCalendarComponentInstanceContext } from '@/object-record/record-calendar/states/contexts/RecordCalendarComponentInstanceContext';
 import { isRecordCalendarCardSelectedComponentFamilyState } from '@/object-record/record-calendar/record-calendar-card/states/isRecordCalendarCardSelectedComponentFamilyState';
-import { recordCalendarRecordIdsComponentState } from '@/object-record/record-calendar/states/recordCalendarRecordIdsComponentState';
+import { recordIndexAllRecordIdsComponentSelector } from '@/object-record/record-index/states/selectors/recordIndexAllRecordIdsComponentSelector';
 import { createAtomComponentSelector } from '@/ui/utilities/state/jotai/utils/createAtomComponentSelector';
+import { RecordCalendarComponentInstanceContext } from '@/object-record/record-calendar/states/contexts/RecordCalendarComponentInstanceContext';
 
 export const recordCalendarSelectedRecordIdsComponentSelector =
   createAtomComponentSelector<string[]>({
@@ -10,7 +10,7 @@ export const recordCalendarSelectedRecordIdsComponentSelector =
     get:
       ({ instanceId }) =>
       ({ get }) => {
-        const allRecordIds = get(recordCalendarRecordIdsComponentState, {
+        const allRecordIds = get(recordIndexAllRecordIdsComponentSelector, {
           instanceId,
         });
 

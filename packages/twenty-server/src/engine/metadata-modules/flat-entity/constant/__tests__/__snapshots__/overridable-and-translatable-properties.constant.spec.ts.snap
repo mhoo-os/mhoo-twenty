@@ -98,36 +98,43 @@ exports[`registry-derived override property maps derives the overridable propert
 
 exports[`registry-derived override property maps derives the translatable properties for every metadata entity 1`] = `
 {
-  "commandMenuItem": [
-    "label",
-    "shortLabel",
-  ],
+  "agent": [],
+  "applicationVariable": [],
+  "commandMenuItem": [],
+  "connectionProvider": [],
   "fieldMetadata": [
+    "description",
     "label",
-    "description",
   ],
-  "navigationMenuItem": [
-    "name",
-  ],
+  "fieldPermission": [],
+  "frontComponent": [],
+  "index": [],
+  "logicFunction": [],
+  "navigationMenuItem": [],
   "objectMetadata": [
-    "labelSingular",
-    "labelPlural",
     "description",
+    "labelPlural",
+    "labelSingular",
   ],
-  "pageLayout": [
-    "name",
-  ],
-  "pageLayoutTab": [
-    "title",
-  ],
-  "pageLayoutWidget": [
-    "title",
-  ],
-  "view": [
-    "name",
-  ],
-  "viewFieldGroup": [
-    "name",
-  ],
+  "objectPermission": [],
+  "pageLayout": [],
+  "pageLayoutTab": [],
+  "pageLayoutWidget": [],
+  "permissionFlag": [],
+  "role": [],
+  "rolePermissionFlag": [],
+  "roleTarget": [],
+  "rowLevelPermissionPredicate": [],
+  "rowLevelPermissionPredicateGroup": [],
+  "searchFieldMetadata": [],
+  "skill": [],
+  "view": [],
+  "viewField": [],
+  "viewFieldGroup": [],
+  "viewFilter": [],
+  "viewFilterGroup": [],
+  "viewGroup": [],
+  "viewSort": [],
+  "webhook": [],
 }
 `;

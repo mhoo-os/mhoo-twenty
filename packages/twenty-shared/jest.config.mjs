@@ -3,7 +3,6 @@ const jestConfig = {
   displayName: 'twenty-shared',
   preset: '../../jest.preset.js',
   testEnvironment: 'jsdom',
-  setupFiles: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: ['../../node_modules/'],
   transform: {
     '^.+\\.[tj]sx?$': [

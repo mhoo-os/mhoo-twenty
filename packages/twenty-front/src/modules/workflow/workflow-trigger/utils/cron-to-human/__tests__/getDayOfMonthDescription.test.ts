@@ -85,6 +85,7 @@ describe('getDayOfMonthDescription', () => {
   });
 
   it('should handle ordinal numbers correctly', () => {
+    // Test ordinal suffix logic
     expect(getDayOfMonthDescription('11', options)).toBe(
       'on the 11th of the month',
     );

@@ -77,8 +77,6 @@ describe('useCreatePageLayoutGraphWidget', () => {
         objectMetadataId: null,
         tabs: [
           {
-            isSystemSideEffect: false,
-            universalIdentifier: 'universal-identifier-mock',
             id: 'tab-1',
             applicationId: '',
             title: 'Tab 1',
@@ -163,8 +161,6 @@ describe('useCreatePageLayoutGraphWidget', () => {
         objectMetadataId: null,
         tabs: [
           {
-            isSystemSideEffect: false,
-            universalIdentifier: 'universal-identifier-mock',
             id: 'tab-1',
             applicationId: '',
             title: 'Tab 1',

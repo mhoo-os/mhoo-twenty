@@ -542,6 +542,7 @@ export class GraphqlQueryOrderGroupByParser {
       return null;
     }
 
+    // Handle composite fields
     if (isCompositeFieldMetadataType(nestedFieldMetadata.type)) {
       if (!isObject(nestedFieldOrderByValue)) {
         throw new UserInputError(
@@ -649,6 +650,7 @@ export class GraphqlQueryOrderGroupByParser {
       };
     }
 
+    // Handle regular nested fields
     if (
       typeof nestedFieldOrderByValue === 'string' &&
       Object.values(OrderByDirection).includes(

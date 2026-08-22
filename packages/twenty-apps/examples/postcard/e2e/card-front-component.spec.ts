@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { CARD_TEST_IDS } from '../src/components/card-test-ids';
-import { resolveE2eWorkspaceUrl } from './utils/resolve-e2e-workspace-url';
 
 // Seeded postcard record the preview should display.
 const RECORD_ID = process.env.E2E_POSTCARD_RECORD_ID;
@@ -14,6 +15,28 @@ const STATUS_BADGE_BACKGROUND: Record<string, string> = {
   SENT: 'rgb(232, 140, 48)',
   DELIVERED: 'rgb(76, 175, 80)',
   RETURNED: 'rgb(224, 82, 82)',
+};
+
+const WORKSPACE_ORIGIN_FILE = path.resolve(
+  __dirname,
+  '.auth',
+  'workspace-origin.txt',
+);
+
+const resolveWorkspaceUrl = (): string => {
+  const fromEnv = process.env.E2E_WORKSPACE_URL;
+  if (fromEnv) {
+    return fromEnv.replace(/\/$/, '');
+  }
+
+  try {
+    return fs
+      .readFileSync(WORKSPACE_ORIGIN_FILE, 'utf8')
+      .trim()
+      .replace(/\/$/, '');
+  } catch {
+    return 'http://app.localhost:3001';
+  }
 };
 
 // Error states rendered by card.front-component.tsx when it cannot authenticate
@@ -74,7 +97,7 @@ test.describe('Postcard card front component', () => {
   test('renders the postcard name and status badge in the record preview', async ({
     page,
   }) => {
-    await page.goto(`${resolveE2eWorkspaceUrl()}/object/postCard/${RECORD_ID}`);
+    await page.goto(`${resolveWorkspaceUrl()}/object/postCard/${RECORD_ID}`);
 
     const card = page.getByTestId(CARD_TEST_IDS.root);
     await expect(card).toBeVisible();

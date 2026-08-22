@@ -1,4 +1,4 @@
-import { usePageLayoutTabsFilteredByFeatureFlags } from '@/page-layout/hooks/usePageLayoutTabsFilteredByFeatureFlags';
+import { useCurrentPageLayoutOrThrow } from '@/page-layout/hooks/useCurrentPageLayoutOrThrow';
 import { useUpdatePageLayoutTab } from '@/page-layout/hooks/useUpdatePageLayoutTab';
 import { pageLayoutTabSettingsOpenTabIdComponentState } from '@/page-layout/states/pageLayoutTabSettingsOpenTabIdComponentState';
 import { isReactivatableTab } from '@/page-layout/utils/isReactivatableTab';
@@ -13,7 +13,7 @@ import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { activeTabIdComponentState } from '@/ui/layout/tab-list/states/activeTabIdComponentState';
 import { useSetAtomComponentState } from '@/ui/utilities/state/jotai/hooks/useSetAtomComponentState';
 import { useLingui } from '@lingui/react/macro';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { SidePanelPages } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 import { IconPlus, useIcons } from 'twenty-ui/icon';
@@ -32,8 +32,7 @@ export const PageLayoutTabListNewTabDropdownContent = ({
   const { getIcon } = useIcons();
   const { closeDropdown } = useCloseDropdown();
 
-  const { featureFilteredPageLayoutTabs } =
-    usePageLayoutTabsFilteredByFeatureFlags();
+  const { currentPageLayout } = useCurrentPageLayoutOrThrow();
   const { updatePageLayoutTab } = useUpdatePageLayoutTab();
 
   const setActiveTabId = useSetAtomComponentState(activeTabIdComponentState);
@@ -42,8 +41,9 @@ export const PageLayoutTabListNewTabDropdownContent = ({
   );
   const { navigatePageLayoutSidePanel } = useNavigatePageLayoutSidePanel();
 
-  const inactiveTabs = sortTabsByPosition(
-    featureFilteredPageLayoutTabs.filter(isReactivatableTab),
+  const inactiveTabs = useMemo(
+    () => sortTabsByPosition(currentPageLayout.tabs.filter(isReactivatableTab)),
+    [currentPageLayout.tabs],
   );
 
   const handleCreateEmptyTab = useCallback(() => {

@@ -180,6 +180,7 @@ const buildUsageEventFixtures = (): UsageEventFixture[] => {
       const userWeight = userWeights[userIdx];
 
       for (const op of operations) {
+        // Skip some user/operation combos randomly for variety
         if (nextRandom() < 0.25) {
           continue;
         }

@@ -1,9 +1,9 @@
 import { type I18n } from '@lingui/core';
 
-import { generateMessageId } from 'twenty-shared/i18n';
+import { generateMessageId } from 'src/engine/core-modules/i18n/utils/generateMessageId';
 import { translateStandardLabel } from 'src/engine/core-modules/i18n/utils/translate-standard-label.util';
 
-jest.mock('twenty-shared/i18n');
+jest.mock('src/engine/core-modules/i18n/utils/generateMessageId');
 
 const mockGenerateMessageId = generateMessageId as jest.MockedFunction<
   typeof generateMessageId
@@ -85,12 +85,7 @@ describe('translateStandardLabel', () => {
     });
 
     expect(result).toBe('Entreprise');
-    expect(mockI18n._).toHaveBeenCalledWith('company-id', {
-      objectLabel: '{objectLabel}',
-      objectLabelSingular: '{objectLabelSingular}',
-      objectLabelPlural: '{objectLabelPlural}',
-      objectIcon: '{objectIcon}',
-    });
+    expect(mockI18n._).toHaveBeenCalledWith('company-id');
   });
 
   it('should return the source value when the standard bundle has no translation', () => {

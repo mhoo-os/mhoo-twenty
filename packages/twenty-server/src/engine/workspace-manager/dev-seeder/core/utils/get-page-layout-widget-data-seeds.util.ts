@@ -148,6 +148,7 @@ export const getPageLayoutWidgetDataSeeds = (
   const rocketCreatedAtFieldId = getFieldId(rocketObject, 'createdAt');
 
   const v1Widgets: SeederFlatPageLayoutWidget[] = [
+    // Sales Overview Tab Widgets
     isDefined(opportunityAmountFieldId)
       ? ({
           id: generateSeedId(
@@ -253,6 +254,7 @@ export const getPageLayoutWidgetDataSeeds = (
         } satisfies SeederFlatPageLayoutWidget)
       : null,
 
+    // Sales Details Tab Widgets
     isDefined(rocketIdFieldId) && isDefined(rocketCreatedAtFieldId)
       ? ({
           id: generateSeedId(
@@ -323,6 +325,7 @@ export const getPageLayoutWidgetDataSeeds = (
         } satisfies SeederFlatPageLayoutWidget)
       : null,
 
+    // Customer Overview Tab Widgets
     isDefined(companyIdFieldId)
       ? ({
           id: generateSeedId(
@@ -355,6 +358,7 @@ export const getPageLayoutWidgetDataSeeds = (
           overrides: null,
         } satisfies SeederFlatPageLayoutWidget)
       : null,
+    // Customer Analytics Tab Widgets
     isDefined(companyAnnualRevenueFieldId)
       ? ({
           id: generateSeedId(
@@ -420,6 +424,7 @@ export const getPageLayoutWidgetDataSeeds = (
         } satisfies SeederFlatPageLayoutWidget)
       : null,
 
+    // Team Overview Tab Widgets
     isDefined(personIdFieldId)
       ? ({
           id: generateSeedId(workspaceId, PAGE_LAYOUT_WIDGET_SEEDS.TEAM_SIZE),
@@ -449,6 +454,7 @@ export const getPageLayoutWidgetDataSeeds = (
           overrides: null,
         } satisfies SeederFlatPageLayoutWidget)
       : null,
+    // Team Metrics Tab Widgets
     isDefined(taskIdFieldId)
       ? ({
           id: generateSeedId(
@@ -482,6 +488,7 @@ export const getPageLayoutWidgetDataSeeds = (
         } satisfies SeederFlatPageLayoutWidget)
       : null,
 
+    // Sales Overview Tab Widgets - Front Component
     {
       id: generateSeedId(workspaceId, PAGE_LAYOUT_WIDGET_SEEDS.FRONT_COMPONENT),
       pageLayoutTabId: generateSeedId(

@@ -3,7 +3,6 @@ import { Logger, Scope } from '@nestjs/common';
 import isEqual from 'lodash.isequal';
 import { In } from 'typeorm';
 
-import { computeCoreWorkflowStatuses } from 'src/engine/core-modules/workflow/utils/compute-core-workflow-statuses.util';
 import { Process } from 'src/engine/core-modules/message-queue/decorators/process.decorator';
 import { Processor } from 'src/engine/core-modules/message-queue/decorators/processor.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
@@ -14,7 +13,10 @@ import {
   WorkflowVersionStatus,
   type WorkflowVersionWorkspaceEntity,
 } from 'src/modules/workflow/common/standard-objects/workflow-version.workspace-entity';
-import { type WorkflowWorkspaceEntity } from 'src/modules/workflow/common/standard-objects/workflow.workspace-entity';
+import {
+  WorkflowStatus,
+  type WorkflowWorkspaceEntity,
+} from 'src/modules/workflow/common/standard-objects/workflow.workspace-entity';
 
 export enum WorkflowVersionEventType {
   CREATE = 'CREATE',
@@ -194,6 +196,8 @@ export class WorkflowStatusesUpdateJob {
     workflowId: string;
     workflowVersionRepository: WorkspaceRepository<WorkflowVersionWorkspaceEntity>;
   }) {
+    const statuses: WorkflowStatus[] = [];
+
     const workflowVersions = await workflowVersionRepository.find({
       where: {
         workflowId,
@@ -205,16 +209,30 @@ export class WorkflowStatusesUpdateJob {
       },
     });
 
-    return computeCoreWorkflowStatuses({
-      hasDraftVersion: workflowVersions.some(
-        (version) => version.status === WorkflowVersionStatus.DRAFT,
-      ),
-      hasActiveVersion: workflowVersions.some(
-        (version) => version.status === WorkflowVersionStatus.ACTIVE,
-      ),
-      hasDeactivatedVersion: workflowVersions.some(
-        (version) => version.status === WorkflowVersionStatus.DEACTIVATED,
-      ),
-    });
+    const hasDraftVersion = workflowVersions.some(
+      (version) => version.status === WorkflowVersionStatus.DRAFT,
+    );
+
+    if (hasDraftVersion) {
+      statuses.push(WorkflowStatus.DRAFT);
+    }
+
+    const hasActiveVersion = workflowVersions.some(
+      (version) => version.status === WorkflowVersionStatus.ACTIVE,
+    );
+
+    if (hasActiveVersion) {
+      statuses.push(WorkflowStatus.ACTIVE);
+    }
+
+    const hasDeactivatedVersion = workflowVersions.some(
+      (version) => version.status === WorkflowVersionStatus.DEACTIVATED,
+    );
+
+    if (!hasActiveVersion && hasDeactivatedVersion) {
+      statuses.push(WorkflowStatus.DEACTIVATED);
+    }
+
+    return statuses;
   }
 }

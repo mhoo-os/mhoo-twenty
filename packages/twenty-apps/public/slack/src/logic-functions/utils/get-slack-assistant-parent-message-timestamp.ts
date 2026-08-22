@@ -3,10 +3,15 @@ import { isNonEmptyString } from '@sniptt/guards';
 export const getSlackAssistantParentMessageTimestamp = ({
   slackThreadTimestamp,
   slackMessageTimestamp,
+  isDirectMessage,
 }: {
   slackThreadTimestamp: string | undefined;
   slackMessageTimestamp: string;
-}): string =>
-  isNonEmptyString(slackThreadTimestamp)
-    ? slackThreadTimestamp
-    : slackMessageTimestamp;
+  isDirectMessage: boolean;
+}): string | undefined => {
+  if (isNonEmptyString(slackThreadTimestamp)) {
+    return slackThreadTimestamp;
+  }
+
+  return isDirectMessage ? undefined : slackMessageTimestamp;
+};

@@ -60,6 +60,7 @@ export const getPageLayoutWidgetDataSeedsV2 = (
   const personJobTitleFieldId = getFieldId(personObject, 'jobTitle');
 
   return [
+    // LINE chart: Revenue Forecast (Sales Overview)
     isDefined(opportunityAmountFieldId) &&
     isDefined(opportunityCloseDateFieldId)
       ? ({
@@ -97,6 +98,7 @@ export const getPageLayoutWidgetDataSeedsV2 = (
         } satisfies SeederFlatPageLayoutWidget)
       : null,
 
+    // LINE chart: New Customers Over Time (Customer Overview)
     isDefined(companyIdFieldId) && isDefined(companyCreatedAtFieldId)
       ? ({
           id: generateSeedId(
@@ -133,6 +135,7 @@ export const getPageLayoutWidgetDataSeedsV2 = (
         } satisfies SeederFlatPageLayoutWidget)
       : null,
 
+    // PIE chart: Revenue Distribution (Customer Analytics)
     isDefined(companyAnnualRevenueFieldId) && isDefined(companyNameFieldId)
       ? ({
           id: generateSeedId(
@@ -168,6 +171,7 @@ export const getPageLayoutWidgetDataSeedsV2 = (
         } satisfies SeederFlatPageLayoutWidget)
       : null,
 
+    // PIE chart: Companies by LinkedIn (Customer Overview)
     isDefined(companyIdFieldId) && isDefined(companyLinkedinLinkFieldId)
       ? ({
           id: generateSeedId(
@@ -204,6 +208,7 @@ export const getPageLayoutWidgetDataSeedsV2 = (
         } satisfies SeederFlatPageLayoutWidget)
       : null,
 
+    // PIE chart: Contact Roles (Team Metrics)
     isDefined(personIdFieldId) && isDefined(personJobTitleFieldId)
       ? ({
           id: generateSeedId(

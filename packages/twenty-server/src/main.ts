@@ -25,11 +25,10 @@ import { AppModule } from './app.module';
 import './instrument';
 
 import { settings } from './engine/constants/settings';
-import { enableValidationMetadataCache } from './utils/enable-validation-metadata-cache.util';
 import { generateFrontConfig } from './utils/generate-front-config';
 
+// Trigger
 const bootstrap = async () => {
-  enableValidationMetadataCache();
   setPgDateTypeParser();
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -74,6 +73,7 @@ const bootstrap = async () => {
   // Apply class-validator container so that we can use injection in validators
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
+  // Use our logger
   app.useLogger(logger);
 
   app.useBodyParser('json', { limit: settings.storage.maxFileSize });
@@ -83,6 +83,7 @@ const bootstrap = async () => {
   });
   app.useBodyParser('text', { type: 'text/plain', limit: '1024kb' });
 
+  // Graphql file upload
   app.use(
     `/${ApiPath.GraphQL}`,
     graphqlUploadExpress({
@@ -99,6 +100,7 @@ const bootstrap = async () => {
     }),
   );
 
+  // Inject the server url in the frontend page
   generateFrontConfig();
 
   const keepAliveTimeout = twentyConfigService.get(

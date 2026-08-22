@@ -7,6 +7,7 @@ import {
   signInWithCookieCapture,
 } from 'test/integration/graphql/suites/auth/user-sessions/utils/sign-in-with-cookie-capture.util';
 import { currentUserIdentityQueryFactory } from 'test/integration/graphql/suites/auth/user-sessions/utils/user-session-operations.util';
+import { setupDatabaseConfigOverrideForSuite } from 'test/integration/graphql/suites/auth/user-sessions/utils/setup-database-config-override.util';
 
 import { generateUserSessionToken } from 'src/engine/core-modules/user-session/utils/generate-user-session-token.util';
 
@@ -16,6 +17,8 @@ import {
 } from 'test/integration/graphql/suites/auth/user-sessions/constants/session-origins.constants';
 
 describe('failing session cookie authentication (integration)', () => {
+  setupDatabaseConfigOverrideForSuite('AUTH_COOKIE_SESSIONS_ENABLED', true);
+
   let sessionToken: string;
   let sessionCookieName: string;
   let sessionCookieHeader: string;

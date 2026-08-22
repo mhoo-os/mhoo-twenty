@@ -28,8 +28,8 @@ const STAT_FIELD_UNIVERSAL_IDENTIFIERS = [
 ];
 
 // The allMessageCampaigns view is introduced by this feature, so existing
-// workspaces have no messageCampaign view at all. Create the view and its
-// columns (not just the stat columns) so it materializes end to end.
+// workspaces have no messageCampaign view at all. Create the view and every one
+// of its columns (not just the stat columns) so it materializes end to end.
 const CAMPAIGN_VIEW_UNIVERSAL_IDENTIFIER =
   CAMPAIGN.views.allMessageCampaigns.universalIdentifier;
 
@@ -126,12 +126,13 @@ export class AddMessageCampaignStatFieldsCommand extends ProvisionedWorkspaceCom
     const viewFieldsToCreate = CAMPAIGN_VIEW_FIELD_UNIVERSAL_IDENTIFIERS.filter(
       (universalIdentifier) =>
         !isDefined(flatViewFieldMaps.byUniversalIdentifier[universalIdentifier]),
-    ).flatMap((universalIdentifier) => {
-      const standardViewField =
-        findFlatEntityByUniversalIdentifier<FlatViewField>({
+    ).map((universalIdentifier) => {
+      const standardViewField = findFlatEntityByUniversalIdentifier<FlatViewField>(
+        {
           flatEntityMaps: standardAllFlatEntityMaps.flatViewFieldMaps,
           universalIdentifier,
-        });
+        },
+      );
 
       if (!isDefined(standardViewField)) {
         throw new Error(
@@ -139,27 +140,7 @@ export class AddMessageCampaignStatFieldsCommand extends ProvisionedWorkspaceCom
         );
       }
 
-      const fieldUniversalIdentifier =
-        standardAllFlatEntityMaps.flatFieldMetadataMaps.universalIdentifierById[
-          standardViewField.fieldMetadataId
-        ];
-
-      if (!isDefined(fieldUniversalIdentifier)) {
-        return [];
-      }
-
-      // The standard column list keeps growing after 2.20, so skip columns whose
-      // field a later command introduces and backfills.
-      const isFieldAvailable =
-        isDefined(
-          flatFieldMetadataMaps.byUniversalIdentifier[fieldUniversalIdentifier],
-        ) ||
-        fieldsToCreate.some(
-          (fieldToCreate) =>
-            fieldToCreate.universalIdentifier === fieldUniversalIdentifier,
-        );
-
-      return isFieldAvailable ? [standardViewField] : [];
+      return standardViewField;
     });
 
     const hasMetadataChanges =

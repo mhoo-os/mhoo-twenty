@@ -75,6 +75,7 @@ describe('UpgradeSequenceRunnerService — startFromWorkspaceId (integration)', 
     const executed = await testGetExecutedMigrationsInOrder(context.dataSource);
 
     expect(executed.map(migrationRecordToKey)).toStrictEqual([
+      // Seeds
       'Ic1:instance:completed:1',
       `Ic1:${WS_1}:completed:1`,
       `Ic1:${WS_2}:completed:1`,
@@ -114,6 +115,7 @@ describe('UpgradeSequenceRunnerService — startFromWorkspaceId (integration)', 
     const executed = await testGetExecutedMigrationsInOrder(context.dataSource);
 
     expect(executed.map(migrationRecordToKey)).toStrictEqual([
+      // Seeds
       'Ic1:instance:completed:1',
       `Ic1:${WS_1}:completed:1`,
       `Ic1:${WS_2}:completed:1`,
@@ -156,6 +158,7 @@ describe('UpgradeSequenceRunnerService — startFromWorkspaceId (integration)', 
     const executed = await testGetExecutedMigrationsInOrder(context.dataSource);
 
     expect(executed.map(migrationRecordToKey)).toStrictEqual([
+      // Seeds
       'Ic1:instance:completed:1',
       `Ic1:${WS_1}:completed:1`,
       `Ic1:${WS_2}:completed:1`,

@@ -1,4 +1,3 @@
-import { CommandMenuItemContainerType } from '@/command-menu-item/types/CommandMenuItemContainerType';
 import { currentUserState } from '@/auth/states/currentUserState';
 import { currentUserWorkspaceState } from '@/auth/states/currentUserWorkspaceState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
@@ -20,10 +19,12 @@ import {
   type CommandMenuContextApi,
 } from 'twenty-shared/types';
 import { evaluateConditionalAvailabilityExpression } from 'twenty-shared/utils';
+import { useIsMobile } from 'twenty-ui/utilities';
 import { CommandMenuItemAvailabilityType } from '~/generated-metadata/graphql';
 
 export const StandalonePageCommandMenu = () => {
   const store = useStore();
+  const isMobile = useIsMobile();
   const commandMenuItems = useAtomStateValue(commandMenuItemsSelector);
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const currentUserWorkspace = useAtomStateValue(currentUserWorkspaceState);
@@ -127,13 +128,13 @@ export const StandalonePageCommandMenu = () => {
     <CommandMenuContext.Provider
       value={{
         displayType: 'button',
-        containerType: CommandMenuItemContainerType.StandalonePageHeader,
+        containerType: 'standalone-page-header',
         commandMenuItems: filteredCommandMenuItems,
         commandMenuContextApi,
         isInPreviewMode: false,
       }}
     >
-      <PinnedCommandMenuItemButtons />
+      {!isMobile && <PinnedCommandMenuItemButtons />}
       <CommandMenuItemEditButton />
     </CommandMenuContext.Provider>
   );

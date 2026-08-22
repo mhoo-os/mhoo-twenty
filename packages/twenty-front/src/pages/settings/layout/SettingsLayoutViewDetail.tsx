@@ -66,6 +66,11 @@ export const SettingsLayoutViewDetail = () => {
           label: t`Visibility`,
           value: view.visibility ?? t`Default`,
         },
+        {
+          key: 'openRecordIn',
+          label: t`Open records in`,
+          value: view.openRecordIn ?? t`Default`,
+        },
       ]
     : [];
 

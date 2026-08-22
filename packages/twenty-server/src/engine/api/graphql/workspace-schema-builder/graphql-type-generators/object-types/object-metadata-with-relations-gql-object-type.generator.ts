@@ -72,8 +72,10 @@ export class ObjectMetadataWithRelationsGqlObjectTypeGenerator {
       );
     }
 
+    // Extract current object config to extend it
     const config = gqlType.toConfig();
 
+    // Recreate the same object type with the new fields
     this.gqlTypesStorage.addGqlType(
       key,
       new GraphQLObjectType({

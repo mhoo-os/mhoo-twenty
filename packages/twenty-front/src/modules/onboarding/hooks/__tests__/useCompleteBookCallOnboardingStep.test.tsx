@@ -30,11 +30,7 @@ jest.mock('@/onboarding/hooks/useSetNextOnboardingStatus', () => ({
 }));
 
 const mutationMock = {
-  request: {
-    query: CompleteBookCallOnboardingStepDocument,
-    variables: { hasBookedCall: false, isAutoSkipped: false },
-  },
-  maxUsageCount: Number.POSITIVE_INFINITY,
+  request: { query: CompleteBookCallOnboardingStepDocument },
   result: {
     data: {
       completeBookCallOnboardingStep: {
@@ -87,7 +83,7 @@ describe('useCompleteBookCallOnboardingStep', () => {
     });
 
     await act(async () => {
-      await result.current({ hasBookedCall: false });
+      await result.current();
     });
 
     expect(mockSetNextOnboardingStatus).toHaveBeenCalled();
@@ -103,7 +99,7 @@ describe('useCompleteBookCallOnboardingStep', () => {
       const { result } = renderCompleteHook(options);
 
       await act(async () => {
-        await result.current({ hasBookedCall: false });
+        await result.current();
       });
 
       expect(mockSetNextOnboardingStatus).toHaveBeenCalled();
@@ -131,7 +127,7 @@ describe('useCompleteBookCallOnboardingStep', () => {
     });
 
     await act(async () => {
-      await result.current({ hasBookedCall: false });
+      await result.current();
     });
 
     expect(mockSetNextOnboardingStatus).toHaveBeenCalled();

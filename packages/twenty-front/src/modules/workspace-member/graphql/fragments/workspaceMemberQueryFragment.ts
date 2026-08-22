@@ -8,7 +8,6 @@ export const WORKSPACE_MEMBER_QUERY_FRAGMENT = gql`
       lastName
     }
     colorScheme
-    uiScale
     openRecordIn
     avatarUrl
     locale

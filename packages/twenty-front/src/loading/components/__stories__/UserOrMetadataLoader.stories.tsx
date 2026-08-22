@@ -47,6 +47,7 @@ const userMetadataLoaderMocks = {
           return HttpResponse.json({
             data: {
               objects: {
+                // simulate no metadata items
                 edges: [],
               },
             },

@@ -126,7 +126,6 @@ export class LambdaDriver implements LogicFunctionDriver {
     flatApplication,
     applicationUniversalIdentifier,
     payload,
-    context,
     env,
     timeoutMs = 900_000,
     forceExecutionMode,
@@ -169,7 +168,6 @@ export class LambdaDriver implements LogicFunctionDriver {
 
       const executorPayload: LambdaDriverExecutorPayload = {
         params: payload,
-        context,
         env: env ?? {},
         handlerName: flatLogicFunction.handlerName,
       };

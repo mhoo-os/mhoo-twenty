@@ -35,6 +35,7 @@ export const ModalBackdrop = forwardRef<HTMLDivElement, ModalBackdropProps>(
           ...style,
         } as React.CSSProperties
       }
+      // oxlint-disable-next-line react/jsx-props-no-spreading
       {...divProps}
     />
   ),

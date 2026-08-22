@@ -47,6 +47,7 @@ describe('Restricted fields', () => {
       },
     });
 
+    // Get object metadata IDs for Person and Company
     const getObjectMetadataOperation = {
       query: gql`
         query {
@@ -71,6 +72,7 @@ describe('Restricted fields', () => {
       (obj: any) => obj.node.nameSingular === 'person',
     )?.node.id;
 
+    // Get field metadata ID for email field
     const getFieldMetadataOperation = {
       query: gql`
         query {
@@ -106,6 +108,7 @@ describe('Restricted fields', () => {
         field.node.object.nameSingular === 'person',
     ).node.id;
 
+    // Get member role ID
     const getRolesOperation = {
       query: gql`
         query {
@@ -123,6 +126,7 @@ describe('Restricted fields', () => {
       (role: any) => role.label === 'Member',
     )?.id;
 
+    // Create field permission restricting read access to email field
     await upsertFieldPermissions({
       roleId: memberRoleId,
       fieldPermissions: [
@@ -154,6 +158,7 @@ describe('Restricted fields', () => {
 
   describe('updateOne', () => {
     it('should hide fields in the response when user has restricted read permissions', async () => {
+      // Create field permission restricting update access to phones field
       await upsertFieldPermissions({
         roleId: memberRoleId,
         fieldPermissions: [
@@ -185,6 +190,7 @@ describe('Restricted fields', () => {
         });
     });
     it('should block update when user tries to update non-updatable field', async () => {
+      // Create field permission restricting update access to phones field
       await upsertFieldPermissions({
         roleId: memberRoleId,
         fieldPermissions: [
@@ -218,6 +224,7 @@ describe('Restricted fields', () => {
     });
 
     it('should allow update when user has no restricted update permissions', async () => {
+      // Remove field permission restrictions
       await upsertFieldPermissions({
         roleId: memberRoleId,
         fieldPermissions: [

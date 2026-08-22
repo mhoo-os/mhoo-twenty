@@ -1,6 +1,5 @@
 import { EMPTY_COMMAND_MENU_CONTEXT_API } from '@/command-menu-item/constants/EmptyCommandMenuContextApi';
 import { CommandMenuContext } from '@/command-menu-item/contexts/CommandMenuContext';
-import { CommandMenuItemContainerType } from '@/command-menu-item/types/CommandMenuItemContainerType';
 import { MAIN_CONTEXT_STORE_INSTANCE_ID } from '@/context-store/constants/MainContextStoreInstanceId';
 import { contextStoreNumberOfSelectedRecordsComponentState } from '@/context-store/states/contextStoreNumberOfSelectedRecordsComponentState';
 import { ApolloCoreClientContext } from '@/object-metadata/contexts/ApolloCoreClientContext';
@@ -80,7 +79,7 @@ const meta: Meta<typeof UpdateMultipleRecordsContainer> = {
         <CommandMenuContext.Provider
           value={{
             commandMenuItems: [],
-            containerType: CommandMenuItemContainerType.IndexPageDropdown,
+            containerType: 'index-page-dropdown',
             displayType: 'dropdownItem',
             commandMenuContextApi: EMPTY_COMMAND_MENU_CONTEXT_API,
             isInPreviewMode: false,

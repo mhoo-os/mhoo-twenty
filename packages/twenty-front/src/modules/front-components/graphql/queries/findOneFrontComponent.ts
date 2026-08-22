@@ -9,7 +9,6 @@ export const FIND_ONE_FRONT_COMPONENT = gql`
       builtComponentChecksum
       isHeadless
       usesSdkClient
-      frontComponentSharedDependenciesChecksum
       applicationVariables
       applicationTokenPair {
         applicationAccessToken {

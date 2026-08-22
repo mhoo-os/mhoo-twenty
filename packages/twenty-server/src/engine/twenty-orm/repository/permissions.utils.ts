@@ -8,8 +8,8 @@ import {
 import { isDefined } from 'twenty-shared/utils';
 import { type QueryExpressionMap } from 'typeorm/query-builder/QueryExpressionMap';
 
+import { ProcessAggregateHelper } from 'src/engine/api/graphql/graphql-query-runner/helpers/process-aggregate.helper';
 import { InternalServerError } from 'src/engine/core-modules/graphql/utils/graphql-errors.util';
-import { extractColumnNamesFromAggregateExpression } from 'src/utils/extract-column-names-from-aggregate-expression.util';
 import { type FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { findFlatEntityByIdInFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps.util';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
@@ -19,8 +19,6 @@ import {
   PermissionsExceptionCode,
   PermissionsExceptionMessage,
 } from 'src/engine/metadata-modules/permissions/permissions.exception';
-import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
-import { validateWritabilityOrThrow } from 'src/engine/twenty-orm/repository/validate-writability-or-throw.util';
 import { getColumnNameToFieldMetadataIdMap } from 'src/engine/twenty-orm/utils/get-column-name-to-field-metadata-id.util';
 
 const WORKSPACE_MEMBER_OBJECT_UNIVERSAL_IDENTIFIER =
@@ -81,7 +79,6 @@ type ValidateOperationIsPermittedOrThrowArgs = {
   selectedColumns: string[] | '*';
   allFieldsSelected: boolean;
   updatedColumns: string[];
-  authContext?: WorkspaceAuthContext;
 };
 
 export const validateOperationIsPermittedOrThrow = ({
@@ -94,7 +91,6 @@ export const validateOperationIsPermittedOrThrow = ({
   selectedColumns,
   allFieldsSelected,
   updatedColumns,
-  authContext,
 }: ValidateOperationIsPermittedOrThrowArgs) => {
   const objectMetadataIdForEntity = objectIdByNameSingular[entityName];
 
@@ -117,20 +113,6 @@ export const validateOperationIsPermittedOrThrow = ({
     );
   }
 
-  const columnNameToFieldMetadataIdMap = getColumnNameToFieldMetadataIdMap(
-    objectMetadata,
-    flatFieldMetadataMaps,
-  );
-
-  validateWritabilityOrThrow({
-    operationType,
-    objectMetadata,
-    updatedColumns,
-    columnNameToFieldMetadataIdMap,
-    flatFieldMetadataMaps,
-    authContext,
-  });
-
   const objectMetadataIsSystem = objectMetadata.isSystem === true;
   const isWorkspaceMemberObject =
     objectMetadata.universalIdentifier ===
@@ -140,6 +122,11 @@ export const validateOperationIsPermittedOrThrow = ({
   if (objectMetadataIsSystem && !isWorkspaceMemberObject) {
     return;
   }
+
+  const columnNameToFieldMetadataIdMap = getColumnNameToFieldMetadataIdMap(
+    objectMetadata,
+    flatFieldMetadataMaps,
+  );
 
   const permissionsForEntity = objectsPermissions[objectMetadataIdForEntity];
 
@@ -278,7 +265,6 @@ type ValidateQueryIsPermittedOrThrowArgs = {
   flatFieldMetadataMaps: FlatEntityMaps<FlatFieldMetadata>;
   objectIdByNameSingular: Record<string, string>;
   shouldBypassPermissionChecks: boolean;
-  authContext?: WorkspaceAuthContext;
 };
 
 export const validateQueryIsPermittedOrThrow = ({
@@ -288,7 +274,6 @@ export const validateQueryIsPermittedOrThrow = ({
   flatFieldMetadataMaps,
   objectIdByNameSingular,
   shouldBypassPermissionChecks,
-  authContext,
 }: ValidateQueryIsPermittedOrThrowArgs) => {
   if (shouldBypassPermissionChecks) {
     return;
@@ -368,7 +353,6 @@ export const validateQueryIsPermittedOrThrow = ({
     selectedColumns,
     allFieldsSelected,
     updatedColumns,
-    authContext,
   });
 };
 
@@ -648,7 +632,9 @@ const getSelectedColumnsFromExpressionMapSelects = (
   return selects
     ?.map((select) => {
       const columnsFromAggregateExpression =
-        extractColumnNamesFromAggregateExpression(select.selection);
+        ProcessAggregateHelper.extractColumnNamesFromAggregateExpression(
+          select.selection,
+        );
 
       if (columnsFromAggregateExpression) {
         return columnsFromAggregateExpression;

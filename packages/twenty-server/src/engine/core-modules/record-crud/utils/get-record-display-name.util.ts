@@ -29,6 +29,7 @@ export const getRecordDisplayName = (
 
   const fieldValue = record[labelIdentifierField.name];
 
+  // Handle FULL_NAME composite type (person, workspaceMember)
   if (labelIdentifierField.type === FieldMetadataType.FULL_NAME) {
     const nameValue = fieldValue as
       | { firstName?: string; lastName?: string }

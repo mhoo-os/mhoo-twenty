@@ -1,3 +1,4 @@
+// hook-registry.service.ts
 import { Injectable } from '@nestjs/common';
 import { type Module } from '@nestjs/core/injector/module';
 
@@ -52,6 +53,7 @@ export class WorkspaceQueryHookStorage {
       throw new Error(`Can't split workspace query hook key: ${key}`);
     }
 
+    // Retrieve wildcard pre-hook instances
     const wildcardPrehooksInstance = this.preHookInstances.get(
       `*.${methodName}`,
     );
@@ -87,6 +89,7 @@ export class WorkspaceQueryHookStorage {
       throw new Error(`Can't split workspace query hook key: ${key}`);
     }
 
+    // Retrieve wildcard post-hook instances
     const wildcardPosthooksInstance = this.postHookInstances.get(
       `*.${methodName}`,
     );

@@ -3,11 +3,16 @@
   font-family: inherit;
   font-size: inherit;
   font-weight: inherit;
-  height: auto;
   max-width: 100%;
-  overflow-wrap: break-word;
+  overflow: hidden;
   text-decoration: inherit;
+  text-overflow: ellipsis;
+  height: auto;
+  -webkit-line-clamp: var(--displayed-max-rows, 1);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
   white-space: pre-wrap;
+  overflow-wrap: break-word;
 
   &[data-content-overflowing] {
     cursor: pointer;
@@ -19,9 +24,12 @@
   font-family: inherit;
   font-size: inherit;
   font-weight: inherit;
-  height: auto;
   max-width: 100%;
   text-decoration: inherit;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  height: auto;
+  white-space: nowrap;
 
   &[data-content-overflowing] {
     cursor: pointer;

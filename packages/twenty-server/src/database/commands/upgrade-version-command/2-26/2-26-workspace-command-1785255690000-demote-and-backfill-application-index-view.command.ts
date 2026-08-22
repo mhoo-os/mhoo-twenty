@@ -2,7 +2,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Command } from 'nest-commander';
 import {
-  SYSTEM_VIEW_KEYS,
   getSystemViewFieldUniversalIdentifier,
   getSystemViewUniversalIdentifier,
 } from 'twenty-shared/application';
@@ -18,7 +17,7 @@ import { ApplicationService } from 'src/engine/core-modules/application/applicat
 import { RegisteredWorkspaceCommand } from 'src/engine/core-modules/upgrade/decorators/registered-workspace-command.decorator';
 import { type AllFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/all-flat-entity-maps.type';
 import { DEFAULT_VIEW_FIELD_SIZE } from 'src/engine/metadata-modules/flat-view-field/constants/default-view-field-size.constant';
-import { computeSystemViewToCreate } from 'src/engine/metadata-modules/metadata-side-effect/handlers/utils/compute-system-view-to-create.util';
+import { computeFlatIndexViewToCreate } from 'src/engine/metadata-modules/object-metadata/utils/compute-flat-index-view-to-create.util';
 import { isFlatFieldMetadataDisplayableInDefaultView } from 'src/engine/metadata-modules/object-metadata/utils/is-flat-field-metadata-displayable-in-default-view.util';
 import { orderFlatFieldMetadatasForSystemIndexView } from 'src/engine/metadata-modules/object-metadata/utils/order-flat-field-metadatas-for-system-index-view.util';
 import { ViewEntity } from 'src/engine/metadata-modules/view/entities/view.entity';
@@ -224,7 +223,7 @@ export class DemoteAndBackfillApplicationIndexViewCommand extends ProvisionedWor
         objectMetadataApplicationUniversalIdentifier:
           flatObjectMetadata.applicationUniversalIdentifier,
         objectUniversalIdentifier: flatObjectMetadata.universalIdentifier,
-        viewKey: SYSTEM_VIEW_KEYS.INDEX,
+        viewKey: ViewKey.INDEX,
       });
 
       if (
@@ -232,15 +231,14 @@ export class DemoteAndBackfillApplicationIndexViewCommand extends ProvisionedWor
           flatObjectMetadata.universalIdentifier,
         )
       ) {
-        // computeSystemViewToCreate derives the same universal identifier.
+        // computeFlatIndexViewToCreate derives the same universal identifier.
         getApplicationBucket(
           flatObjectMetadata.applicationUniversalIdentifier,
         ).viewsToCreate.push(
-          computeSystemViewToCreate({
+          computeFlatIndexViewToCreate({
             objectMetadata: flatObjectMetadata,
             applicationUniversalIdentifier:
               flatObjectMetadata.applicationUniversalIdentifier,
-            viewKey: SYSTEM_VIEW_KEYS.INDEX,
           }),
         );
       }

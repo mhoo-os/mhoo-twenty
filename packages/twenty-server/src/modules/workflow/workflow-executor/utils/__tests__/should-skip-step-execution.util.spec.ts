@@ -242,6 +242,7 @@ describe('shouldSkipStepExecution', () => {
       createMockCodeStep('step-4', []),
     ];
 
+    // Test case 1: All skipped - should return true
     expect(
       shouldSkipStepExecution({
         step: steps[3],
@@ -255,6 +256,7 @@ describe('shouldSkipStepExecution', () => {
       }),
     ).toBe(true);
 
+    // Test case 2: Mixed skipped/stopped - should return true
     expect(
       shouldSkipStepExecution({
         step: steps[3],
@@ -268,6 +270,7 @@ describe('shouldSkipStepExecution', () => {
       }),
     ).toBe(true);
 
+    // Test case 3: One success among skipped - should return false
     expect(
       shouldSkipStepExecution({
         step: steps[3],
@@ -281,6 +284,7 @@ describe('shouldSkipStepExecution', () => {
       }),
     ).toBe(false);
 
+    // Test case 4: One failed among skipped - should return false
     expect(
       shouldSkipStepExecution({
         step: steps[3],

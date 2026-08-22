@@ -15,6 +15,7 @@ export const StyledTextContent = ({
   className,
   ...divProps
 }: StyledTextContentProps) => (
+  // oxlint-disable-next-line react/jsx-props-no-spreading
   <div className={clsx(styles.content, className)} {...divProps} />
 );
 
@@ -35,6 +36,7 @@ export const StyledTextWrapper = ({
         ? ({ '--styled-text-color': color, ...style } as React.CSSProperties)
         : style
     }
+    // oxlint-disable-next-line react/jsx-props-no-spreading
     {...divProps}
   />
 );

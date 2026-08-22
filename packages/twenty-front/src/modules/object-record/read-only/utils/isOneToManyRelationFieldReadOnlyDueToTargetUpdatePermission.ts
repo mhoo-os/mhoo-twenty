@@ -6,7 +6,7 @@ import { type FieldMetadata } from '@/object-record/record-field/ui/types/FieldM
 import { isFieldMorphRelationOneToMany } from '@/object-record/record-field/ui/types/guards/isFieldMorphRelationOneToMany';
 import { isFieldRelationOneToMany } from '@/object-record/record-field/ui/types/guards/isFieldRelationOneToMany';
 import { type ObjectPermissions } from 'twenty-shared/types';
-import { isNonEmptyArray } from 'twenty-shared/utils';
+import { isDefined } from 'twenty-shared/utils';
 
 type ObjectPermissionsByObjectMetadataId = Record<
   string,
@@ -16,33 +16,6 @@ type ObjectPermissionsByObjectMetadataId = Record<
 type IsOneToManyRelationFieldReadOnlyDueToTargetUpdatePermissionParams = {
   fieldDefinition: FieldDefinition<FieldMetadata>;
   objectPermissionsByObjectMetadataId: ObjectPermissionsByObjectMetadataId;
-};
-
-// Attaching or detaching writes the join column owned by the inverse many-to-one
-// field, so a field-level restriction there blocks the edit too.
-const isTargetRecordUpdateBlocked = ({
-  objectPermissionsByObjectMetadataId,
-  targetObjectMetadataId,
-  inverseFieldMetadataId,
-}: {
-  objectPermissionsByObjectMetadataId: ObjectPermissionsByObjectMetadataId;
-  targetObjectMetadataId: string;
-  inverseFieldMetadataId: string | undefined;
-}): boolean => {
-  const targetObjectPermissions = getObjectPermissionsForObject(
-    objectPermissionsByObjectMetadataId,
-    targetObjectMetadataId,
-  );
-
-  if (targetObjectPermissions.canUpdateObjectRecords === false) {
-    return true;
-  }
-
-  return (
-    isNonEmptyString(inverseFieldMetadataId) &&
-    targetObjectPermissions.restrictedFields[inverseFieldMetadataId]
-      ?.canUpdate === false
-  );
 };
 
 // One-to-many edits persist by updating the related (or junction) record, not the
@@ -59,27 +32,35 @@ export const isOneToManyRelationFieldReadOnlyDueToTargetUpdatePermission = ({
       return false;
     }
 
-    return isTargetRecordUpdateBlocked({
+    const relationObjectPermissions = getObjectPermissionsForObject(
       objectPermissionsByObjectMetadataId,
-      targetObjectMetadataId: relationObjectMetadataId,
-      inverseFieldMetadataId: fieldDefinition.metadata.relationFieldMetadataId,
-    });
+      relationObjectMetadataId,
+    );
+
+    return relationObjectPermissions.canUpdateObjectRecords === false;
   }
 
   if (isFieldMorphRelationOneToMany(fieldDefinition)) {
-    const morphRelations = fieldDefinition.metadata.morphRelations;
+    const morphTargetIds = [
+      ...new Set(
+        fieldDefinition.metadata.morphRelations.map(
+          (relation) => relation.targetObjectMetadata.id,
+        ),
+      ),
+    ];
 
-    if (!isNonEmptyArray(morphRelations)) {
+    if (!isDefined(morphTargetIds[0])) {
       return false;
     }
 
-    return morphRelations.every((morphRelation) =>
-      isTargetRecordUpdateBlocked({
+    return morphTargetIds.every((targetObjectMetadataId) => {
+      const targetPermissions = getObjectPermissionsForObject(
         objectPermissionsByObjectMetadataId,
-        targetObjectMetadataId: morphRelation.targetObjectMetadata.id,
-        inverseFieldMetadataId: morphRelation.targetFieldMetadata.id,
-      }),
-    );
+        targetObjectMetadataId,
+      );
+
+      return targetPermissions.canUpdateObjectRecords === false;
+    });
   }
 
   return false;

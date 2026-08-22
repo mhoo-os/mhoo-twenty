@@ -1,4 +1,3 @@
-import type { UI_SCALE_VALUES } from 'twenty-shared/constants';
 import { type OpenRecordIn } from 'twenty-shared/types';
 import {
   type WorkspaceMemberDateFormatEnum,
@@ -7,8 +6,6 @@ import {
 } from '~/generated-metadata/graphql';
 
 export type ColorScheme = 'Dark' | 'Light' | 'System';
-
-export type UiScale = (typeof UI_SCALE_VALUES)[number];
 
 export type WorkspaceMember = {
   __typename: 'WorkspaceMember';
@@ -21,7 +18,6 @@ export type WorkspaceMember = {
   avatarUrl?: string | null;
   locale: string | null;
   colorScheme: ColorScheme;
-  uiScale?: UiScale | null;
   openRecordIn?: OpenRecordIn;
   createdAt: string;
   updatedAt: string;

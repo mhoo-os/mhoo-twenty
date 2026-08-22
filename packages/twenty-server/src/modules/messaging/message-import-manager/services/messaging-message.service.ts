@@ -4,8 +4,8 @@ import { isDefined } from 'twenty-shared/utils';
 import { In } from 'typeorm';
 import { v4 } from 'uuid';
 
+import { type WorkspaceEntityManager } from 'src/engine/twenty-orm/entity-manager/workspace-entity-manager';
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
-import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/global-workspace-datasource/types/workspace-transaction-scope.type';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { type MessageChannelMessageAssociationWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel-message-association.workspace-entity';
 import { type MessageThreadWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-thread.workspace-entity';
@@ -48,7 +48,7 @@ export class MessagingMessageService {
   public async saveMessagesWithinTransaction(
     messages: MessageWithParticipants[],
     messageChannelId: string,
-    transactionScope: WorkspaceTransactionScope,
+    transactionManager: WorkspaceEntityManager,
     workspaceId: string,
   ): Promise<{
     createdMessages: Partial<MessageWorkspaceEntity>[];
@@ -64,15 +64,20 @@ export class MessagingMessageService {
     return this.globalWorkspaceOrmManager.executeInWorkspaceContext(
       async () => {
         const messageChannelMessageAssociationRepository =
-          transactionScope.getRepository<MessageChannelMessageAssociationWorkspaceEntity>(
+          await this.globalWorkspaceOrmManager.getRepository<MessageChannelMessageAssociationWorkspaceEntity>(
+            workspaceId,
             'messageChannelMessageAssociation',
           );
 
         const messageRepository =
-          transactionScope.getRepository<MessageWorkspaceEntity>('message');
+          await this.globalWorkspaceOrmManager.getRepository<MessageWorkspaceEntity>(
+            workspaceId,
+            'message',
+          );
 
         const messageThreadRepository =
-          transactionScope.getRepository<MessageThreadWorkspaceEntity>(
+          await this.globalWorkspaceOrmManager.getRepository<MessageThreadWorkspaceEntity>(
+            workspaceId,
             'messageThread',
           );
 
@@ -87,15 +92,18 @@ export class MessagingMessageService {
         });
 
         const messageChannelMessageAssociationsReferencingMessageThread =
-          await messageChannelMessageAssociationRepository.find({
-            where: {
-              messageThreadExternalId: In(
-                messages.map((message) => message.messageThreadExternalId),
-              ),
-              messageChannelId,
+          await messageChannelMessageAssociationRepository.find(
+            {
+              where: {
+                messageThreadExternalId: In(
+                  messages.map((message) => message.messageThreadExternalId),
+                ),
+                messageChannelId,
+              },
+              relations: ['message'],
             },
-            relations: { message: true },
-          });
+            transactionManager,
+          );
 
         const existingMessageChannelMessageAssociations =
           await messageChannelMessageAssociationRepository.find({
@@ -128,13 +136,6 @@ export class MessagingMessageService {
           messages,
           messageAccumulatorMap,
         );
-
-        const associationToCreateByMessageId = new Map<
-          string,
-          NonNullable<
-            MessageAccumulator['messageChannelMessageAssociationToCreate']
-          >
-        >();
 
         for (const message of messages) {
           const messageAccumulator = messageAccumulatorMap.get(
@@ -182,9 +183,7 @@ export class MessagingMessageService {
               messageAccumulator.existingMessageChannelMessageAssociationInDB,
             )
           ) {
-            const associationToCreate = associationToCreateByMessageId.get(
-              newOrExistingMessageId,
-            ) ?? {
+            messageAccumulator.messageChannelMessageAssociationToCreate = {
               id: v4(),
               messageChannelId,
               messageId: newOrExistingMessageId,
@@ -192,14 +191,6 @@ export class MessagingMessageService {
               messageThreadExternalId: message.messageThreadExternalId,
               direction: message.direction,
             };
-
-            associationToCreateByMessageId.set(
-              newOrExistingMessageId,
-              associationToCreate,
-            );
-
-            messageAccumulator.messageChannelMessageAssociationToCreate =
-              associationToCreate;
           }
 
           messageAccumulatorMap.set(message.externalId, messageAccumulator);
@@ -244,7 +235,10 @@ export class MessagingMessageService {
         }
 
         if (messageThreadsToCreate.length > 0) {
-          await messageThreadRepository.insert(messageThreadsToCreate);
+          await messageThreadRepository.insert(
+            messageThreadsToCreate,
+            transactionManager,
+          );
         }
 
         if (threadSubjectUpdates.size > 0) {
@@ -253,6 +247,7 @@ export class MessagingMessageService {
               ([id, { subject }]) => ({ id, subject }),
             ),
             ['id'],
+            transactionManager,
           );
         }
 
@@ -260,14 +255,20 @@ export class MessagingMessageService {
           .map((accumulator) => accumulator.messageToCreate)
           .filter(isDefined);
 
-        await messageRepository.insert(messagesToCreate);
+        await messageRepository.insert(messagesToCreate, transactionManager);
 
         const messageChannelMessageAssociationsToCreate = Array.from(
-          associationToCreateByMessageId.values(),
-        );
+          messageAccumulatorMap.values(),
+        )
+          .map(
+            (accumulator) =>
+              accumulator.messageChannelMessageAssociationToCreate,
+          )
+          .filter(isDefined);
 
         await messageChannelMessageAssociationRepository.insert(
           messageChannelMessageAssociationsToCreate,
+          transactionManager,
         );
 
         const messageExternalIdsAndIdsMap = new Map<string, string>();

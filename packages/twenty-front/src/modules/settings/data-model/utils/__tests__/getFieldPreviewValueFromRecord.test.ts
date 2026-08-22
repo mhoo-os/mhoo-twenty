@@ -15,6 +15,7 @@ const mockedPersonObjectMetadataItem =
 describe('getFieldPreviewValueFromRecord', () => {
   describe('RELATION field', () => {
     it('returns the first relation record from a list of edges ("to many" relation)', () => {
+      // Given
       const firstRelationRecord = {
         id: '1',
         name: { firstName: 'Jane', lastName: 'Doe' },
@@ -34,15 +35,18 @@ describe('getFieldPreviewValueFromRecord', () => {
         throw new Error('Field not found');
       }
 
+      // When
       const result = getFieldPreviewValueFromRecord({
         record,
         fieldMetadataItem,
       });
 
+      // Then
       expect(result).toEqual(firstRelationRecord);
     });
 
     it('returns the record field value ("to one" relation)', () => {
+      // Given
       const relationRecord = { id: '20', name: 'Twenty' };
       const record = {
         id: '',
@@ -57,17 +61,20 @@ describe('getFieldPreviewValueFromRecord', () => {
         throw new Error('Field not found');
       }
 
+      // When
       const result = getFieldPreviewValueFromRecord({
         record,
         fieldMetadataItem,
       });
 
+      // Then
       expect(result).toEqual(relationRecord);
     });
   });
 
   describe('Other fields', () => {
     it('returns the record field value', () => {
+      // Given
       const record = { id: '', name: 'Twenty', __typename: 'Opportunity' };
       const fieldMetadataItem = mockedCompanyObjectMetadataItem?.fields.find(
         ({ name }) => name === 'name',
@@ -77,11 +84,13 @@ describe('getFieldPreviewValueFromRecord', () => {
         throw new Error('Field not found');
       }
 
+      // When
       const result = getFieldPreviewValueFromRecord({
         record,
         fieldMetadataItem,
       });
 
+      // Then
       expect(result).toEqual(record.name);
     });
   });

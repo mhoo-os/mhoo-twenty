@@ -43,12 +43,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'id',
         type: FieldMetadataType.UUID,
-        label: i18nLabel(
-          msg({ message: `Id`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({ message: `Id`, context: 'fieldMetadata.description' }),
-        ),
+        label: i18nLabel(msg`Id`),
+        description: i18nLabel(msg`Id`),
         icon: 'Icon123',
         isSystem: true,
         isNullable: false,
@@ -61,15 +57,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'createdAt',
         type: FieldMetadataType.DATE_TIME,
-        label: i18nLabel(
-          msg({ message: `Creation date`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Creation date`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Creation date`),
+        description: i18nLabel(msg`Creation date`),
         icon: 'IconCalendar',
         isSystem: true,
         isNullable: false,
@@ -83,15 +72,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'updatedAt',
         type: FieldMetadataType.DATE_TIME,
-        label: i18nLabel(
-          msg({ message: `Last update`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Last time the record was changed`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Last update`),
+        description: i18nLabel(msg`Last time the record was changed`),
         icon: 'IconCalendarClock',
         isSystem: true,
         isNullable: false,
@@ -105,15 +87,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'deletedAt',
         type: FieldMetadataType.DATE_TIME,
-        label: i18nLabel(
-          msg({ message: `Deleted at`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Date when the record was deleted`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Deleted at`),
+        description: i18nLabel(msg`Date when the record was deleted`),
         icon: 'IconCalendarMinus',
         isSystem: true,
         isNullable: true,
@@ -126,15 +101,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'createdBy',
         type: FieldMetadataType.ACTOR,
-        label: i18nLabel(
-          msg({ message: `Created by`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `The creator of the record`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Created by`),
+        description: i18nLabel(msg`The creator of the record`),
         icon: 'IconCreativeCommonsSa',
         isSystem: true,
         isUIEditable: false,
@@ -151,14 +119,9 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'updatedBy',
         type: FieldMetadataType.ACTOR,
-        label: i18nLabel(
-          msg({ message: `Updated by`, context: 'fieldMetadata.label' }),
-        ),
+        label: i18nLabel(msg`Updated by`),
         description: i18nLabel(
-          msg({
-            message: `The workspace member who last updated the record`,
-            context: 'fieldMetadata.description',
-          }),
+          msg`The workspace member who last updated the record`,
         ),
         icon: 'IconUserCircle',
         isSystem: true,
@@ -176,15 +139,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'position',
         type: FieldMetadataType.POSITION,
-        label: i18nLabel(
-          msg({ message: `Position`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Email campaign record position`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Position`),
+        description: i18nLabel(msg`Email campaign record position`),
         icon: 'IconHierarchy2',
         isSystem: true,
         isNullable: false,
@@ -196,15 +152,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'searchVector',
         type: FieldMetadataType.TS_VECTOR,
-        label: i18nLabel(
-          msg({ message: `Search vector`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Field used for full-text search`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Search vector`),
+        description: i18nLabel(msg`Field used for full-text search`),
         icon: 'IconSend',
         isSystem: true,
         isNullable: true,
@@ -215,15 +164,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'name',
         type: FieldMetadataType.TEXT,
-        label: i18nLabel(
-          msg({ message: `Name`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Internal name of the campaign`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Name`),
+        description: i18nLabel(msg`Internal name of the campaign`),
         icon: 'IconAbc',
         isNullable: false,
         defaultValue: "''",
@@ -234,15 +176,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'subject',
         type: FieldMetadataType.TEXT,
-        label: i18nLabel(
-          msg({ message: `Subject`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Email subject line`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Subject`),
+        description: i18nLabel(msg`Email subject line`),
         icon: 'IconMail',
         isNullable: true,
         isUIEditable: false,
@@ -253,15 +188,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'bodyTemplate',
         type: FieldMetadataType.TEXT,
-        label: i18nLabel(
-          msg({ message: `Body`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Email body sent to recipients`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Body`),
+        description: i18nLabel(msg`Email body sent to recipients`),
         icon: 'IconFileText',
         isNullable: true,
         isUIEditable: false,
@@ -272,15 +200,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'fromAddress',
         type: FieldMetadataType.EMAILS,
-        label: i18nLabel(
-          msg({ message: `From address`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Sender address for the campaign`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`From address`),
+        description: i18nLabel(msg`Sender address for the campaign`),
         icon: 'IconAt',
         isNullable: true,
         isUIEditable: false,
@@ -294,15 +215,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'status',
         type: FieldMetadataType.SELECT,
-        label: i18nLabel(
-          msg({ message: `Status`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Campaign lifecycle status`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Status`),
+        description: i18nLabel(msg`Campaign lifecycle status`),
         icon: 'IconProgress',
         isNullable: false,
         isUIEditable: false,
@@ -311,48 +225,35 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
           {
             id: '2bebe786-69e0-4673-8781-a85588b77c44',
             value: 'DRAFT',
-            label: i18nLabel(
-              msg({ message: `Draft`, context: 'fieldMetadata.label' }),
-            ),
+            label: i18nLabel(msg`Draft`),
             position: 0,
             color: 'gray',
           },
           {
             id: 'dba0c513-d1dc-4c6a-980a-40795bdb0759',
             value: 'SCHEDULED',
-            label: i18nLabel(
-              msg({ message: `Scheduled`, context: 'fieldMetadata.label' }),
-            ),
+            label: i18nLabel(msg`Scheduled`),
             position: 1,
             color: 'blue',
           },
           {
             id: '575b9ed5-1123-480c-9821-c73410841347',
             value: 'SENDING',
-            label: i18nLabel(
-              msg({ message: `Sending`, context: 'fieldMetadata.label' }),
-            ),
+            label: i18nLabel(msg`Sending`),
             position: 2,
             color: 'yellow',
           },
           {
             id: '0c311eae-0892-4319-84e6-b30e921dc01a',
             value: 'SENT',
-            label: i18nLabel(
-              msg({ message: `Sent`, context: 'fieldMetadata.label' }),
-            ),
+            label: i18nLabel(msg`Sent`),
             position: 3,
             color: 'green',
           },
           {
             id: 'c309536c-ceb7-4510-8481-c2cbd88ffe96',
             value: 'SENT_WITH_ERRORS',
-            label: i18nLabel(
-              msg({
-                message: `Sent with errors`,
-                context: 'fieldMetadata.label',
-              }),
-            ),
+            label: i18nLabel(msg`Sent with errors`),
             position: 4,
             color: 'orange',
           },
@@ -364,15 +265,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'sentAt',
         type: FieldMetadataType.DATE_TIME,
-        label: i18nLabel(
-          msg({ message: `Sent at`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `When the campaign finished sending`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Sent at`),
+        description: i18nLabel(msg`When the campaign finished sending`),
         icon: 'IconSend',
         isNullable: true,
         isUIEditable: false,
@@ -384,15 +278,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'sentCount',
         type: FieldMetadataType.NUMBER,
-        label: i18nLabel(
-          msg({ message: `Sent count`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Number of emails sent`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Sent count`),
+        description: i18nLabel(msg`Number of emails sent`),
         icon: 'IconMailFast',
         isNullable: false,
         isUIEditable: false,
@@ -404,15 +291,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'failedCount',
         type: FieldMetadataType.NUMBER,
-        label: i18nLabel(
-          msg({ message: `Failed count`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Number of emails that failed to send`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Failed count`),
+        description: i18nLabel(msg`Number of emails that failed to send`),
         icon: 'IconMailX',
         isNullable: false,
         isUIEditable: false,
@@ -424,15 +304,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'bouncedCount',
         type: FieldMetadataType.NUMBER,
-        label: i18nLabel(
-          msg({ message: `Bounced count`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Number of emails that bounced`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Bounced count`),
+        description: i18nLabel(msg`Number of emails that bounced`),
         icon: 'IconMailOff',
         isNullable: false,
         isUIEditable: false,
@@ -444,15 +317,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'complainedCount',
         type: FieldMetadataType.NUMBER,
-        label: i18nLabel(
-          msg({ message: `Complained count`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Number of spam complaints received`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Complained count`),
+        description: i18nLabel(msg`Number of spam complaints received`),
         icon: 'IconMoodSad',
         isNullable: false,
         isUIEditable: false,
@@ -464,17 +330,9 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
       context: {
         fieldName: 'unsubscribeTopicId',
         type: FieldMetadataType.UUID,
-        label: i18nLabel(
-          msg({
-            message: `Unsubscribe topic id`,
-            context: 'fieldMetadata.label',
-          }),
-        ),
+        label: i18nLabel(msg`Unsubscribe topic id`),
         description: i18nLabel(
-          msg({
-            message: `The unsubscribe topic this campaign was sent under`,
-            context: 'fieldMetadata.description',
-          }),
+          msg`The unsubscribe topic this campaign was sent under`,
         ),
         icon: 'IconMailbox',
         isNullable: true,
@@ -487,15 +345,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
         type: FieldMetadataType.RELATION,
         morphId: null,
         fieldName: 'list',
-        label: i18nLabel(
-          msg({ message: `List`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `The list this campaign was sent to`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`List`),
+        description: i18nLabel(msg`The list this campaign was sent to`),
         icon: 'IconUsersGroup',
         isNullable: true,
         isUIEditable: false,
@@ -515,15 +366,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
         morphId: null,
         fieldName: 'timelineActivities',
         isSystemSideEffect: true,
-        label: i18nLabel(
-          msg({ message: `Events`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Events linked to the campaign`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Events`),
+        description: i18nLabel(msg`Events linked to the campaign`),
         icon: 'IconTimelineEvent',
         isNullable: true,
         targetObjectName: 'timelineActivity',
@@ -539,15 +383,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
         type: FieldMetadataType.RELATION,
         morphId: null,
         fieldName: 'messages',
-        label: i18nLabel(
-          msg({ message: `Messages`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Messages sent as part of this campaign`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Messages`),
+        description: i18nLabel(msg`Messages sent as part of this campaign`),
         icon: 'IconMessage',
         isNullable: true,
         isUIEditable: false,
@@ -564,15 +401,8 @@ export const buildMessageCampaignStandardFlatFieldMetadatas = ({
         type: FieldMetadataType.RELATION,
         morphId: null,
         fieldName: 'recipients',
-        label: i18nLabel(
-          msg({ message: `Recipients`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `The people this campaign was sent to`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
+        label: i18nLabel(msg`Recipients`),
+        description: i18nLabel(msg`The people this campaign was sent to`),
         icon: 'IconUsers',
         isNullable: true,
         isUIEditable: false,

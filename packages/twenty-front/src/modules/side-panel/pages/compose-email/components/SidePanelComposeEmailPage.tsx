@@ -96,7 +96,7 @@ export const SidePanelComposeEmailPage = () => {
           <IconButton
             key="discard"
             size="small"
-            variant="primary"
+            variant="secondary"
             Icon={IconTrash}
             ariaLabel={t`Discard`}
             onClick={goBackFromSidePanel}
@@ -104,7 +104,7 @@ export const SidePanelComposeEmailPage = () => {
           <IconButton
             key="attach"
             size="small"
-            variant="primary"
+            variant="secondary"
             Icon={IconPaperclip}
             ariaLabel={t`Attach files`}
             onClick={openAttachmentPicker}

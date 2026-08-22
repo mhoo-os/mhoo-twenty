@@ -15,6 +15,7 @@ import { useMutation } from '@apollo/client/react';
 import { type PublicWorkspaceData } from '~/generated-metadata/graphql';
 import { dynamicActivate } from '~/utils/i18n/dynamicActivate';
 
+// Mocks
 jest.mock('@/ui/feedback/snack-bar-manager/hooks/useSnackBar');
 jest.mock('@apollo/client/react');
 jest.mock('@/captcha/hooks/useReadCaptchaToken');

@@ -15,16 +15,12 @@ describe('convertPageLayoutToTabLayouts', () => {
   it('should convert page layout to tab layouts', () => {
     const pageLayout: PageLayout = {
       id: 'page-layout-1',
-      applicationId: 'application-id-mock',
       name: 'Page Layout 1',
       type: PageLayoutType.RECORD_PAGE,
-      isSystemSideEffect: true,
       objectMetadataId: 'object-metadata-1',
       universalIdentifier: '20202020-0000-0000-0000-000000000001',
       tabs: [
         {
-          isSystemSideEffect: false,
-          universalIdentifier: 'universal-identifier-mock',
           id: 'tab-1',
           applicationId: '',
           isActive: true,
@@ -33,8 +29,6 @@ describe('convertPageLayoutToTabLayouts', () => {
           pageLayoutId: 'page-layout-1',
           widgets: [
             {
-              isSystemSideEffect: false,
-              universalIdentifier: 'universal-identifier-mock',
               __typename: 'PageLayoutWidget',
               id: 'widget-1',
               applicationId: '',
@@ -55,8 +49,6 @@ describe('convertPageLayoutToTabLayouts', () => {
               deletedAt: null,
             },
             {
-              isSystemSideEffect: false,
-              universalIdentifier: 'universal-identifier-mock',
               __typename: 'PageLayoutWidget',
               id: 'widget-2',
               applicationId: '',
@@ -108,16 +100,12 @@ describe('convertPageLayoutToTabLayouts', () => {
   it('should use default widget size when gridPosition is undefined', () => {
     const pageLayout: PageLayout = {
       id: 'page-layout-1',
-      applicationId: 'application-id-mock',
       name: 'Page Layout 1',
       type: PageLayoutType.RECORD_PAGE,
-      isSystemSideEffect: true,
       objectMetadataId: 'object-metadata-1',
       universalIdentifier: '20202020-0000-0000-0000-000000000001',
       tabs: [
         {
-          isSystemSideEffect: false,
-          universalIdentifier: 'universal-identifier-mock',
           id: 'tab-1',
           applicationId: '',
           isActive: true,
@@ -126,8 +114,6 @@ describe('convertPageLayoutToTabLayouts', () => {
           pageLayoutId: 'page-layout-1',
           widgets: [
             {
-              isSystemSideEffect: false,
-              universalIdentifier: 'universal-identifier-mock',
               __typename: 'PageLayoutWidget',
               id: 'widget-no-grid-pos',
               applicationId: '',
@@ -174,16 +160,12 @@ describe('convertPageLayoutToTabLayouts', () => {
   it('should apply STANDALONE_RICH_TEXT minimum size constraints', () => {
     const pageLayout: PageLayout = {
       id: 'page-layout-1',
-      applicationId: 'application-id-mock',
       name: 'Page Layout 1',
       type: PageLayoutType.RECORD_PAGE,
-      isSystemSideEffect: true,
       objectMetadataId: 'object-metadata-1',
       universalIdentifier: '20202020-0000-0000-0000-000000000001',
       tabs: [
         {
-          isSystemSideEffect: false,
-          universalIdentifier: 'universal-identifier-mock',
           id: 'tab-1',
           applicationId: '',
           isActive: true,
@@ -192,8 +174,6 @@ describe('convertPageLayoutToTabLayouts', () => {
           pageLayoutId: 'page-layout-1',
           widgets: [
             {
-              isSystemSideEffect: false,
-              universalIdentifier: 'universal-identifier-mock',
               __typename: 'PageLayoutWidget',
               id: 'rich-text-widget',
               applicationId: '',
@@ -236,16 +216,12 @@ describe('convertPageLayoutToTabLayouts', () => {
   it('should use the widget-type minimum size for iframe widgets', () => {
     const pageLayout: PageLayout = {
       id: 'page-layout-1',
-      applicationId: 'application-id-mock',
       name: 'Page Layout 1',
       type: PageLayoutType.DASHBOARD,
-      isSystemSideEffect: false,
       objectMetadataId: null,
       universalIdentifier: '20202020-0000-0000-0000-000000000001',
       tabs: [
         {
-          isSystemSideEffect: false,
-          universalIdentifier: 'universal-identifier-mock',
           id: 'tab-1',
           applicationId: '',
           isActive: true,
@@ -254,8 +230,6 @@ describe('convertPageLayoutToTabLayouts', () => {
           pageLayoutId: 'page-layout-1',
           widgets: [
             {
-              isSystemSideEffect: false,
-              universalIdentifier: 'universal-identifier-mock',
               __typename: 'PageLayoutWidget',
               id: 'iframe-widget',
               applicationId: '',

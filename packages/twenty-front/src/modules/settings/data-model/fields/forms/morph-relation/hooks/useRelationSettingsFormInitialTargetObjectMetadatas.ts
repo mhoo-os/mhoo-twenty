@@ -1,8 +1,7 @@
 import { useFilteredObjectMetadataItems } from '@/object-metadata/hooks/useFilteredObjectMetadataItems';
 import { useGetIsMetadataItemCustom } from '@/object-metadata/hooks/useGetIsMetadataItemCustom';
 import { type FieldMetadataItem } from '@/object-metadata/types/FieldMetadataItem';
-import { isAdvancedRelationTargetObjectMetadata } from '@/object-metadata/utils/isAdvancedRelationTargetObjectMetadata';
-import { isObjectMetadataEligibleAsRelationTarget } from '@/object-metadata/utils/isObjectMetadataEligibleAsRelationTarget';
+import { isObjectMetadataAvailableForRelation } from '@/object-metadata/utils/isObjectMetadataAvailableForRelation';
 import { fieldMetadataItemHasMorphRelations } from '@/settings/data-model/fields/forms/morph-relation/utils/fieldMetadataItemHasMorphRelations';
 import { isDefined } from 'twenty-shared/utils';
 
@@ -41,14 +40,9 @@ export const useRelationSettingsFormInitialTargetObjectMetadatas = ({
   }
 
   const availableItems = activeObjectMetadataItems
-    .filter(isObjectMetadataEligibleAsRelationTarget)
+    .filter(isObjectMetadataAvailableForRelation)
     .filter((item) => item.id !== sourceObjectMetadataId)
     .sort((a, b) => {
-      const aIsAdvanced = isAdvancedRelationTargetObjectMetadata(a);
-      const bIsAdvanced = isAdvancedRelationTargetObjectMetadata(b);
-      if (aIsAdvanced !== bIsAdvanced) {
-        return aIsAdvanced ? 1 : -1;
-      }
       const aIsCustom = getIsMetadataItemCustom(a);
       const bIsCustom = getIsMetadataItemCustom(b);
       if (aIsCustom === bIsCustom) {

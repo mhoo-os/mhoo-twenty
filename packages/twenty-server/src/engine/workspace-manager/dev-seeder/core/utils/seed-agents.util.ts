@@ -326,6 +326,7 @@ const seedChatMessages = async ({
     );
   }
 
+  // Create turns first
   const turns = turnIds.map((id, index) => ({
     id,
     workspaceId,

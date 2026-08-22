@@ -48,17 +48,13 @@ export const SettingsNavigationDrawer = ({
   );
   const hasAiPermission = useHasPermissionFlag(PermissionFlagType.AI);
 
-  // The tab is shared with the desktop drawer, so gating the content on the row
-  // too stops a tab set there stranding this drawer with no way back.
-  const showTabsRow = hasAiPermission && !isMobile;
-
   const showAiChatContent =
-    showTabsRow &&
+    hasAiPermission &&
     navigationDrawerActiveTab === NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY;
 
   return (
     <NavigationDrawer className={className} title={t`Settings`}>
-      {showTabsRow && (
+      {hasAiPermission && (
         <NavigationDrawerFixedContent>
           <MainNavigationDrawerTabsRow
             NavigationMenuTabIcon={IconSettings}
@@ -70,7 +66,7 @@ export const SettingsNavigationDrawer = ({
       <NavigationDrawerScrollableContent>
         <NavigationDrawerTabbedContent
           showAiChatContent={showAiChatContent}
-          shouldMountAiChatContent={showTabsRow}
+          shouldMountAiChatContent={hasAiPermission}
           navigationContent={<SettingsNavigationDrawerItems />}
         />
       </NavigationDrawerScrollableContent>

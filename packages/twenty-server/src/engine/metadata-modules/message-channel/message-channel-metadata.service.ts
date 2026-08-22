@@ -225,25 +225,18 @@ export class MessageChannelMetadataService {
     const inboundEmailDomain = this.twentyConfigService.get(
       'INBOUND_EMAIL_DOMAIN',
     );
-    const emailingDomainDriver = this.twentyConfigService.get(
-      'EMAILING_DOMAIN_DRIVER',
-    );
+    const storageType = this.twentyConfigService.get('STORAGE_TYPE');
     const isEmailingDomainInDemoMode =
-      emailingDomainDriver === EmailingDomainDriver.LOG;
-
-    const isInboundMessageStoreConfigured =
-      emailingDomainDriver === EmailingDomainDriver.RESEND
-        ? isNonEmptyString(this.twentyConfigService.get('RESEND_API_KEY'))
-        : this.twentyConfigService.get('STORAGE_TYPE') ===
-          StorageDriverType.S_3;
+      this.twentyConfigService.get('EMAILING_DOMAIN_DRIVER') ===
+      EmailingDomainDriver.LOG;
 
     if (
       !isEmailingDomainInDemoMode &&
       (!isNonEmptyString(inboundEmailDomain) ||
-        !isInboundMessageStoreConfigured)
+        storageType !== StorageDriverType.S_3)
     ) {
       throw new MessageChannelException(
-        'Email handles are not configured: INBOUND_EMAIL_DOMAIN must be set, plus S3 storage for the AWS_SES driver or RESEND_API_KEY for the RESEND driver',
+        'Email handles are not configured: INBOUND_EMAIL_DOMAIN must be set and STORAGE_TYPE must be S3',
         MessageChannelExceptionCode.EMAIL_GROUP_NOT_CONFIGURED,
       );
     }

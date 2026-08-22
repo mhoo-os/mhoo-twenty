@@ -2,8 +2,6 @@ import { styled } from '@linaria/react';
 import { TabButton } from 'twenty-ui/input';
 
 import { TAB_LIST_GAP } from '@/ui/layout/tab-list/constants/TabListGap';
-import { useScrollActiveTabIntoView } from '@/ui/layout/tab-list/hooks/useScrollActiveTabIntoView';
-import { SCROLLABLE_TAB_ROW_CSS } from '@/ui/layout/tab-list/styles/ScrollableTabRowCSS';
 import { type SingleTabProps } from '@/ui/layout/tab-list/types/SingleTabProps';
 
 import { PAGE_LAYOUT_TAB_LIST_DROPPABLE_IDS } from '@/page-layout/components/PageLayoutTabListDroppableIds';
@@ -21,15 +19,13 @@ type PageLayoutTabListVisibleTabsProps = {
   canReorder: boolean;
   widgetDropTargetTabIds: Set<string>;
   firstHiddenTabId: string | null;
-  isScrollable: boolean;
 };
 
-const StyledTabContainer = styled.div<{ isScrollable: boolean }>`
+const StyledTabContainer = styled.div`
   display: flex;
   max-width: 100%;
-  overflow-x: ${({ isScrollable }) => (isScrollable ? 'auto' : 'hidden')};
+  overflow: hidden;
   position: relative;
-  ${SCROLLABLE_TAB_ROW_CSS}
 
   > *:not(:last-child) {
     margin-right: ${TAB_LIST_GAP}px;
@@ -57,18 +53,12 @@ export const PageLayoutTabListVisibleTabs = ({
   canReorder,
   widgetDropTargetTabIds,
   firstHiddenTabId,
-  isScrollable,
 }: PageLayoutTabListVisibleTabsProps) => {
-  const { tabRowRef } = useScrollActiveTabIntoView({
-    activeTabId,
-    isScrollable,
-  });
-
   if (canReorder) {
     const shownTabs = visibleTabs.slice(0, visibleTabCount);
 
     return (
-      <StyledTabContainer ref={tabRowRef} isScrollable={isScrollable}>
+      <StyledTabContainer>
         {shownTabs.map((tab, index) => (
           <StyledTabSlot key={tab.id}>
             <StyledLeadingDropTarget>
@@ -104,7 +94,7 @@ export const PageLayoutTabListVisibleTabs = ({
   }
 
   return (
-    <StyledTabContainer ref={tabRowRef} isScrollable={isScrollable}>
+    <StyledTabContainer>
       {visibleTabs.slice(0, visibleTabCount).map((tab) => (
         <TabButton
           key={tab.id}

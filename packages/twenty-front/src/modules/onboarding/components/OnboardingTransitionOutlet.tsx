@@ -1,14 +1,7 @@
 import { ONBOARDING_MOTION_SLIDE_OFFSET } from '@/onboarding/constants/OnboardingMotionSlideOffset';
 import { useOnboardingMotionTransition } from '@/onboarding/hooks/useOnboardingMotionTransition';
-import { onboardingNavigationDirectionState } from '@/onboarding/states/onboardingNavigationDirectionState';
-import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { styled } from '@linaria/react';
-import {
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-  type Variants,
-} from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useLocation, useOutlet } from 'react-router-dom';
 
 const StyledTransitionContainer = styled.div`
@@ -28,42 +21,24 @@ const StyledTransitionPage = styled(motion.div)`
   position: absolute;
 `;
 
-const transitionPageVariants: Variants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: (exitSlideOffset: number) => ({
-    opacity: 0,
-    y: exitSlideOffset,
-    pointerEvents: 'none',
-  }),
-};
-
 export const OnboardingTransitionOutlet = () => {
   const { pathname } = useLocation();
   const outlet = useOutlet();
   const shouldReduceMotion = useReducedMotion();
   const transition = useOnboardingMotionTransition();
-  const onboardingNavigationDirection = useAtomStateValue(
-    onboardingNavigationDirectionState,
-  );
-
-  const directionalExitSlideOffset =
-    onboardingNavigationDirection === 'backward'
-      ? ONBOARDING_MOTION_SLIDE_OFFSET
-      : -ONBOARDING_MOTION_SLIDE_OFFSET;
-
-  const exitSlideOffset = shouldReduceMotion ? 0 : directionalExitSlideOffset;
 
   return (
     <StyledTransitionContainer>
-      <AnimatePresence custom={exitSlideOffset}>
+      <AnimatePresence>
         <StyledTransitionPage
           key={pathname}
-          custom={exitSlideOffset}
-          variants={transitionPageVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{
+            opacity: 0,
+            y: shouldReduceMotion ? 0 : -ONBOARDING_MOTION_SLIDE_OFFSET,
+            pointerEvents: 'none',
+          }}
           transition={transition}
         >
           {outlet}

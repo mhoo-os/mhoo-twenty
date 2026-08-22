@@ -1,7 +1,7 @@
 import { isNumber } from '@sniptt/guards';
 
 import { UNITLESS_CSS_PROPERTY_NAMES } from '@/constants/UnitlessCssPropertyNames';
-import { isCssCustomPropertyName } from '@/utils/css/isCssCustomPropertyName';
+import { isCssCustomPropertyName } from '@/utils/isCssCustomPropertyName';
 
 export const formatCssValue = (
   value: unknown,

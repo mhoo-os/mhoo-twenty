@@ -1,4 +1,3 @@
-import { CommandMenuItemContainerType } from '@/command-menu-item/types/CommandMenuItemContainerType';
 import { CommandMenuContext } from '@/command-menu-item/contexts/CommandMenuContext';
 import { getCommandMenuDropdownIdFromCommandMenuId } from '@/command-menu-item/utils/getCommandMenuDropdownIdFromCommandMenuId';
 import { getSidePanelCommandMenuDropdownIdFromCommandMenuId } from '@/command-menu-item/utils/getSidePanelCommandMenuDropdownIdFromCommandMenuId';
@@ -32,7 +31,7 @@ export const useCloseCommandMenu = ({
     : getCommandMenuDropdownIdFromCommandMenuId(commandMenuId);
 
   const closeCommandMenu = () => {
-    if (containerType === CommandMenuItemContainerType.CommandMenuList) {
+    if (containerType === 'command-menu-list') {
       if (!closeSidePanelOnCommandMenuListExecution) {
         return;
       }
@@ -40,15 +39,14 @@ export const useCloseCommandMenu = ({
     }
 
     if (
-      containerType === CommandMenuItemContainerType.IndexPageDropdown ||
-      containerType === CommandMenuItemContainerType.CommandMenuShowPageDropdown
+      containerType === 'index-page-dropdown' ||
+      containerType === 'command-menu-show-page-dropdown'
     ) {
       closeDropdown(dropdownId);
     }
 
     if (
-      containerType ===
-        CommandMenuItemContainerType.CommandMenuShowPageDropdown &&
+      containerType === 'command-menu-show-page-dropdown' &&
       closeSidePanelOnShowPageOptionsExecution
     ) {
       closeSidePanelMenu();

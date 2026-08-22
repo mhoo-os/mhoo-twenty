@@ -55,23 +55,14 @@ import {
   extractCacheCreationTokens,
   extractCacheCreationTokensFromSteps,
 } from 'src/engine/metadata-modules/ai/ai-billing/utils/extract-cache-creation-tokens.util';
-import { AI_CHAT_STREAM_FUNCTION_ID } from 'src/engine/metadata-modules/ai/ai-chat/constants/ai-chat-stream-function-id.constant';
 import { AI_CHAT_TOOL_NAMES_TO_PRELOAD } from 'src/engine/metadata-modules/ai/ai-chat/constants/ai-chat-tool-names-to-preload.const';
-import { AI_CHAT_WORKSPACE_SETUP_STREAM_FUNCTION_ID } from 'src/engine/metadata-modules/ai/ai-chat/constants/ai-chat-workspace-setup-stream-function-id.constant';
 import { MessagePruningService } from 'src/engine/metadata-modules/ai/ai-chat/services/message-pruning.service';
+import { SystemPromptBuilderService } from 'src/engine/metadata-modules/ai/ai-chat/services/system-prompt-builder.service';
 import {
   ASK_QUESTIONS_TOOL_NAME,
   createAskQuestionsTool,
 } from 'src/engine/metadata-modules/ai/ai-chat/tools/ask-questions.tool';
-import {
-  COMPLETE_WORKSPACE_SETUP_TOOL_NAME,
-  createCompleteWorkspaceSetupTool,
-} from 'src/engine/metadata-modules/ai/ai-chat/tools/complete-workspace-setup.tool';
 import { type ExtractedFile } from 'src/engine/metadata-modules/ai/ai-chat/types/extracted-file.type';
-import { buildWorkspaceSetupChatThreadId } from 'src/engine/metadata-modules/ai/ai-chat/utils/build-workspace-setup-chat-thread-id.util';
-import { buildFullSystemPrompt } from 'src/engine/metadata-modules/ai/ai-chat/utils/build-full-system-prompt.util';
-import { hasNoAssistantMessage } from 'src/engine/metadata-modules/ai/ai-chat/utils/has-no-assistant-message.util';
-import { hasSucceededWorkspaceSetupCompletion } from 'src/engine/metadata-modules/ai/ai-chat/utils/has-succeeded-workspace-setup-completion.util';
 import { extractCodeInterpreterFiles } from 'src/engine/metadata-modules/ai/ai-chat/utils/extract-code-interpreter-files.util';
 import { injectMessageTimestamps } from 'src/engine/metadata-modules/ai/ai-chat/utils/inject-message-timestamps.util';
 import {
@@ -80,8 +71,7 @@ import {
   injectCacheBreakpoint,
 } from 'src/engine/metadata-modules/ai/ai-chat/utils/provider-options.util';
 import { replaceUnsupportedFileParts } from 'src/engine/metadata-modules/ai/ai-chat/utils/replace-unsupported-file-parts.util';
-import { tagAiChatKindScope } from 'src/engine/metadata-modules/ai/ai-chat/utils/tag-ai-chat-kind-scope.util';
-import { buildAiTelemetry } from 'src/engine/metadata-modules/ai/ai-models/utils/build-ai-telemetry.util';
+import { AI_TELEMETRY_CONFIG } from 'src/engine/metadata-modules/ai/ai-models/constants/ai-telemetry.const';
 import { AiModelRegistryService } from 'src/engine/metadata-modules/ai/ai-models/services/ai-model-registry.service';
 import { NativeToolBinderService } from 'src/engine/metadata-modules/ai/ai-models/services/native-tool-binder.service';
 import { type AiModelConfig } from 'src/engine/metadata-modules/ai/ai-models/types/ai-model-config.type';
@@ -125,6 +115,7 @@ export class ChatExecutionService {
     private readonly agentActorContextService: AgentActorContextService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     private readonly codeInterpreterService: CodeInterpreterService,
+    private readonly systemPromptBuilder: SystemPromptBuilderService,
     private readonly exceptionHandlerService: ExceptionHandlerService,
     private readonly nativeToolBinder: NativeToolBinderService,
     private readonly messagePruningService: MessagePruningService,
@@ -217,40 +208,17 @@ export class ChatExecutionService {
       ...nativeTools,
     };
 
-    const isWorkspaceSetupThread =
-      isDefined(threadId) &&
-      threadId ===
-        buildWorkspaceSetupChatThreadId({
-          workspaceId: workspace.id,
-          userWorkspaceId,
-        }) &&
-      !hasSucceededWorkspaceSetupCompletion(messages);
-
-    const isWorkspaceSetupKickoffTurn =
-      isWorkspaceSetupThread && hasNoAssistantMessage(messages);
-
-    tagAiChatKindScope({ isWorkspaceSetupThread });
-
     const preloadedToolNames = [
       ...Object.keys(preloadedTools),
       ...Object.keys(nativeTools),
       ASK_QUESTIONS_TOOL_NAME,
-      ...(isWorkspaceSetupThread ? [COMPLETE_WORKSPACE_SETUP_TOOL_NAME] : []),
     ];
 
     // ToolSet is constant for the entire conversation — no mutation.
     // learn_tools returns schemas as text; execute_tool dispatches via the registry.
     const activeTools: ToolSet = {
       ...directTools,
-      [ASK_QUESTIONS_TOOL_NAME]: createAskQuestionsTool({
-        isWorkspaceSetupThread,
-      }),
-      ...(isWorkspaceSetupThread
-        ? {
-            [COMPLETE_WORKSPACE_SETUP_TOOL_NAME]:
-              createCompleteWorkspaceSetupTool(),
-          }
-        : {}),
+      [ASK_QUESTIONS_TOOL_NAME]: createAskQuestionsTool(),
       [LEARN_TOOLS_TOOL_NAME]: createLearnToolsTool(
         this.toolRegistry,
         toolContext,
@@ -317,15 +285,14 @@ export class ChatExecutionService {
       userContext.timezone,
     );
 
-    const systemPrompt = buildFullSystemPrompt({
+    const systemPrompt = this.systemPromptBuilder.buildFullPrompt(
       toolCatalog,
       skillCatalog,
-      preloadedTools: preloadedToolNames,
+      preloadedToolNames,
       storedFiles,
-      workspaceInstructions: workspace.aiAdditionalInstructions ?? undefined,
+      workspace.aiAdditionalInstructions ?? undefined,
       userContext,
-      isWorkspaceSetupThread,
-    });
+    );
 
     this.logger.log(
       `Starting chat execution with model ${registeredModel.modelId}, ${Object.keys(activeTools).length} active tools`,
@@ -475,24 +442,21 @@ export class ChatExecutionService {
       model: registeredModel.model,
       messages: [systemMessage, ...modelMessages],
       tools: activeTools,
-      // Every step of the kickoff turn is forced so it cannot end in prose; stopWhen ends it at the first ask_questions.
-      toolChoice: isWorkspaceSetupKickoffTurn ? 'required' : 'auto',
       abortSignal,
       stopWhen: (step) =>
         stepCountIs(AGENT_CONFIG.MAX_STEPS)(step) ||
         hasToolCall(ASK_QUESTIONS_TOOL_NAME)(step) ||
-        hasToolCall(COMPLETE_WORKSPACE_SETUP_TOOL_NAME)(step) ||
         hasNoMoreAvailableCredits,
-      experimental_telemetry: buildAiTelemetry({
-        functionId: isWorkspaceSetupThread
-          ? AI_CHAT_WORKSPACE_SETUP_STREAM_FUNCTION_ID
-          : AI_CHAT_STREAM_FUNCTION_ID,
-        workspaceId: workspace.id,
-        userWorkspaceId,
-        threadId,
-        turnId,
-        streamId,
-      }),
+      experimental_telemetry: {
+        ...AI_TELEMETRY_CONFIG,
+        functionId: 'ai-chat-stream',
+        metadata: {
+          streamId: streamId ?? '',
+          turnId: turnId ?? '',
+          threadId: threadId ?? '',
+          workspaceId: workspace.id,
+        },
+      },
       providerOptions: getCallLevelProviderOptions({
         sdkPackage: registeredModel.sdkPackage,
         providerOptions: undefined,

@@ -4,8 +4,6 @@ import { type ReactNode } from 'react';
 import { ONBOARDING_MOTION_SLIDE_OFFSET } from '@/onboarding/constants/OnboardingMotionSlideOffset';
 import { ONBOARDING_MOTION_STAGGER_DELAY } from '@/onboarding/constants/OnboardingMotionStaggerDelay';
 import { useOnboardingMotionTransition } from '@/onboarding/hooks/useOnboardingMotionTransition';
-import { onboardingNavigationDirectionState } from '@/onboarding/states/onboardingNavigationDirectionState';
-import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 const StyledAnimatedItemBase = styled.div`
   max-width: 100%;
@@ -26,21 +24,13 @@ export const OnboardingStepAnimatedItem = ({
 }: OnboardingStepAnimatedItemProps) => {
   const transition = useOnboardingMotionTransition();
   const shouldReduceMotion = useReducedMotion();
-  const onboardingNavigationDirection = useAtomStateValue(
-    onboardingNavigationDirectionState,
-  );
-
-  const directionalEnterSlideOffset =
-    onboardingNavigationDirection === 'backward'
-      ? -ONBOARDING_MOTION_SLIDE_OFFSET
-      : ONBOARDING_MOTION_SLIDE_OFFSET;
 
   return (
     <StyledAnimatedItem
       className={className}
       initial={{
         opacity: 0,
-        y: shouldReduceMotion ? 0 : directionalEnterSlideOffset,
+        y: shouldReduceMotion ? 0 : ONBOARDING_MOTION_SLIDE_OFFSET,
       }}
       animate={{ opacity: 1, y: 0 }}
       transition={{

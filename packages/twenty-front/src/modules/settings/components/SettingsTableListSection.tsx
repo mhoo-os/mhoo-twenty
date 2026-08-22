@@ -45,7 +45,6 @@ const HEADER_PADDING = `0 ${themeCssVariables.spacing[2]} 0 ${themeCssVariables.
 export type SettingsTableListSectionColumn<Item> = {
   label: string;
   align?: 'left' | 'right';
-  overflow?: string;
   Cell: ComponentType<{ item: Item }>;
 };
 
@@ -112,11 +111,7 @@ export const SettingsTableListSection = <
                   onClick={onRowClick ? () => onRowClick(item) : undefined}
                 >
                   {columns.map((column) => (
-                    <TableCell
-                      key={column.label}
-                      align={column.align}
-                      overflow={column.overflow}
-                    >
+                    <TableCell key={column.label} align={column.align}>
                       <column.Cell item={item} />
                     </TableCell>
                   ))}

@@ -7,15 +7,15 @@ import { type FlatEntityUpdateValidationArgs } from 'src/engine/workspace-manage
 import { type UniversalFlatEntityValidationArgs } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/types/universal-flat-entity-validation-args.type';
 import { type UniversalFlatEntityValidationReturnType } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/types/universal-flat-entity-validation-result.type';
 import { WorkspaceEntityMigrationBuilderService } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/services/workspace-entity-migration-builder.service';
-import { validateFlatPermissionFlagCreation } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/utils/validate-flat-permission-flag-creation.util';
-import { validateFlatPermissionFlagDeletion } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/utils/validate-flat-permission-flag-deletion.util';
-import { validateFlatPermissionFlagUpdate } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/utils/validate-flat-permission-flag-update.util';
+import { FlatPermissionFlagValidatorService } from 'src/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/services/flat-permission-flag-validator.service';
 
 @Injectable()
 export class WorkspaceMigrationPermissionFlagActionsBuilderService extends WorkspaceEntityMigrationBuilderService<
   typeof ALL_METADATA_NAME.permissionFlag
 > {
-  constructor() {
+  constructor(
+    private readonly flatPermissionFlagValidatorService: FlatPermissionFlagValidatorService,
+  ) {
     super(ALL_METADATA_NAME.permissionFlag);
   }
 
@@ -27,7 +27,10 @@ export class WorkspaceMigrationPermissionFlagActionsBuilderService extends Works
     typeof ALL_METADATA_NAME.permissionFlag,
     'create'
   > {
-    const validationResult = validateFlatPermissionFlagCreation(args);
+    const validationResult =
+      this.flatPermissionFlagValidatorService.validateFlatPermissionFlagCreation(
+        args,
+      );
 
     if (validationResult.errors.length > 0) {
       return {
@@ -56,7 +59,10 @@ export class WorkspaceMigrationPermissionFlagActionsBuilderService extends Works
     typeof ALL_METADATA_NAME.permissionFlag,
     'delete'
   > {
-    const validationResult = validateFlatPermissionFlagDeletion(args);
+    const validationResult =
+      this.flatPermissionFlagValidatorService.validateFlatPermissionFlagDeletion(
+        args,
+      );
 
     if (validationResult.errors.length > 0) {
       return {
@@ -85,7 +91,10 @@ export class WorkspaceMigrationPermissionFlagActionsBuilderService extends Works
     typeof ALL_METADATA_NAME.permissionFlag,
     'update'
   > {
-    const validationResult = validateFlatPermissionFlagUpdate(args);
+    const validationResult =
+      this.flatPermissionFlagValidatorService.validateFlatPermissionFlagUpdate(
+        args,
+      );
 
     if (validationResult.errors.length > 0) {
       return {

@@ -1,7 +1,3 @@
-import {
-  type TranslatableMetadataName,
-  type TranslatablePropertyName,
-} from 'twenty-shared/i18n';
 import { type AllMetadataName } from 'twenty-shared/metadata';
 
 import { type UnwrapWasRemovedInUpgrade } from 'src/engine/core-modules/upgrade/decorators/was-removed-in-upgrade.decorator';
@@ -44,6 +40,7 @@ type MetadataEntityPropertyConfiguration<
         : boolean;
     toCompare: boolean;
     isOverridable?: boolean;
+    translatable?: boolean;
   };
 };
 
@@ -64,6 +61,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       toStringify: false,
       universalProperty: undefined,
       isOverridable: true,
+      translatable: true,
     },
     icon: {
       toCompare: true,
@@ -97,6 +95,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       toStringify: false,
       universalProperty: undefined,
       isOverridable: true,
+      translatable: true,
     },
     name: { toCompare: true, toStringify: false, universalProperty: undefined },
     options: {
@@ -130,11 +129,6 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       universalProperty: undefined,
     },
     isUIEditable: {
-      toCompare: true,
-      toStringify: false,
-      universalProperty: undefined,
-    },
-    writability: {
       toCompare: true,
       toStringify: false,
       universalProperty: undefined,
@@ -193,6 +187,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       toStringify: false,
       universalProperty: undefined,
       isOverridable: true,
+      translatable: true,
     },
     icon: {
       toCompare: true,
@@ -215,12 +210,14 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       toStringify: false,
       universalProperty: undefined,
       isOverridable: true,
+      translatable: true,
     },
     labelSingular: {
       toCompare: true,
       toStringify: false,
       universalProperty: undefined,
       isOverridable: true,
+      translatable: true,
     },
     namePlural: {
       toCompare: true,
@@ -254,11 +251,6 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       universalProperty: undefined,
     },
     isUIEditable: {
-      toCompare: true,
-      toStringify: false,
-      universalProperty: undefined,
-    },
-    writability: {
       toCompare: true,
       toStringify: false,
       universalProperty: undefined,
@@ -458,11 +450,6 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
     },
   },
   viewFieldGroup: {
-    isSystemSideEffect: {
-      toCompare: false,
-      toStringify: false,
-      universalProperty: undefined,
-    },
     name: {
       toStringify: false,
       universalProperty: undefined,
@@ -1314,11 +1301,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       toStringify: false,
       universalProperty: 'folderUniversalIdentifier',
     },
-    name: {
-      toCompare: true,
-      toStringify: false,
-      universalProperty: undefined,
-    },
+    name: { toCompare: true, toStringify: false, universalProperty: undefined },
     link: { toCompare: true, toStringify: false, universalProperty: undefined },
     icon: { toCompare: true, toStringify: false, universalProperty: undefined },
     color: {
@@ -1778,7 +1761,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
     },
     value: {
       toCompare: false,
-      toStringify: true,
+      toStringify: false,
       universalProperty: undefined,
     },
     description: {
@@ -1787,11 +1770,6 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       universalProperty: undefined,
     },
     isSecret: {
-      toCompare: true,
-      toStringify: false,
-      universalProperty: undefined,
-    },
-    isDeprecated: {
       toCompare: true,
       toStringify: false,
       universalProperty: undefined,
@@ -1913,8 +1891,11 @@ export type MetadataEntityOverridablePropertyName<T extends AllMetadataName> =
     (typeof ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME)[T]
   >;
 
-// Which properties are translatable is owned by twenty-shared, because the
-// application SDK extracts against the same list at build time and the two
-// silently drifted when each side kept its own copy.
+type FilterTranslatableKeys<TConfig> = {
+  [P in keyof TConfig]: TConfig[P] extends { translatable: true } ? P : never;
+}[keyof TConfig];
+
 export type MetadataEntityTranslatablePropertyName<T extends AllMetadataName> =
-  T extends TranslatableMetadataName ? TranslatablePropertyName<T> : never;
+  FilterTranslatableKeys<
+    (typeof ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME)[T]
+  >;

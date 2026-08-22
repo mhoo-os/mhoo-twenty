@@ -8,7 +8,16 @@ export interface AddPersonEmailFiltersToQueryBuilderOptions {
   excludePersonIds?: string[];
 }
 
-// A query builder rather than find(): matching additional emails needs the jsonb @> operator
+/**
+ * Adds filters to a query builder to only return people with the given emails.
+ * This is used to find people by their primary or additional emails.
+ * We use the query builder here instead of the find method from typeorm
+ * because we need to use the jsonb @> operator to check if the email is in the additional emails array.
+ *
+ * @param queryBuilder - The query builder to add the filters to
+ * @param emails - The emails to filter by
+ * @param excludePersonIds - The person IDs to exclude from the results
+ */
 export function addPersonEmailFiltersToQueryBuilder({
   queryBuilder,
   emails,
@@ -17,14 +26,20 @@ export function addPersonEmailFiltersToQueryBuilder({
   const normalizedEmails = emails.map((email) => email.toLowerCase());
 
   queryBuilder = queryBuilder
-    .where('LOWER("person"."emailsPrimaryEmail") IN (:...emails)', {
+    .select([
+      'person.id',
+      'person.emailsPrimaryEmail',
+      'person.emailsAdditionalEmails',
+      'person.deletedAt',
+    ])
+    .where('LOWER(person.emailsPrimaryEmail) IN (:...emails)', {
       emails: normalizedEmails,
     })
     .withDeleted();
 
   if (excludePersonIds.length > 0) {
     queryBuilder = queryBuilder.andWhere(
-      '"person"."id" NOT IN (:...excludePersonIds)',
+      'person.id NOT IN (:...excludePersonIds)',
       {
         excludePersonIds,
       },
@@ -35,8 +50,8 @@ export function addPersonEmailFiltersToQueryBuilder({
     const emailParamName = `email${index}`;
     const orWhereIsInAdditionalEmail =
       excludePersonIds.length > 0
-        ? `"person"."id" NOT IN (:...excludePersonIds) AND "person"."emailsAdditionalEmails" @> :${emailParamName}::jsonb`
-        : `"person"."emailsAdditionalEmails" @> :${emailParamName}::jsonb`;
+        ? `person.id NOT IN (:...excludePersonIds) AND person.emailsAdditionalEmails @> :${emailParamName}::jsonb`
+        : `person.emailsAdditionalEmails @> :${emailParamName}::jsonb`;
 
     queryBuilder = queryBuilder.orWhere(orWhereIsInAdditionalEmail, {
       ...(excludePersonIds.length > 0 && { excludePersonIds }),

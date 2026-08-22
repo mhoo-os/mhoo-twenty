@@ -7,7 +7,7 @@ import { RecordTableWidthEffect } from '@/object-record/record-table/components/
 import { RECORD_TABLE_COLUMN_ADD_COLUMN_BUTTON_WIDTH } from '@/object-record/record-table/constants/RecordTableColumnAddColumnButtonWidth';
 import { RECORD_TABLE_COLUMN_CHECKBOX_WIDTH } from '@/object-record/record-table/constants/RecordTableColumnCheckboxWidth';
 import { RECORD_TABLE_COLUMN_DRAG_AND_DROP_WIDTH } from '@/object-record/record-table/constants/RecordTableColumnDragAndDropWidth';
-import { useIsRecordTableCheckboxColumnHidden } from '@/object-record/record-table/hooks/useIsRecordTableCheckboxColumnHidden';
+import { isRecordTableCheckboxColumnHiddenComponentState } from '@/object-record/record-table/states/isRecordTableCheckboxColumnHiddenComponentState';
 import { isRecordTableDragColumnHiddenComponentState } from '@/object-record/record-table/states/isRecordTableDragColumnHiddenComponentState';
 import { getRecordTableHtmlId } from '@/object-record/record-table/utils/getRecordTableHtmlId';
 import { useRecordTableContextOrThrow } from '@/object-record/record-table/contexts/RecordTableContext';
@@ -23,17 +23,11 @@ import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/use
 import { styled } from '@linaria/react';
 import { useMemo } from 'react';
 import { isDefined } from 'twenty-shared/utils';
-import { MOBILE_VIEWPORT } from 'twenty-ui/theme-constants';
-import { useIsMobile } from 'twenty-ui/utilities';
 
 const StyledEmptyStateContainer = styled.div<{ width: number }>`
   height: 100%;
   overflow: hidden;
   width: ${({ width }) => width}px;
-
-  @media (max-width: ${MOBILE_VIEWPORT}px) {
-    width: 100%;
-  }
 `;
 
 export interface RecordTableEmptyProps {
@@ -43,14 +37,13 @@ export interface RecordTableEmptyProps {
 export const RecordTableEmpty = ({ tableBodyRef }: RecordTableEmptyProps) => {
   const { visibleRecordFields, recordTableId } = useRecordTableContextOrThrow();
 
-  const isMobile = useIsMobile();
-
   const isRecordTableDragColumnHidden = useAtomComponentStateValue(
     isRecordTableDragColumnHiddenComponentState,
   );
 
-  const isRecordTableCheckboxColumnHidden =
-    useIsRecordTableCheckboxColumnHidden();
+  const isRecordTableCheckboxColumnHidden = useAtomComponentStateValue(
+    isRecordTableCheckboxColumnHiddenComponentState,
+  );
 
   const recordTableWidth = useAtomComponentStateValue(
     recordTableWidthComponentState,
@@ -106,17 +99,8 @@ export const RecordTableEmpty = ({ tableBodyRef }: RecordTableEmptyProps) => {
   );
 
   const columnWidthStyles = useMemo(
-    () =>
-      getRecordTableColumnWidthInlineStyles({
-        visibleRecordFields,
-        isDragColumnHidden: isRecordTableDragColumnHidden,
-        isCheckboxColumnHidden: isRecordTableCheckboxColumnHidden,
-      }),
-    [
-      visibleRecordFields,
-      isRecordTableDragColumnHidden,
-      isRecordTableCheckboxColumnHidden,
-    ],
+    () => getRecordTableColumnWidthInlineStyles({ visibleRecordFields }),
+    [visibleRecordFields],
   );
 
   return (
@@ -126,9 +110,7 @@ export const RecordTableEmpty = ({ tableBodyRef }: RecordTableEmptyProps) => {
         style={columnWidthStyles}
         id={getRecordTableHtmlId(recordTableId)}
       >
-        {/* An empty table has no cells to reveal, so the header would only add
-            a horizontal scroll to a screen with nothing to scroll to. */}
-        {!isMobile && <RecordTableHeader />}
+        <RecordTableHeader />
       </RecordTableStyleWrapper>
       <RecordTableEmptyState />
       <RecordTableColumnWidthEffect />

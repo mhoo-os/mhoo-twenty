@@ -52,6 +52,7 @@ describe('Skill deletion should fail', () => {
 
     const standardSkill = data.skills.find((skill) => skill.isCustom === false);
 
+    // If there are no standard skills, skip this test
     if (!standardSkill) {
       return;
     }

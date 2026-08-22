@@ -10,7 +10,7 @@ import { WorkspaceCache } from 'src/engine/workspace-cache/decorators/workspace-
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 
 @Injectable()
-@WorkspaceCache('graphQLResolverNameMap', { packingPonderation: 4 })
+@WorkspaceCache('graphQLResolverNameMap')
 export class WorkspaceResolverNameMapCacheService extends WorkspaceCacheProvider<
   Record<string, ResolverNameMapEntry>
 > {

@@ -783,6 +783,7 @@ describe('OAuth (integration)', () => {
 
       createdEntityIds.tokens.push(tokenId);
 
+      // First use succeeds
       await postToken({
         grant_type: 'authorization_code',
         code,
@@ -791,6 +792,7 @@ describe('OAuth (integration)', () => {
         redirect_uri: 'https://example.com/callback',
       }).expect(200);
 
+      // Second use detects replay
       const res = await postToken({
         grant_type: 'authorization_code',
         code,

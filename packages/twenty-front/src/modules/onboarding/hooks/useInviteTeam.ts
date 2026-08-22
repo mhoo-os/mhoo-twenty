@@ -157,15 +157,12 @@ export const useInviteTeam = () => {
           throw result.error;
         }
 
-        const sentInvitationsCount =
-          result.data?.sendInvitations.result.length ?? 0;
-
         const creditsRewardPerUser =
           onboardingConfig?.inviteTeamCreditsRewardPerUser ?? 0;
 
         setOnboardingFreeCredits((current) => ({
           ...current,
-          inviteTeam: sentInvitationsCount * creditsRewardPerUser,
+          inviteTeam: emails.length * creditsRewardPerUser,
         }));
 
         if (emails.length > 0) {
@@ -179,12 +176,7 @@ export const useInviteTeam = () => {
 
         await companyEnrichmentSettlement;
 
-        setNextOnboardingStatus({
-          stepHistoryEffect:
-            sentInvitationsCount > 0
-              ? 'clearAfterIrreversibleStep'
-              : 'recordAsReversible',
-        });
+        setNextOnboardingStatus();
       } catch (error) {
         setIsNavigating(false);
 

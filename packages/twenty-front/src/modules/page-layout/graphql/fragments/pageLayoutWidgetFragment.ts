@@ -4,8 +4,6 @@ export const PAGE_LAYOUT_WIDGET_FRAGMENT = gql`
   fragment PageLayoutWidgetFragment on PageLayoutWidget {
     id
     applicationId
-    universalIdentifier
-    isSystemSideEffect
     title
     type
     objectMetadataId

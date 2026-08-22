@@ -1,21 +1,35 @@
 import { isNonEmptyString, isNumber } from '@sniptt/guards';
-import { isDefined, isPlainObject } from 'twenty-shared/utils';
+import { isPlainObject } from 'twenty-shared/utils';
 import { type WorkspaceCompanyEnrichment } from 'twenty-shared/workspace';
 
 import { WORKSPACE_COMPANY_ENRICHMENT_FIELD_MAX_LENGTH } from 'src/engine/core-modules/company-enrichment/constants/workspace-company-enrichment-field-max-length.constant';
 import { WORKSPACE_COMPANY_ENRICHMENT_MAX_TAGS } from 'src/engine/core-modules/company-enrichment/constants/workspace-company-enrichment-max-tags.constant';
 import { WORKSPACE_COMPANY_ENRICHMENT_SUMMARY_MAX_LENGTH } from 'src/engine/core-modules/company-enrichment/constants/workspace-company-enrichment-summary-max-length.constant';
-import { sanitizePromptContextLineArray } from 'src/utils/sanitize-prompt-context-line-array.util';
-import { sanitizePromptContextLine } from 'src/utils/sanitize-prompt-context-line.util';
 
+// NUL bytes break Postgres text inserts, and line breaks in single-line fields could forge
+// extra lines inside the model-facing context message built from these values.
+const CONTROL_CHARACTERS_AND_LINE_BREAKS_PATTERN =
+  /[\u0000-\u001f\u007f\u0080-\u009f]+/g;
 const CONTROL_CHARACTERS_EXCEPT_LINE_BREAKS_PATTERN =
   /[\u0000-\u0009\u000b-\u001f\u007f\u0080-\u009f]+/g;
 
-const sanitizeSingleLineText = (value: unknown): string | null =>
-  sanitizePromptContextLine({
-    value,
-    maxLength: WORKSPACE_COMPANY_ENRICHMENT_FIELD_MAX_LENGTH,
-  });
+const sanitizeSingleLineText = (
+  value: unknown,
+  maxLength = WORKSPACE_COMPANY_ENRICHMENT_FIELD_MAX_LENGTH,
+): string | null => {
+  if (!isNonEmptyString(value)) {
+    return null;
+  }
+
+  const cleanedValue = value
+    .replace(CONTROL_CHARACTERS_AND_LINE_BREAKS_PATTERN, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return isNonEmptyString(cleanedValue)
+    ? cleanedValue.slice(0, maxLength)
+    : null;
+};
 
 const sanitizeSummaryText = (value: unknown): string | null => {
   if (!isNonEmptyString(value)) {
@@ -45,7 +59,7 @@ export const sanitizeWorkspaceCompanyEnrichment = (
   const domain = sanitizeSingleLineText(value.domain);
   const enrichedAt = sanitizeSingleLineText(value.enrichedAt);
 
-  if (!isDefined(domain) || !isDefined(enrichedAt)) {
+  if (domain === null || enrichedAt === null) {
     return null;
   }
 
@@ -60,11 +74,12 @@ export const sanitizeWorkspaceCompanyEnrichment = (
     founded: sanitizeFiniteNumber(value.founded),
     headline: sanitizeSingleLineText(value.headline),
     summary: sanitizeSummaryText(value.summary),
-    tags: sanitizePromptContextLineArray({
-      value: value.tags,
-      maxLength: WORKSPACE_COMPANY_ENRICHMENT_FIELD_MAX_LENGTH,
-      maxItems: WORKSPACE_COMPANY_ENRICHMENT_MAX_TAGS,
-    }),
+    tags: Array.isArray(value.tags)
+      ? value.tags
+          .map((tag) => sanitizeSingleLineText(tag))
+          .filter(isNonEmptyString)
+          .slice(0, WORKSPACE_COMPANY_ENRICHMENT_MAX_TAGS)
+      : [],
     locality: sanitizeSingleLineText(value.locality),
     region: sanitizeSingleLineText(value.region),
     country: sanitizeSingleLineText(value.country),

@@ -24,7 +24,7 @@ import { isDefined } from 'twenty-shared/utils';
 import { ChipVariant } from 'twenty-ui/data-display';
 import { IconEye, IconEyeOff } from 'twenty-ui/icon';
 import { Checkbox, CheckboxVariant, LightIconButton } from 'twenty-ui/input';
-import { useIsMobile, useIsTouchDevice } from 'twenty-ui/utilities';
+import { useIsTouchDevice } from 'twenty-ui/utilities';
 
 const StyledCompactIconContainer = styled.div`
   align-items: center;
@@ -72,7 +72,6 @@ export const RecordBoardCardHeader = () => {
   const openRecordIn = useResolveOpenRecordIn(objectMetadataItem.nameSingular);
 
   const isTouchDevice = useIsTouchDevice();
-  const isMobile = useIsMobile();
 
   const recordStore = useAtomFamilyStateValue(recordStoreFamilyState, recordId);
 
@@ -114,21 +113,19 @@ export const RecordBoardCardHeader = () => {
           </StopPropagationContainer>
         </StyledCompactIconContainer>
       )}
-      {!isMobile && (
-        <StyledCheckboxContainer className="checkbox-container">
-          <StopPropagationContainer>
-            <Checkbox
-              hoverable
-              checked={isRecordBoardCardSelected}
-              onChange={(value) => {
-                setIsRecordBoardCardSelected(value.target.checked);
-                checkIfLastUnselectAndCloseDropdown();
-              }}
-              variant={CheckboxVariant.Secondary}
-            />
-          </StopPropagationContainer>
-        </StyledCheckboxContainer>
-      )}
+      <StyledCheckboxContainer className="checkbox-container">
+        <StopPropagationContainer>
+          <Checkbox
+            hoverable
+            checked={isRecordBoardCardSelected}
+            onChange={(value) => {
+              setIsRecordBoardCardSelected(value.target.checked);
+              checkIfLastUnselectAndCloseDropdown();
+            }}
+            variant={CheckboxVariant.Secondary}
+          />
+        </StopPropagationContainer>
+      </StyledCheckboxContainer>
     </RecordCardHeaderContainer>
   );
 };

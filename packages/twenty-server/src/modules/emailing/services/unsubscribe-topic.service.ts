@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 
-import { isDefined } from 'twenty-shared/utils';
-
 import { UnsubscribeTopicEntity } from 'src/engine/core-modules/emailing-domain/unsubscribe-topic.entity';
 import { UnsubscribeTopicVisibility } from 'src/engine/core-modules/emailing-domain/types/unsubscribe-topic-visibility.type';
 import { InjectWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/inject-workspace-scoped-repository.decorator';
@@ -48,7 +46,7 @@ export class UnsubscribeTopicService {
     workspaceId: string,
     { name, description = null, visibility }: CreateUnsubscribeTopicArgs,
   ): Promise<UnsubscribeTopicEntity> {
-    return this.unsubscribeTopicRepository.insertAndReturnOne(workspaceId, {
+    return this.unsubscribeTopicRepository.save(workspaceId, {
       name,
       description,
       visibility: visibility ?? UnsubscribeTopicVisibility.PRIVATE,
@@ -59,18 +57,18 @@ export class UnsubscribeTopicService {
     workspaceId: string,
     { id, name, description, visibility }: UpdateUnsubscribeTopicArgs,
   ): Promise<UnsubscribeTopicEntity> {
-    await this.unsubscribeTopicRepository.update(
+    const existing = await this.unsubscribeTopicRepository.findOneOrFail(
       workspaceId,
-      { id },
-      {
-        ...(name !== undefined ? { name } : {}),
-        ...(description !== undefined ? { description } : {}),
-        ...(isDefined(visibility) ? { visibility } : {}),
-      },
+      { where: { id } },
     );
 
-    return this.unsubscribeTopicRepository.findOneOrFail(workspaceId, {
-      where: { id },
+    return this.unsubscribeTopicRepository.save(workspaceId, {
+      ...existing,
+      ...(name !== undefined ? { name } : {}),
+      ...(description !== undefined ? { description } : {}),
+      ...(visibility !== undefined && visibility !== null
+        ? { visibility }
+        : {}),
     });
   }
 

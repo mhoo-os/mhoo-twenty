@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Any, In, Repository } from 'typeorm';
@@ -21,8 +21,6 @@ import { AccountsToReconnectService } from 'src/modules/connected-account/servic
 import { AccountsToReconnectKeys } from 'src/modules/connected-account/types/accounts-to-reconnect-key-value.type';
 @Injectable()
 export class CalendarChannelSyncStatusService {
-  private readonly logger = new Logger(CalendarChannelSyncStatusService.name);
-
   constructor(
     private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
     @InjectCacheStorage(CacheStorageNamespace.ModuleCalendar)
@@ -255,10 +253,6 @@ export class CalendarChannelSyncStatusService {
       return;
     }
 
-    this.logger.warn(
-      `Marking calendar channels [${calendarChannelIds.join(', ')}] as ${CalendarChannelSyncStatus.FAILED_UNKNOWN} in workspace ${workspaceId}`,
-    );
-
     for (const calendarChannelId of calendarChannelIds) {
       await this.cacheStorage.del(
         `calendar-events-to-import:${workspaceId}:${calendarChannelId}`,
@@ -294,10 +288,6 @@ export class CalendarChannelSyncStatusService {
     if (!calendarChannelIds.length) {
       return;
     }
-
-    this.logger.warn(
-      `Marking calendar channels [${calendarChannelIds.join(', ')}] as ${CalendarChannelSyncStatus.FAILED_INSUFFICIENT_PERMISSIONS} in workspace ${workspaceId}`,
-    );
 
     for (const calendarChannelId of calendarChannelIds) {
       await this.cacheStorage.del(

@@ -76,7 +76,7 @@ export const WorkspaceActivation = () => {
 
       setIsAppEffectRedirectEnabled(false);
       await loadCurrentUser();
-      setNextOnboardingStatus({ stepHistoryEffect: 'leaveUnchanged' });
+      setNextOnboardingStatus();
       setIsCreatingWorkspace(false);
       setIsAppEffectRedirectEnabled(true);
     } catch (error) {

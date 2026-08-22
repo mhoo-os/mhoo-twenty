@@ -117,7 +117,7 @@ export class McpToolExecutorService {
       return wrapJsonRpcResponse(id, {
         result: {
           content: [{ type: 'text', text: JSON.stringify(result) }],
-          isError: !succeeded,
+          isError: false,
         },
       });
     } catch (executionError) {

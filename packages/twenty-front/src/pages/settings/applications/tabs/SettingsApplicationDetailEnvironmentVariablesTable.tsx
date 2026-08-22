@@ -1,19 +1,34 @@
 import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
-import { useState } from 'react';
+import { isNonEmptyString } from '@sniptt/guards';
+import { useContext, useState } from 'react';
 import { type ApplicationVariableOption } from 'twenty-shared/application';
+import { IconInfoCircle } from 'twenty-ui/icon';
+import { AppTooltip, TooltipDelay } from 'twenty-ui/surfaces';
 import { H2Title } from 'twenty-ui/typography';
 import { Section } from 'twenty-ui/layout';
-import { themeCssVariables } from 'twenty-ui/theme-constants';
+import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
 import { useDebouncedCallback } from 'use-debounce';
 import { type ApplicationVariable } from '~/generated-metadata/graphql';
 import { SettingsApplicationVariableInput } from '~/pages/settings/applications/components/SettingsApplicationVariableInput';
-import { SettingsApplicationVariableLabelRow } from '~/pages/settings/applications/components/SettingsApplicationVariableLabelRow';
 
 const StyledContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${themeCssVariables.spacing[4]};
+`;
+
+const StyledLabelRow = styled.div`
+  align-items: center;
+  display: flex;
+  gap: ${themeCssVariables.spacing[1]};
+  margin-bottom: ${themeCssVariables.spacing[1]};
+`;
+
+const StyledLabel = styled.span`
+  color: ${themeCssVariables.font.color.light};
+  font-size: 11px;
+  font-weight: ${themeCssVariables.font.weight.semiBold};
 `;
 
 export const SettingsApplicationDetailEnvironmentVariablesTable = ({
@@ -24,6 +39,7 @@ export const SettingsApplicationDetailEnvironmentVariablesTable = ({
   onUpdate: (newEnv: Pick<ApplicationVariable, 'key' | 'value'>) => void;
   readonly?: boolean;
 }) => {
+  const { theme } = useContext(ThemeContext);
   const [editedEnvVariables, setEditedEnvVariables] = useState(envVariables);
   const onUpdateDebounced = useDebouncedCallback(
     (value: Pick<ApplicationVariable, 'key' | 'value'>) => {
@@ -40,14 +56,31 @@ export const SettingsApplicationDetailEnvironmentVariablesTable = ({
       <H2Title title={t`Configuration`} description={sectionDescription} />
       <StyledContainer>
         {editedEnvVariables.map((editedEnvVariable) => {
+          const tooltipId = `env-var-desc-${editedEnvVariable.key}`;
           return (
             <div key={editedEnvVariable.key}>
-              <SettingsApplicationVariableLabelRow
-                variableKey={editedEnvVariable.key}
-                isDeprecated={editedEnvVariable.isDeprecated}
-                description={editedEnvVariable.description}
-                tooltipId={`env-var-desc-${editedEnvVariable.key}`}
-              />
+              <StyledLabelRow>
+                <StyledLabel>{editedEnvVariable.key}</StyledLabel>
+                {isNonEmptyString(editedEnvVariable.description) && (
+                  <>
+                    <IconInfoCircle
+                      id={`env-var-desc-${editedEnvVariable.key}`}
+                      size={theme.icon.size.sm}
+                      color={theme.font.color.tertiary}
+                      style={{ outline: 'none', cursor: 'pointer' }}
+                    />
+                    <AppTooltip
+                      anchorSelect={`#${tooltipId}`}
+                      content={editedEnvVariable.description}
+                      offset={5}
+                      noArrow
+                      place="bottom"
+                      positionStrategy="fixed"
+                      delay={TooltipDelay.shortDelay}
+                    />
+                  </>
+                )}
+              </StyledLabelRow>
               <SettingsApplicationVariableInput
                 type={editedEnvVariable.type}
                 value={editedEnvVariable.value}

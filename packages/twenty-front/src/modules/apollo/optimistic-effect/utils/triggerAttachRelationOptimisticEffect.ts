@@ -104,6 +104,7 @@ export const triggerAttachRelationOptimisticEffect = ({
             edges: nextEdges,
           };
         } else {
+          // To one object => attach next relation record
           return sourceRecordReference;
         }
       },

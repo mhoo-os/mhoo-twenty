@@ -16,6 +16,7 @@ describe('Object Permissions Validation', () => {
   let companyObjectId: string;
 
   beforeAll(async () => {
+    // Get object metadata IDs for Person and Company
     const getObjectMetadataOperation = {
       query: gql`
         query {
@@ -49,6 +50,7 @@ describe('Object Permissions Validation', () => {
 
   describe('cases with role with all rights by default', () => {
     beforeEach(async () => {
+      // Create a custom role for each test
       const roleOperation = createRoleOperation({
         label: 'TestRole',
         description: 'Test role for object permission validation',
@@ -65,6 +67,7 @@ describe('Object Permissions Validation', () => {
     });
 
     afterEach(async () => {
+      // Clean up the role after each test
       if (customRoleId) {
         await deleteRole(client, customRoleId);
       }
@@ -324,6 +327,7 @@ describe('Object Permissions Validation', () => {
     let roleWithoutPermissions: string;
 
     beforeEach(async () => {
+      // Create a role with write permissions as defaults
       const roleWithoutPermissionsQuery = createRoleOperation({
         label: 'TestRoleWithNoRights',
         description: 'Test role with no rights',

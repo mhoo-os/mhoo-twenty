@@ -26,6 +26,7 @@ async function bootstrap() {
   const loggerService = app.get(LoggerService);
   const exceptionHandlerService = app.get(ExceptionHandlerService);
 
+  // Inject our logger
   app.useLogger(loggerService);
 
   await CommandFactory.runApplication(app);

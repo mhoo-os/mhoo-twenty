@@ -32,7 +32,6 @@ export const APPLICATION_FRAGMENT = gql`
       value
       description
       isSecret
-      isDeprecated
       type
       options
     }
@@ -49,7 +48,6 @@ export const APPLICATION_FRAGMENT = gql`
       universalIdentifier
       isHeadless
       usesSdkClient
-      frontComponentSharedDependenciesChecksum
       createdAt
       updatedAt
     }

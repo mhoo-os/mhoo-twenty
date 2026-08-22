@@ -81,6 +81,7 @@ export class DevSeederMetadataService {
           seed: SURVEY_RESULT_CUSTOM_OBJECT_SEED,
           fields: SURVEY_RESULT_CUSTOM_FIELD_SEEDS,
         },
+        // Junction objects (minimal pivots)
         { seed: EMPLOYMENT_HISTORY_CUSTOM_OBJECT_SEED },
         { seed: PET_CARE_AGREEMENT_CUSTOM_OBJECT_SEED },
       ],
@@ -99,6 +100,7 @@ export class DevSeederMetadataService {
         },
       ],
       junctionFields: [
+        // Employment History: Person <-> Company
         {
           sourceObjectName: 'person',
           name: 'previousCompanies',
@@ -117,6 +119,7 @@ export class DevSeederMetadataService {
           targetFieldLabel: 'Company',
           targetFieldIcon: 'IconBuildingSkyscraper',
         },
+        // Pet Care Agreement: Pet -> caretakers
         {
           sourceObjectName: PET_CUSTOM_OBJECT_SEED.nameSingular,
           name: 'caretakers',
@@ -128,6 +131,7 @@ export class DevSeederMetadataService {
         },
       ],
       junctionConfigs: [
+        // Employment History junction configs
         {
           objectName: 'person',
           fieldName: 'previousCompanies',
@@ -138,6 +142,7 @@ export class DevSeederMetadataService {
           fieldName: 'previousEmployees',
           junctionTargetFieldRef: `${EMPLOYMENT_HISTORY_CUSTOM_OBJECT_SEED.nameSingular}.person`,
         },
+        // Pet Care Agreement junction configs
         {
           objectName: PET_CUSTOM_OBJECT_SEED.nameSingular,
           fieldName: 'caretakers',

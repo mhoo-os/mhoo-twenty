@@ -34,6 +34,7 @@ export const convertBulkTextToOptions = (
         position: optionIndex,
       });
     } else {
+      // create new option if not found
       newBulkSelectOptions.push({
         ...generateNewSelectOption(newBulkSelectOptions, label),
         position: optionIndex,

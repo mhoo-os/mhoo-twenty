@@ -38,6 +38,7 @@ import { fromViewManifestToUniversalFlatView } from 'src/engine/core-modules/app
 import { fromViewSortManifestToUniversalFlatViewSort } from 'src/engine/core-modules/application/application-manifest/converters/from-view-sort-manifest-to-universal-flat-view-sort.util';
 import { type FlatApplication } from 'src/engine/core-modules/application/types/flat-application.type';
 import { fromAgentManifestToUniversalFlatAgent } from 'src/engine/core-modules/application/utils/from-agent-manifest-to-universal-flat-agent.util';
+import { type EncryptedString } from 'src/engine/core-modules/secret-encryption/branded-strings/encrypted-string.type';
 import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
 import { SecretEncryptionService } from 'src/engine/core-modules/secret-encryption/secret-encryption.service';
 import { createEmptyAllFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/constant/create-empty-all-flat-entity-maps.constant';
@@ -50,6 +51,20 @@ export class ComputeApplicationManifestAllUniversalFlatEntityMapsService {
   constructor(
     private readonly secretEncryptionService: SecretEncryptionService,
   ) {}
+
+  private encryptApplicationVariableValue(
+    plaintext: string,
+    workspaceId: string,
+  ): EncryptedString | '' {
+    if (plaintext === '') {
+      return '';
+    }
+
+    return this.secretEncryptionService.encryptVersioned(
+      plaintext as PlaintextString,
+      { workspaceId },
+    );
+  }
 
   compute({
     manifest,
@@ -605,13 +620,12 @@ export class ComputeApplicationManifestAllUniversalFlatEntityMapsService {
             key,
             universalIdentifier:
               applicationVariableManifest.universalIdentifier,
-            encryptedValue: this.secretEncryptionService.encryptVersioned(
-              rawValue as PlaintextString,
-              { workspaceId },
+            encryptedValue: this.encryptApplicationVariableValue(
+              rawValue,
+              workspaceId,
             ),
             description: applicationVariableManifest.description,
             isSecret,
-            isDeprecated: applicationVariableManifest.isDeprecated,
             type,
             options: applicationVariableManifest.options,
             applicationUniversalIdentifier,

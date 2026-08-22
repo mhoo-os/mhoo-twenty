@@ -84,6 +84,7 @@ describe('View Filter Group Resolver', () => {
   });
 
   afterEach(async () => {
+    // Clean up all created view filter groups
     for (const filterGroupId of createdViewFilterGroup) {
       const destroyOperation = destroyViewFilterGroupOperationFactory({
         viewFilterGroupId: filterGroupId,

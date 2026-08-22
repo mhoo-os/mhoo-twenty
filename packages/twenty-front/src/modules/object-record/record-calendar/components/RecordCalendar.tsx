@@ -5,7 +5,6 @@ import { COMMAND_MENU_DROPDOWN_CLICK_OUTSIDE_ID } from '@/command-menu-item/cons
 import { COMMAND_MENU_CLICK_OUTSIDE_ID } from '@/command-menu/constants/CommandMenuClickOutsideId';
 import { RecordCalendarTopBar } from '@/object-record/record-calendar/components/RecordCalendarTopBar';
 import { RECORD_CALENDAR_CLICK_OUTSIDE_LISTENER_ID } from '@/object-record/record-calendar/constants/RecordCalendarClickOutsideListenerId';
-import { RecordCalendarEscapeHotkeyEffect } from '@/object-record/record-calendar/components/RecordCalendarEscapeHotkeyEffect';
 import { RecordCalendarDay } from '@/object-record/record-calendar/day/components/RecordCalendarDay';
 import { RecordCalendarMonth } from '@/object-record/record-calendar/month/components/RecordCalendarMonth';
 import { RecordCalendarWeek } from '@/object-record/record-calendar/week/components/RecordCalendarWeek';
@@ -43,8 +42,7 @@ export const RecordCalendar = () => {
     RecordCalendarComponentInstanceContext,
   );
 
-  const { resetRecordCalendarSelection } =
-    useRecordCalendarSelection(recordCalendarId);
+  const { resetRecordSelection } = useRecordCalendarSelection(recordCalendarId);
 
   const recordIndexCalendarLayout = useAtomComponentStateValue(
     recordIndexCalendarLayoutComponentState,
@@ -58,8 +56,8 @@ export const RecordCalendar = () => {
   });
 
   useEffect(() => {
-    resetRecordCalendarSelection();
-  }, [resetRecordCalendarSelection, supportedCalendarLayout]);
+    resetRecordSelection();
+  }, [resetRecordSelection, supportedCalendarLayout]);
 
   useListenClickOutside({
     excludedClickOutsideIds: [
@@ -73,13 +71,12 @@ export const RecordCalendar = () => {
     listenerId: RECORD_CALENDAR_CLICK_OUTSIDE_LISTENER_ID,
     refs: [],
     callback: () => {
-      resetRecordCalendarSelection();
+      resetRecordSelection();
     },
   });
 
   return (
     <StyledContainerContainer>
-      <RecordCalendarEscapeHotkeyEffect recordCalendarId={recordCalendarId} />
       <RecordCalendarTopBar />
       <ScrollWrapper
         componentInstanceId={`scroll-wrapper-record-calendar-${recordCalendarId}`}

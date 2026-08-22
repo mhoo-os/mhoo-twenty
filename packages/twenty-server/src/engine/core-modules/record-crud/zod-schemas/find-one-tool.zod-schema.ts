@@ -8,9 +8,7 @@ export const FindOneToolInputSchema = z.object({
     .describe(
       'Fields to include in the response. Required. ' +
         "Use '*' to return all fields. " +
-        'Relation fields resolve to related records as {id, label} summaries: ' +
-        'MANY_TO_ONE returns a single object (or select the <name>Id FK column for just the id), ' +
-        'ONE_TO_MANY returns up to 60 related records.',
+        ' MANY_TO_ONE relations are referenced by their FK column (e.g. companyId).',
     ),
 });
 

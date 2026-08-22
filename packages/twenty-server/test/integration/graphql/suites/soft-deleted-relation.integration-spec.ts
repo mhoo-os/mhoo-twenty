@@ -43,6 +43,7 @@ describe('soft-deleted relation', () => {
   });
 
   afterAll(async () => {
+    // Ensure records are not soft-deleted before destroying
     await makeGraphqlAPIRequest(
       restoreOneOperationFactory({
         objectMetadataSingularName: 'company',

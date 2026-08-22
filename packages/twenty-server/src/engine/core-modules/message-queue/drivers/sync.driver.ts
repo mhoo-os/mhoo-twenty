@@ -24,7 +24,7 @@ export class SyncDriver implements MessageQueueDriver {
     jobName: string,
     data: T,
   ): Promise<void> {
-    await this.processJob(queueName, this.createJob(jobName, data));
+    await this.processJob(queueName, { id: '', name: jobName, data });
   }
 
   async bulkAdd<T extends MessageQueueJobData>(
@@ -38,7 +38,7 @@ export class SyncDriver implements MessageQueueDriver {
     // prevent the others from being processed
     for (const data of dataItems) {
       try {
-        await this.processJob(queueName, this.createJob(jobName, data));
+        await this.processJob(queueName, { id: '', name: jobName, data });
       } catch (error) {
         firstError = firstError ?? error;
       }
@@ -59,7 +59,13 @@ export class SyncDriver implements MessageQueueDriver {
     data: T;
   }): Promise<void> {
     this.logger.log(`Running cron job with SyncDriver`);
-    await this.processJob(queueName, this.createJob(jobName, data));
+    await this.processJob(queueName, {
+      id: '',
+      name: jobName,
+      // TODO: Fix this type issue
+      // oxlint-disable-next-line typescript/no-explicit-any
+      data: data as any,
+    });
   }
 
   async removeCron({ queueName }: { queueName: MessageQueue }) {
@@ -74,7 +80,7 @@ export class SyncDriver implements MessageQueueDriver {
     this.workersMap[queueName] = handler;
   }
 
-  async processJob<T extends MessageQueueJobData | undefined>(
+  async processJob<T extends MessageQueueJobData>(
     queueName: string,
     job: MessageQueueJob<T>,
   ) {
@@ -87,22 +93,5 @@ export class SyncDriver implements MessageQueueDriver {
         this.logger.error(`No handler found for job: ${queueName}`);
       }
     }
-  }
-
-  private createJob<T extends MessageQueueJobData | undefined>(
-    name: string,
-    data: T,
-  ): MessageQueueJob<T> {
-    const job: MessageQueueJob<T> = {
-      id: '',
-      name,
-      data,
-      retryLimit: 0,
-      updateData: async (updatedData) => {
-        job.data = updatedData;
-      },
-    };
-
-    return job;
   }
 }

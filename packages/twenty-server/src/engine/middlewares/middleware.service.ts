@@ -62,6 +62,7 @@ export class MiddlewareService {
   public writeRestResponseOnExceptionCaught(res: Response, error: any) {
     const statusCode = this.getStatus(error);
 
+    // capture and handle custom exceptions
     handleException({
       exception: error as CustomException,
       exceptionHandlerService: this.exceptionHandlerService,

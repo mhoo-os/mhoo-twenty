@@ -3,6 +3,7 @@ import path from 'path';
 
 import { type Manifest } from 'twenty-shared/application';
 import { SOURCE_LOCALE, type AppLocale } from 'twenty-shared/translations';
+import { isDefined } from 'twenty-shared/utils';
 
 import {
   getTranslationCatalogKey,
@@ -17,23 +18,23 @@ import {
 import { collectFrontComponentStrings } from '@/cli/utilities/translations/collect-front-component-strings';
 import { collectTranslatableStrings } from '@/cli/utilities/translations/collect-translatable-strings';
 import { LOCALES_DIR } from '@/cli/utilities/translations/constants';
-import {
-  buildLocaleCatalog,
-  flattenLocaleCatalog,
-} from '@/cli/utilities/translations/locale-catalog-format';
 
 type ExtractApplicationTranslationsResult = {
   sourceCount: number;
   updatedLocaleFiles: string[];
 };
 
-const collectSourceDescriptors = async ({
+const collectSourceEntries = async ({
   manifest,
   frontComponentSourcePaths,
 }: {
   manifest: Manifest;
   frontComponentSourcePaths: string[];
-}): Promise<MessageDescriptor[]> => {
+}): Promise<Map<string, MessageDescriptor>> => {
+  const manifestDescriptors: MessageDescriptor[] = collectTranslatableStrings(
+    manifest,
+  ).map((message) => ({ message }));
+
   const frontComponentDescriptors = await collectFrontComponentStrings(
     frontComponentSourcePaths,
   );
@@ -41,7 +42,7 @@ const collectSourceDescriptors = async ({
   const descriptorByKey = new Map<string, MessageDescriptor>();
 
   for (const descriptor of [
-    ...collectTranslatableStrings(manifest),
+    ...manifestDescriptors,
     ...frontComponentDescriptors,
   ]) {
     descriptorByKey.set(
@@ -50,7 +51,7 @@ const collectSourceDescriptors = async ({
     );
   }
 
-  return [...descriptorByKey.values()];
+  return descriptorByKey;
 };
 
 export const extractApplicationTranslations = async ({
@@ -64,26 +65,29 @@ export const extractApplicationTranslations = async ({
   frontComponentSourcePaths?: string[];
   scaffoldLocale?: AppLocale;
 }): Promise<ExtractApplicationTranslationsResult> => {
-  const descriptors = await collectSourceDescriptors({
+  const descriptorByKey = await collectSourceEntries({
     manifest,
     frontComponentSourcePaths,
   });
 
+  const sortedKeys = [...descriptorByKey.keys()].sort();
   const localesDir = path.join(appPath, LOCALES_DIR);
 
   await ensureDir(localesDir);
 
-  // The source file carries the message as its own translation, so a
-  // translator sees the original next to every hole they are filling.
+  const sourceCatalog: Record<string, string> = {};
+
+  for (const key of sortedKeys) {
+    const descriptor = descriptorByKey.get(key);
+
+    if (isDefined(descriptor)) {
+      sourceCatalog[key] = descriptor.message;
+    }
+  }
+
   await writeJson(
     path.join(localesDir, `${SOURCE_LOCALE}.json`),
-    buildLocaleCatalog(
-      descriptors.map(({ message, context }) => ({
-        message,
-        context,
-        translation: message,
-      })),
-    ),
+    sourceCatalog,
   );
 
   if (scaffoldLocale !== undefined && scaffoldLocale !== SOURCE_LOCALE) {
@@ -101,30 +105,19 @@ export const extractApplicationTranslations = async ({
   for (const localeFile of existingLocaleFiles) {
     const filePath = path.join(localesDir, localeFile);
     const existing = (await readJson<Record<string, unknown>>(filePath)) ?? {};
-    const existingTranslationByKey = new Map(
-      flattenLocaleCatalog(existing).map((entry) => [
-        getTranslationCatalogKey(entry.message, entry.context),
-        entry.translation,
-      ]),
-    );
+    const merged: Record<string, string> = {};
 
-    await writeJson(
-      filePath,
-      buildLocaleCatalog(
-        descriptors.map(({ message, context }) => ({
-          message,
-          context,
-          translation:
-            existingTranslationByKey.get(
-              getTranslationCatalogKey(message, context),
-            ) ?? '',
-        })),
-      ),
-    );
+    for (const key of sortedKeys) {
+      const existingValue = existing[key];
+
+      merged[key] = typeof existingValue === 'string' ? existingValue : '';
+    }
+
+    await writeJson(filePath, merged);
   }
 
   return {
-    sourceCount: descriptors.length,
+    sourceCount: sortedKeys.length,
     updatedLocaleFiles: existingLocaleFiles,
   };
 };

@@ -293,11 +293,13 @@ describe('beautifyDateDiff', () => {
 
 describe('French locale tests', () => {
   beforeAll(() => {
+    // Setup French i18n for these tests
     i18n.load('fr-FR', frMessages);
     i18n.activate('fr-FR');
   });
 
   afterAll(() => {
+    // Restore English for other tests
     i18n.load('en', enMessages);
     i18n.activate('en');
   });
@@ -354,6 +356,7 @@ describe('French locale tests', () => {
       const date = '2025-01-05T00:00:00.000Z';
       const dateToCompareWith = '2024-01-01T00:00:00.000Z';
       const result = beautifyDateDiff(date, dateToCompareWith, false, fr);
+      // Should use date-fns which handles French properly
       expect(result).toBeTruthy();
       expect(result.length).toBeGreaterThan(0);
     });

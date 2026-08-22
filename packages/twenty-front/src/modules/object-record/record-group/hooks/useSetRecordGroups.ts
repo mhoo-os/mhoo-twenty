@@ -56,10 +56,12 @@ export const useSetRecordGroups = () => {
         });
       const currentFieldMetadata = store.get(recordIndexGroupFieldMetadata);
 
+      // Set the field metadata linked to the record groups
       if (!isDeeplyEqual(fieldMetadata, currentFieldMetadata)) {
         store.set(recordIndexGroupFieldMetadata, fieldMetadata);
       }
 
+      // Set the record groups by id
       recordGroups.forEach((recordGroup) => {
         const existingRecordGroup = store.get(
           recordGroupDefinitionFamilyState.atomFamily(recordGroup.id),
@@ -77,10 +79,12 @@ export const useSetRecordGroups = () => {
 
       const recordGroupIds = recordGroups.map(({ id }) => id);
 
+      // Get ids that has been removed between the current and new record groups
       const removedRecordGroupIds = currentRecordGroupIds.filter(
         (id) => !recordGroupIds.includes(id),
       );
 
+      // Remove the record groups that has been removed
       removedRecordGroupIds.forEach((id) => {
         store.set(recordGroupDefinitionFamilyState.atomFamily(id), undefined);
       });
@@ -89,6 +93,7 @@ export const useSetRecordGroups = () => {
         return;
       }
 
+      // Set the record group ids
       store.set(
         recordGroupIdsComponentState.atomFamily({
           instanceId: recordIndexId,

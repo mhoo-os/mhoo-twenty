@@ -3,6 +3,5 @@ import { PlaintextString } from 'src/engine/core-modules/secret-encryption/brand
 export type TokenExchangeResponse = {
   accessToken: PlaintextString;
   refreshToken: PlaintextString | null;
-  idToken: PlaintextString | null;
   scopes: string[] | null;
 };

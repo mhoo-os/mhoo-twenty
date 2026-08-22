@@ -23,6 +23,9 @@ export const cacheStorageModuleFactory = (
   };
 
   switch (cacheStorageType) {
+    /* case CacheStorageType.Memory: {
+      return cacheModuleOptions;
+    }*/
     case CacheStorageType.Redis: {
       const redisUrl = twentyConfigService.get('REDIS_URL');
 

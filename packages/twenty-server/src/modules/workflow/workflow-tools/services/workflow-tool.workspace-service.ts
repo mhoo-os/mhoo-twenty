@@ -79,6 +79,7 @@ export class WorkflowToolWorkspaceService {
     };
   }
 
+  // Generates static workflow tools that don't depend on workspace objects
   generateWorkflowTools(
     workspaceId: string,
     rolePermissionConfig: RolePermissionConfig,

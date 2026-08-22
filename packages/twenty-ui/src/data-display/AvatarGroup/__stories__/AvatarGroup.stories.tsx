@@ -16,6 +16,7 @@ import {
 } from '@ui/data-display/AvatarGroup/AvatarGroup';
 
 const makeAvatar = (userName: string, props: Partial<AvatarProps> = {}) => (
+  // oxlint-disable-next-line react/jsx-props-no-spreading
   <Avatar placeholder={userName} placeholderColorSeed={userName} {...props} />
 );
 

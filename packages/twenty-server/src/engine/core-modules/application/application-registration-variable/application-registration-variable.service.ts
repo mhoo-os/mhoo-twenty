@@ -15,7 +15,6 @@ import {
 } from 'src/engine/core-modules/application/application-registration/application-registration.exception';
 import { type CreateApplicationRegistrationVariableInput } from 'src/engine/core-modules/application/application-registration-variable/dtos/create-application-registration-variable.input';
 import { type UpdateApplicationRegistrationVariableInput } from 'src/engine/core-modules/application/application-registration-variable/dtos/update-application-registration-variable.input';
-import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
 import { SecretEncryptionService } from 'src/engine/core-modules/secret-encryption/secret-encryption.service';
 import { ApplicationRegistrationVariableDTO } from 'src/engine/core-modules/application/application-registration-variable/dtos/application-registration-variable.dto';
 
@@ -59,7 +58,7 @@ export class ApplicationRegistrationVariableService {
   async createVariable(
     input: CreateApplicationRegistrationVariableInput,
     workspaceId: string,
-  ): Promise<ApplicationRegistrationVariableDTO> {
+  ): Promise<ApplicationRegistrationVariableEntity> {
     await this.assertRegistrationOwnedByWorkspace(
       input.applicationRegistrationId,
       workspaceId,
@@ -75,13 +74,13 @@ export class ApplicationRegistrationVariableService {
       isSecret: input.isSecret ?? true,
     });
 
-    return this.toObfuscatedDTO(await this.variableRepository.save(variable));
+    return this.variableRepository.save(variable);
   }
 
   async updateVariable(
     input: UpdateApplicationRegistrationVariableInput,
     workspaceId: string,
-  ): Promise<ApplicationRegistrationVariableDTO> {
+  ): Promise<ApplicationRegistrationVariableEntity> {
     const variable = await this.findVariableOrThrow(input.id);
 
     await this.assertRegistrationOwnedByWorkspace(
@@ -89,7 +88,7 @@ export class ApplicationRegistrationVariableService {
       workspaceId,
     );
 
-    return this.toObfuscatedDTO(await this.applyVariableUpdate(input));
+    return this.applyVariableUpdate(input);
   }
 
   async updateVariableGlobal(
@@ -137,15 +136,12 @@ export class ApplicationRegistrationVariableService {
 
     for (const [key, schema] of Object.entries(serverVariables)) {
       const existing = existingByKey.get(key);
-      const isDeprecated = schema.isDeprecated ?? false;
-      const isRequired = isDeprecated ? false : (schema.isRequired ?? false);
 
       if (existing) {
         await variableRepository.update(existing.id, {
           description: schema.description ?? '',
           isSecret: schema.isSecret ?? true,
-          isRequired,
-          isDeprecated,
+          isRequired: schema.isRequired ?? false,
           type: schema.type ?? FieldMetadataType.TEXT,
           options: schema.options ?? null,
         });
@@ -154,13 +150,10 @@ export class ApplicationRegistrationVariableService {
           variableRepository.create({
             applicationRegistrationId,
             key,
-            encryptedValue: this.encryptionService.encryptVersioned(
-              '' as PlaintextString,
-            ),
+            encryptedValue: '',
             description: schema.description ?? '',
             isSecret: schema.isSecret ?? true,
-            isRequired,
-            isDeprecated,
+            isRequired: schema.isRequired ?? false,
             type: schema.type ?? FieldMetadataType.TEXT,
             options: schema.options ?? null,
           }),
@@ -207,7 +200,7 @@ export class ApplicationRegistrationVariableService {
           (variable) =>
             variable.applicationRegistrationId === id && variable.isRequired,
         )
-        .every((variable) => this.isVariableFilled(variable));
+        .every((variable) => variable.isFilled);
 
       const isInstalledOnOwnerWorkspace = installedApps.some(
         (app) =>
@@ -277,9 +270,7 @@ export class ApplicationRegistrationVariableService {
     }
 
     if (isDefined(update.resetValue) && update.resetValue) {
-      updateData.encryptedValue = this.encryptionService.encryptVersioned(
-        '' as PlaintextString,
-      );
+      updateData.encryptedValue = '';
     }
 
     if (isDefined(update.description)) {
@@ -293,34 +284,20 @@ export class ApplicationRegistrationVariableService {
     return this.variableRepository.findOneOrFail({ where: { id } });
   }
 
-  private decryptValue(
-    variable: ApplicationRegistrationVariableEntity,
-  ): string {
-    return this.encryptionService.decryptVersionedOrThrow(
-      variable.encryptedValue,
-    );
-  }
-
-  private isVariableFilled(
-    variable: ApplicationRegistrationVariableEntity,
-  ): boolean {
-    return this.decryptValue(variable) !== '';
-  }
-
   private toObfuscatedDTO(
     variable: ApplicationRegistrationVariableEntity,
   ): ApplicationRegistrationVariableDTO {
-    const plaintextValue = this.decryptValue(variable);
-    const isFilled = plaintextValue !== '';
+    const { encryptedValue } = variable;
 
     return {
       ...variable,
-      isFilled,
-      value: !isFilled
-        ? null
-        : variable.isSecret
-          ? '•••••••••••••'
-          : plaintextValue,
+      isFilled: variable.isFilled,
+      value:
+        encryptedValue !== ''
+          ? variable.isSecret
+            ? '•••••••••••••'
+            : this.encryptionService.decryptVersionedOrThrow(encryptedValue)
+          : null,
     };
   }
 

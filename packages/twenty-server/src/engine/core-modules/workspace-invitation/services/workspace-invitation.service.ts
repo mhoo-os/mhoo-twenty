@@ -300,7 +300,6 @@ export class WorkspaceInvitationService {
       this.twentyConfigService.get('IS_BILLING_ENABLED') &&
       (isOnboardingInviteRewardOverride ??
         (await this.onboardingService.isOnboardingInviteTeamPending({
-          userId: sender.userId,
           workspaceId: workspace.id,
         })));
 
@@ -396,12 +395,9 @@ export class WorkspaceInvitationService {
       }
     }
 
-    await this.onboardingService.completeOnboardingInviteTeamStep({
-      userId: sender.userId,
+    await this.onboardingService.setOnboardingInviteTeamPending({
       workspaceId: workspace.id,
-      hasSentInvitations: invitationResults.some(
-        (invitationResult) => invitationResult.status === 'fulfilled',
-      ),
+      value: false,
     });
 
     const i18n = this.i18nService.getI18nInstance(sender.locale);
@@ -504,6 +500,7 @@ export class WorkspaceInvitationService {
     emails: string[],
   ) {
     try {
+      //limit invitation sending for specific invite emails
       await Promise.all(
         emails.map(async (email) => {
           await this.throttlerService.tokenBucketThrottleOrThrow(
@@ -519,6 +516,7 @@ export class WorkspaceInvitationService {
         }),
       );
 
+      //limit invitation sending for a specific workspace
       await this.throttlerService.tokenBucketThrottleOrThrow(
         `invitation-resending-workspace:throttler:${workspaceId}`,
         emails.length,

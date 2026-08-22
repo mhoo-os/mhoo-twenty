@@ -14,7 +14,7 @@ export const DuplicateDashboardSingleRecordCommand = () => {
   const recordId = selectedRecords[0]?.id;
   const { duplicateDashboard } = useDuplicateDashboard();
   const navigate = useNavigateApp();
-  const { enqueueSuccessSnackBar } = useSnackBar();
+  const { enqueueSuccessSnackBar, enqueueErrorSnackBar } = useSnackBar();
   const { t } = useLingui();
 
   if (!isDefined(recordId)) {
@@ -32,6 +32,10 @@ export const DuplicateDashboardSingleRecordCommand = () => {
       navigate(AppPath.RecordShowPage, {
         objectNameSingular: CoreObjectNameSingular.Dashboard,
         objectRecordId: result.id,
+      });
+    } else {
+      enqueueErrorSnackBar({
+        message: t`Failed to duplicate dashboard`,
       });
     }
   };

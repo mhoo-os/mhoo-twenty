@@ -32,23 +32,22 @@ export class ApplicationVariableEntityService {
   ) {}
 
   getDisplayValue(applicationVariable: ApplicationVariableEntity): string {
-    const plaintextValue = this.secretEncryptionService.decryptVersionedOrThrow(
-      applicationVariable.value,
-      { workspaceId: applicationVariable.workspaceId },
-    );
-
-    if (plaintextValue === '') {
+    if (applicationVariable.value === '') {
       return '';
     }
 
     if (applicationVariable.isSecret) {
-      return this.secretEncryptionService.maskDecryptedValue(
-        plaintextValue,
-        SECRET_APPLICATION_VARIABLE_MASK,
-      );
+      return this.secretEncryptionService.decryptAndMaskVersioned({
+        value: applicationVariable.value,
+        mask: SECRET_APPLICATION_VARIABLE_MASK,
+        workspaceId: applicationVariable.workspaceId,
+      });
     }
 
-    return plaintextValue;
+    return this.secretEncryptionService.decryptVersionedOrThrow(
+      applicationVariable.value,
+      { workspaceId: applicationVariable.workspaceId },
+    );
   }
 
   async getServerEnvVariables(
@@ -116,6 +115,10 @@ export class ApplicationVariableEntityService {
     value,
     workspaceId,
   }: FlatApplicationVariable): string {
+    if (value === '') {
+      return '';
+    }
+
     return this.secretEncryptionService.decryptVersionedOrThrow(value, {
       workspaceId,
     });

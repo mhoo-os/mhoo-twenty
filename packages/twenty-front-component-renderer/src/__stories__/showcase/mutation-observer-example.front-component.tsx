@@ -1,36 +1,11 @@
 import { defineFrontComponent } from 'twenty-sdk/define';
 import { useEffect, useRef, useState } from 'react';
-import { isDefined } from 'twenty-shared/utils';
 
-type ObservedMutationEntry = {
-  type: string;
-  addedItems: string[];
-  removedItems: string[];
-  hasPreviousSibling: boolean;
-  hasNextSibling: boolean;
-};
-
-const readItemName = (node: Node): string | null =>
-  node instanceof Element ? node.getAttribute('data-item') : null;
-
-const readItemNames = (nodes: NodeList): string[] =>
-  Array.from(nodes).map(readItemName).filter(isDefined);
-
-const toObservedMutationEntry = (
-  record: MutationRecord,
-): ObservedMutationEntry => ({
-  type: record.type,
-  addedItems: readItemNames(record.addedNodes),
-  removedItems: readItemNames(record.removedNodes),
-  hasPreviousSibling: isDefined(record.previousSibling),
-  hasNextSibling: isDefined(record.nextSibling),
-});
-
+// Exercises real MutationObserver semantics inside the sandbox worker: the
+// observer must fire for React-driven insertions into the observed subtree.
 const MutationObserverComponent = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [observedMutations, setObservedMutations] = useState<
-    ObservedMutationEntry[]
-  >([]);
+  const [observedMutationCount, setObservedMutationCount] = useState(0);
   const [items, setItems] = useState<string[]>([]);
 
   useEffect(() => {
@@ -41,15 +16,11 @@ const MutationObserverComponent = () => {
     }
 
     const observer = new MutationObserver((records) => {
-      const containerEntries = records
-        .filter((record) => record.target === container)
-        .map(toObservedMutationEntry);
+      const childListRecordCount = records.filter(
+        (record) => record.type === 'childList',
+      ).length;
 
-      if (containerEntries.length === 0) {
-        return;
-      }
-
-      setObservedMutations((previous) => [...previous, ...containerEntries]);
+      setObservedMutationCount((previous) => previous + childListRecordCount);
     });
 
     observer.observe(container, { childList: true, subtree: true });
@@ -72,16 +43,14 @@ const MutationObserverComponent = () => {
       </button>
       <div ref={containerRef} data-testid="mutation-observer-container">
         {items.map((item) => (
-          <span key={item} data-item={item}>
-            {item}{' '}
-          </span>
+          <span key={item}>{item} </span>
         ))}
       </div>
       <p
-        data-testid="mutation-observer-status"
-        data-observed-records={JSON.stringify(observedMutations)}
+        data-testid="mutation-observer-count"
+        data-observed={observedMutationCount}
       >
-        Mutations observed: {observedMutations.length}
+        Mutations observed: {observedMutationCount}
       </p>
     </div>
   );

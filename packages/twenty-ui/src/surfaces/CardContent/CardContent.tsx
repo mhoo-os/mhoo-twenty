@@ -25,6 +25,7 @@ export const CardContent = ({
       data-divider={divider || undefined}
       data-clickable={isClickable || undefined}
       data-hover-highlight={hasHoverHighlight || undefined}
+      // oxlint-disable-next-line react/jsx-props-no-spreading
       {...rest}
     >
       {children}

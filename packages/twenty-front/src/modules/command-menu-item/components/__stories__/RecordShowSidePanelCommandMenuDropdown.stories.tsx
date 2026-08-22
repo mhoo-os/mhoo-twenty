@@ -1,4 +1,3 @@
-import { CommandMenuItemContainerType } from '@/command-menu-item/types/CommandMenuItemContainerType';
 import { type Meta, type StoryObj } from '@storybook/react-vite';
 import { Provider as JotaiProvider } from 'jotai';
 import { userEvent, within } from 'storybook/test';
@@ -39,8 +38,7 @@ const meta: Meta<typeof RecordPageSidePanelCommandMenuDropdown> = {
               <CommandMenuContext.Provider
                 value={{
                   displayType: 'dropdownItem',
-                  containerType:
-                    CommandMenuItemContainerType.CommandMenuShowPageDropdown,
+                  containerType: 'command-menu-show-page-dropdown',
                   commandMenuItems: createMockCommandMenuItems(),
                   commandMenuContextApi: {
                     ...EMPTY_COMMAND_MENU_CONTEXT_API,
@@ -84,19 +82,19 @@ export const WithButtonClicks: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
 
-    let actionButton = await canvas.findByRole('button', { name: 'Options' });
+    let actionButton = await canvas.findByText('Options');
     await userEvent.click(actionButton);
 
     const deleteButton = await canvas.findByText('Delete');
     await userEvent.click(deleteButton);
 
-    actionButton = await canvas.findByRole('button', { name: 'Options' });
+    actionButton = await canvas.findByText('Options');
     await userEvent.click(actionButton);
 
     const addToFavoritesButton = await canvas.findByText('Add to favorites');
     await userEvent.click(addToFavoritesButton);
 
-    actionButton = await canvas.findByRole('button', { name: 'Options' });
+    actionButton = await canvas.findByText('Options');
     await userEvent.click(actionButton);
 
     const exportButton = await canvas.findByText('Export');

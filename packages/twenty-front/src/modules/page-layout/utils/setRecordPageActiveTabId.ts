@@ -4,6 +4,7 @@ import { isDefined } from 'twenty-shared/utils';
 
 import { objectMetadataItemFamilySelector } from '@/object-metadata/states/objectMetadataItemFamilySelector';
 import { recordPageLayoutByObjectMetadataIdFamilySelector } from '@/page-layout/states/selectors/recordPageLayoutByObjectMetadataIdFamilySelector';
+import { getDefaultRecordPageLayoutId } from '@/page-layout/utils/getDefaultRecordPageLayoutId';
 import { getTabListInstanceIdFromPageLayoutAndRecord } from '@/page-layout/utils/getTabListInstanceIdFromPageLayoutAndRecord';
 import { activeTabIdComponentState } from '@/ui/layout/tab-list/states/activeTabIdComponentState';
 import { PageLayoutType } from '~/generated-metadata/graphql';
@@ -41,11 +42,11 @@ export const setRecordPageActiveTabId = ({
     }),
   );
 
-  if (!isDefined(recordPageLayout)) {
-    return;
-  }
-
-  const pageLayoutId = recordPageLayout.id;
+  const pageLayoutId = isDefined(recordPageLayout)
+    ? recordPageLayout.id
+    : getDefaultRecordPageLayoutId({
+        targetObjectNameSingular: objectNameSingular,
+      });
 
   const tabListInstanceId = getTabListInstanceIdFromPageLayoutAndRecord({
     pageLayoutId,

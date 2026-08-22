@@ -17,7 +17,7 @@ const StyledLayout = styled.div`
   background: ${themeCssVariables.grayScale.gray3};
   display: flex;
   flex-direction: column;
-  height: calc(100dvh / var(--t-zoom, 1));
+  height: 100dvh;
   overflow: hidden;
   position: relative;
   scrollbar-color: ${themeCssVariables.border.color.medium} transparent;

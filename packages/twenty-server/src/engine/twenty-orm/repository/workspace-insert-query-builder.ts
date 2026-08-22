@@ -115,21 +115,16 @@ export class WorkspaceInsertQueryBuilder<
     return super.values(formattedValues);
   }
 
-  private validateQueryPermissionsOrThrow(): void {
-    validateQueryIsPermittedOrThrow({
-      expressionMap: this.expressionMap,
-      objectsPermissions: this.objectRecordsPermissions,
-      flatObjectMetadataMaps: this.internalContext.flatObjectMetadataMaps,
-      flatFieldMetadataMaps: this.internalContext.flatFieldMetadataMaps,
-      objectIdByNameSingular: this.internalContext.objectIdByNameSingular,
-      shouldBypassPermissionChecks: this.shouldBypassPermissionChecks,
-      authContext: this.authContext,
-    });
-  }
-
   override async execute(): Promise<InsertResult> {
     try {
-      this.validateQueryPermissionsOrThrow();
+      validateQueryIsPermittedOrThrow({
+        expressionMap: this.expressionMap,
+        objectsPermissions: this.objectRecordsPermissions,
+        flatObjectMetadataMaps: this.internalContext.flatObjectMetadataMaps,
+        flatFieldMetadataMaps: this.internalContext.flatFieldMetadataMaps,
+        objectIdByNameSingular: this.internalContext.objectIdByNameSingular,
+        shouldBypassPermissionChecks: this.shouldBypassPermissionChecks,
+      });
 
       // Fix overwrites for composite fields - valuesSet contains formatted/flattened column names
       // but overwrites was computed before formatData, missing composite field columns
@@ -222,8 +217,6 @@ export class WorkspaceInsertQueryBuilder<
           });
 
         this.expressionMap.valuesSet = updatedValues;
-
-        this.validateQueryPermissionsOrThrow();
       }
 
       this.validateRLSPredicatesForInsert();

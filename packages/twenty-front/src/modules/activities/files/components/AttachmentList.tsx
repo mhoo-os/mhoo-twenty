@@ -62,7 +62,7 @@ const StyledLoadingContainer = styled.div`
   align-items: center;
   background: ${themeCssVariables.background.primary};
   display: flex;
-  height: calc(80vh / var(--t-zoom, 1));
+  height: 80vh;
   justify-content: center;
   width: 100%;
 `;

@@ -126,7 +126,6 @@ import { MessagingMonitoringModule } from 'src/modules/messaging/monitoring/mess
     MessagingProcessGroupEmailActionsService,
     InboundEmailImportService,
     MessagingSaveMessagesAndEnqueueContactCreationService,
-    MessagingMessagesImportService,
   ],
 })
 export class MessagingImportManagerModule {}

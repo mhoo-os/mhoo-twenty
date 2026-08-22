@@ -4,7 +4,7 @@ import { RoundedLink, SocialLink } from 'twenty-ui/navigation';
 import { checkUrlType } from '~/utils/checkUrlType';
 import { isSocialLinkType } from '~/utils/isSocialLinkType';
 import { getSafeUrl } from 'twenty-shared/utils';
-import { EllipsisDisplay } from 'twenty-ui/data-display';
+import { EllipsisDisplay } from './EllipsisDisplay';
 
 type URLDisplayProps = {
   value: string | null;

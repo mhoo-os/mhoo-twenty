@@ -15,7 +15,6 @@ import {
 import { UUIDScalarType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/scalars';
 import { BillingEntitlementEntity } from 'src/engine/core-modules/billing/entities/billing-entitlement.entity';
 import { BillingSubscriptionEntity } from 'src/engine/core-modules/billing/entities/billing-subscription.entity';
-import { bigintColumnTransformer } from 'src/engine/core-modules/billing/utils/bigint-column-transformer.util';
 import { WorkspaceRelatedEntity } from 'src/engine/workspace-manager/types/workspace-related-entity';
 
 @Entity({ name: 'billingCustomer', schema: 'core' })
@@ -49,7 +48,11 @@ export class BillingCustomerEntity extends WorkspaceRelatedEntity {
     type: 'bigint',
     nullable: false,
     default: 0,
-    transformer: bigintColumnTransformer,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number | null) =>
+        typeof value === 'string' ? Number(value) : (value ?? 0),
+    },
   })
   creditBalanceMicro: number;
 

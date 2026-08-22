@@ -7,10 +7,9 @@ import {
   DEFAULT_APP_ACCESS_TOKEN_NAME,
   DEFAULT_FUNCTIONS_URL_NAME,
 } from 'twenty-shared/application';
-import { type LogicFunctionExecutionContext } from 'twenty-shared/logic-function';
 import { FeatureFlagKey } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { v4 } from 'uuid';
 
 import {
@@ -110,7 +109,6 @@ export class LogicFunctionExecutorService {
     userId,
     userWorkspaceId,
     executionMode,
-    context = { retryCount: 0, maxRetries: 0 },
   }: {
     logicFunctionId: string;
     workspaceId: string;
@@ -118,7 +116,6 @@ export class LogicFunctionExecutorService {
     userId?: string;
     userWorkspaceId?: string;
     executionMode?: LogicFunctionExecutionMode;
-    context?: LogicFunctionExecutionContext;
   }): Promise<LogicFunctionExecuteResult> {
     const { flatApplication, flatLogicFunction, applicationVariableMaps } =
       await this.getFlatEntitiesOrThrow({
@@ -163,7 +160,6 @@ export class LogicFunctionExecutorService {
         flatApplication,
         applicationUniversalIdentifier: flatApplication.universalIdentifier,
         payload,
-        context,
         env: envVariables,
         timeoutMs: flatLogicFunction.timeoutSeconds * 1_000,
         forceExecutionMode: effectiveExecutionMode,
@@ -407,19 +403,20 @@ export class LogicFunctionExecutorService {
 
     const serverVariables =
       await this.applicationRegistrationVariableRepository.find({
-        where: { applicationRegistrationId },
+        where: {
+          applicationRegistrationId,
+          encryptedValue: Not(''),
+        },
       });
 
     const envMap: Record<string, string> = {};
 
     for (const variable of serverVariables) {
-      const plaintextValue =
-        this.secretEncryptionService.decryptVersionedOrThrow(
-          variable.encryptedValue,
-        );
-
-      if (plaintextValue !== '') {
-        envMap[variable.key] = plaintextValue;
+      if (variable.encryptedValue !== '') {
+        envMap[variable.key] =
+          this.secretEncryptionService.decryptVersionedOrThrow(
+            variable.encryptedValue,
+          );
       }
     }
 

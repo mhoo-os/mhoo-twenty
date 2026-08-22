@@ -74,6 +74,7 @@ export class UpdateRecordService {
         };
       }
 
+      // Filter objectRecord to only include fieldsToUpdate
       const filteredObjectRecord = Object.keys(objectRecord).reduce(
         (acc, key) => {
           if (fieldsToUpdateArray.includes(key)) {

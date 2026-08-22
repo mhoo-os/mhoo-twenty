@@ -1,5 +1,6 @@
 import { useIsSettingsPage } from '@/navigation/hooks/useIsSettingsPage';
-import { useIsNavigationDrawerContentExpanded } from '@/navigation/hooks/useIsNavigationDrawerContentExpanded';
+import { isNavigationDrawerExpandedState } from '@/ui/navigation/states/isNavigationDrawerExpanded';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { styled } from '@linaria/react';
 import { type ReactNode, useContext } from 'react';
 import {
@@ -43,7 +44,9 @@ export const NavigationDrawerItemsCollapsableContainer = ({
 }: NavigationDrawerItemsCollapsableContainerProps) => {
   const { theme } = useContext(ThemeContext);
   const isSettingsPage = useIsSettingsPage();
-  const isNavigationDrawerExpanded = useIsNavigationDrawerContentExpanded();
+  const isNavigationDrawerExpanded = useAtomStateValue(
+    isNavigationDrawerExpandedState,
+  );
   const isExpanded = isNavigationDrawerExpanded || isSettingsPage;
 
   const animate: AnimationControls | TargetAndTransition = isExpanded

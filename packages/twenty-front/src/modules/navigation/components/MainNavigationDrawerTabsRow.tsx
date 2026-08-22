@@ -8,19 +8,22 @@ import {
 } from 'twenty-ui/icon';
 import { OverflowingTextWithTooltip } from 'twenty-ui/surfaces';
 import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
+import { useIsMobile } from 'twenty-ui/utilities';
 
 import { useContext } from 'react';
 
 import { useSwitchToNewAiChat } from '@/ai/hooks/useSwitchToNewAiChat';
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
 import { NavigationDrawerAnimatedCollapseWrapper } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerAnimatedCollapseWrapper';
-import { useIsNavigationDrawerContentExpanded } from '@/navigation/hooks/useIsNavigationDrawerContentExpanded';
+import { isNavigationDrawerExpandedState } from '@/ui/navigation/states/isNavigationDrawerExpanded';
 import { navigationDrawerActiveTabState } from '@/ui/navigation/states/navigationDrawerActiveTabState';
 import {
   type NavigationDrawerActiveTab,
   NAVIGATION_DRAWER_TABS,
 } from '@/ui/navigation/states/navigationDrawerTabs';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+import { useSetAtomState } from '@/ui/utilities/state/jotai/hooks/useSetAtomState';
 import { PermissionFlagType } from '~/generated-metadata/graphql';
 
 const StyledRow = styled.div<{ isExpanded: boolean }>`
@@ -146,12 +149,19 @@ export const MainNavigationDrawerTabsRow = ({
   navigationMenuTabLabel = t`Home`,
 }: MainNavigationDrawerTabsRowProps) => {
   const { theme } = useContext(ThemeContext);
+  const isMobile = useIsMobile();
+  const isNavigationDrawerExpanded = useAtomStateValue(
+    isNavigationDrawerExpandedState,
+  );
   const [navigationDrawerActiveTab, setNavigationDrawerActiveTab] =
     useAtomState(navigationDrawerActiveTabState);
   const { switchToNewChat } = useSwitchToNewAiChat();
+  const setIsNavigationDrawerExpanded = useSetAtomState(
+    isNavigationDrawerExpandedState,
+  );
   const hasAiPermission = useHasPermissionFlag(PermissionFlagType.AI);
 
-  const isExpanded = useIsNavigationDrawerContentExpanded();
+  const isExpanded = isNavigationDrawerExpanded || isMobile;
 
   if (!hasAiPermission) {
     return null;
@@ -170,6 +180,9 @@ export const MainNavigationDrawerTabsRow = ({
     };
 
   const handleNewChatClick = () => {
+    if (isMobile) {
+      setIsNavigationDrawerExpanded(false);
+    }
     switchToNewChat();
   };
 
@@ -183,28 +196,37 @@ export const MainNavigationDrawerTabsRow = ({
   const getTabIconColor = (isActive: boolean) =>
     isActive ? theme.font.color.primary : theme.font.color.tertiary;
 
-  // The mobile home page adds a settings tab this two-tab pill does not have, so
-  // anything that is not the chat tab belongs to the menu tab here.
-  const isNavigationMenuTabActive =
-    navigationDrawerActiveTab !== NAVIGATION_DRAWER_TABS.AI_CHAT_HISTORY;
-
   return (
     <StyledRow isExpanded={isExpanded}>
       <NavigationDrawerAnimatedCollapseWrapper>
         <StyledTabsPill role="tablist" aria-label={t`Navigation tabs`}>
           <StyledTabWrapper
-            isActive={isNavigationMenuTabActive}
+            isActive={
+              navigationDrawerActiveTab ===
+              NAVIGATION_DRAWER_TABS.NAVIGATION_MENU
+            }
             role="tab"
-            aria-selected={isNavigationMenuTabActive}
+            aria-selected={
+              navigationDrawerActiveTab ===
+              NAVIGATION_DRAWER_TABS.NAVIGATION_MENU
+            }
             aria-label={navigationMenuTabLabel}
-            tabIndex={isNavigationMenuTabActive ? 0 : -1}
+            tabIndex={
+              navigationDrawerActiveTab ===
+              NAVIGATION_DRAWER_TABS.NAVIGATION_MENU
+                ? 0
+                : -1
+            }
             onClick={handleTabClick(NAVIGATION_DRAWER_TABS.NAVIGATION_MENU)}
             onKeyDown={handleTabKeyDown(NAVIGATION_DRAWER_TABS.NAVIGATION_MENU)}
           >
             <StyledTabIcon>
               <NavigationMenuTabIcon
                 size={theme.icon.size.md}
-                color={getTabIconColor(isNavigationMenuTabActive)}
+                color={getTabIconColor(
+                  navigationDrawerActiveTab ===
+                    NAVIGATION_DRAWER_TABS.NAVIGATION_MENU,
+                )}
               />
             </StyledTabIcon>
           </StyledTabWrapper>

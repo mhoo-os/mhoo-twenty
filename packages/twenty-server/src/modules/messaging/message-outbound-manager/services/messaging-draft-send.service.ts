@@ -75,7 +75,7 @@ export class MessagingDraftSendService {
         const association =
           await messageChannelMessageAssociationRepository.findOne({
             where: { messageExternalId },
-            relations: { message: true },
+            relations: ['message'],
           });
 
         return association?.message?.messageThreadId ?? undefined;

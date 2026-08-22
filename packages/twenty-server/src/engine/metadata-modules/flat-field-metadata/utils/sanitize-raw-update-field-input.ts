@@ -20,8 +20,6 @@ import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-m
 import { nullifyEmptyCompositeDefaultValue } from 'src/engine/metadata-modules/flat-field-metadata/utils/nullify-empty-composite-default-value.util';
 import { belongsToTwentyStandardApp } from 'src/engine/metadata-modules/utils/belongs-to-twenty-standard-app.util';
 import { computeMetadataOverridesBlob } from 'src/engine/metadata-modules/utils/compute-metadata-overrides-blob.util';
-import { findInvalidTranslationOverrideProperties } from 'src/engine/metadata-modules/utils/find-invalid-translation-override-properties.util';
-import { mergeTranslationsIntoOverrides } from 'src/engine/metadata-modules/utils/merge-translations-into-overrides.util';
 
 type SanitizeRawUpdateFieldInputArgs = {
   rawUpdateFieldInput: UpdateFieldInput;
@@ -85,26 +83,10 @@ export const sanitizeRawUpdateFieldInput = ({
       });
   }
 
-  const translationEntries = rawUpdateFieldInput.translations ?? [];
-  const invalidTranslationProperties = findInvalidTranslationOverrideProperties(
-    translationEntries,
-    'fieldMetadata',
-  );
-
-  if (invalidTranslationProperties.length > 0) {
-    throw new FieldMetadataException(
-      `Cannot translate field metadata properties: ${invalidTranslationProperties.join(', ')}`,
-      FieldMetadataExceptionCode.FIELD_MUTATION_NOT_ALLOWED,
-    );
-  }
-
   if (!isStandardField || isSystemBuild) {
     return {
       updatedEditableFieldProperties,
-      overrides: mergeTranslationsIntoOverrides({
-        existingOverrides: existingFlatFieldMetadata.overrides,
-        translationEntries,
-      }),
+      overrides: null,
     };
   }
 
@@ -133,10 +115,7 @@ export const sanitizeRawUpdateFieldInput = ({
   });
 
   return {
-    overrides: mergeTranslationsIntoOverrides({
-      existingOverrides: overrides,
-      translationEntries,
-    }),
+    overrides,
     updatedEditableFieldProperties: remainingProperties,
   };
 };

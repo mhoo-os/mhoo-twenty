@@ -9,16 +9,15 @@ import { type CommonResponseBody } from 'test/integration/metadata/types/common-
 import { warnIfErrorButNotExpectedToFail } from 'test/integration/metadata/utils/warn-if-error-but-not-expected-to-fail.util';
 import { warnIfNoErrorButExpectedToFail } from 'test/integration/metadata/utils/warn-if-no-error-but-expected-to-fail.util';
 
-import { type ApplicationRegistrationVariableDTO } from 'src/engine/core-modules/application/application-registration-variable/dtos/application-registration-variable.dto';
+import { type ApplicationRegistrationVariableEntity } from 'src/engine/core-modules/application/application-registration-variable/application-registration-variable.entity';
 
 type VariableFields = Pick<
-  ApplicationRegistrationVariableDTO,
+  ApplicationRegistrationVariableEntity,
   | 'id'
   | 'key'
   | 'description'
   | 'isSecret'
   | 'isRequired'
-  | 'isDeprecated'
   | 'isFilled'
   | 'createdAt'
   | 'updatedAt'

@@ -50,7 +50,6 @@ export const useUpdateOneFieldMetadataItem = () => {
       | 'options'
       | 'settings'
       | 'isLabelSyncedWithName'
-      | 'translations'
     >;
   }): Promise<
     MetadataRequestResult<

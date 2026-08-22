@@ -32,7 +32,6 @@ export default defineConnectionProvider({
       'channels:history',
       'groups:history',
       'im:history',
-      'im:read',
       'users:read',
       'users:read.email',
       'assistant:write',

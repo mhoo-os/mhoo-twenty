@@ -19,21 +19,15 @@ const StyledContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  min-height: 0;
+  height: 100%;
   position: relative;
 `;
 
 type CampaignBodyFieldProps = {
   campaign: MessageCampaign;
-  // Lets the composer follow the canvas: its width is a per-campaign design
-  // setting, and the envelope block above lines up with it.
-  onEditorReady?: (editor: Editor | null) => void;
 };
 
-export const CampaignBodyField = ({
-  campaign,
-  onEditorReady,
-}: CampaignBodyFieldProps) => {
+export const CampaignBodyField = ({ campaign }: CampaignBodyFieldProps) => {
   const { body, setBody, flush, draftResyncKey } = useCampaignBodyState({
     campaign,
   });
@@ -47,9 +41,8 @@ export const CampaignBodyField = ({
     (editor: Editor | null) => {
       setActiveEmailEditor(editor);
       setBodyEditor(editor);
-      onEditorReady?.(editor);
     },
-    [setActiveEmailEditor, onEditorReady],
+    [setActiveEmailEditor],
   );
 
   return (

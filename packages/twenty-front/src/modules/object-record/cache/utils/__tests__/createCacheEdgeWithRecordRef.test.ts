@@ -11,6 +11,7 @@ import { createCacheEdgeWithRecordRef } from '@/object-record/cache/utils/create
 
 describe('createCacheEdgeWithRecordRef', () => {
   it('should create an edge with reference when toReference returns a reference', () => {
+    // Given
     const record: RecordGqlNode = {
       __typename: 'Person',
       id: '123',
@@ -26,12 +27,14 @@ describe('createCacheEdgeWithRecordRef', () => {
 
     const toReference: ToReferenceFunction = jest.fn(() => mockReference);
 
+    // When
     const result = createCacheEdgeWithRecordRef({
       record,
       objectMetadataItem,
       toReference,
     });
 
+    // Then
     expect(result).not.toBeNull();
     expect(result).toEqual({
       __typename: 'PersonEdge',
@@ -42,6 +45,7 @@ describe('createCacheEdgeWithRecordRef', () => {
   });
 
   it('should return null when toReference returns undefined', () => {
+    // Given
     const record: RecordGqlNode = {
       __typename: 'Person',
       id: '123',
@@ -53,12 +57,14 @@ describe('createCacheEdgeWithRecordRef', () => {
 
     const toReference: ToReferenceFunction = jest.fn(() => undefined);
 
+    // When
     const result = createCacheEdgeWithRecordRef({
       record,
       objectMetadataItem,
       toReference,
     });
 
+    // Then
     expect(result).toBeNull();
     expect(toReference).toHaveBeenCalledWith(record);
   });

@@ -1,6 +1,5 @@
 import {
   Controller,
-  Get,
   Param,
   Post,
   Req,
@@ -26,34 +25,6 @@ export class ServerRouteTriggerController {
     private readonly serverRouteTriggerService: ServerRouteTriggerService,
   ) {}
 
-  private async handleRequest(
-    resolverLogicFunctionUniversalIdentifier: string,
-    request: Request,
-    response: Response,
-  ) {
-    sendRouteTriggerResponse(
-      response,
-      await this.serverRouteTriggerService.handle({
-        request,
-        resolverLogicFunctionUniversalIdentifier,
-      }),
-    );
-  }
-
-  @Get(':resolverLogicFunctionUniversalIdentifier')
-  async get(
-    @Param('resolverLogicFunctionUniversalIdentifier')
-    resolverLogicFunctionUniversalIdentifier: string,
-    @Req() request: Request,
-    @Res() response: Response,
-  ) {
-    await this.handleRequest(
-      resolverLogicFunctionUniversalIdentifier,
-      request,
-      response,
-    );
-  }
-
   @Post(':resolverLogicFunctionUniversalIdentifier')
   async post(
     @Param('resolverLogicFunctionUniversalIdentifier')
@@ -61,10 +32,12 @@ export class ServerRouteTriggerController {
     @Req() request: Request,
     @Res() response: Response,
   ) {
-    await this.handleRequest(
-      resolverLogicFunctionUniversalIdentifier,
-      request,
+    sendRouteTriggerResponse(
       response,
+      await this.serverRouteTriggerService.handle({
+        request,
+        resolverLogicFunctionUniversalIdentifier,
+      }),
     );
   }
 }

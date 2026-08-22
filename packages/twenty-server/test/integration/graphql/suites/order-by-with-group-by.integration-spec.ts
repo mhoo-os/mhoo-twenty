@@ -195,6 +195,7 @@ describe('group-by resolvers - order by', () => {
       expect(groups).toBeDefined();
       expect(Array.isArray(groups)).toBe(true);
 
+      // Extract group info for easier assertions
       const groupInfos = groups.map((g: any) => ({
         city: g.groupByDimensionValues?.[0],
         dayOfWeek: g.groupByDimensionValues?.[1],
@@ -203,6 +204,7 @@ describe('group-by resolvers - order by', () => {
         totalCount: g.totalCount,
       }));
 
+      // Order by dayOfWeek (chronological) then avgEmployees then city
       expect(groupInfos).toEqual([
         {
           city: 'Dallas',
@@ -282,6 +284,7 @@ describe('group-by resolvers - order by', () => {
         totalCount: g.totalCount,
       }));
 
+      // Order by dayOfWeek (chronological) then addressCity then avgEmployees
       expect(groupInfos).toEqual([
         {
           city: 'Anvers',

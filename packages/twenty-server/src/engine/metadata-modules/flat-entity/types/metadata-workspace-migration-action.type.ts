@@ -6,6 +6,7 @@ import { type WORKSPACE_MIGRATION_ACTION_TYPE } from 'src/engine/workspace-manag
 export type WorkspaceMigrationActionType =
   keyof typeof WORKSPACE_MIGRATION_ACTION_TYPE;
 
+// Universal action types (use universal identifiers)
 export type MetadataUniversalWorkspaceMigrationActionsRecord<
   T extends AllMetadataName,
 > = {

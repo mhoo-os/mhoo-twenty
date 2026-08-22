@@ -1,7 +1,5 @@
-import { interpolateCommandMenuItemPlaceholders } from 'twenty-shared/i18n';
 import { type CommandMenuContextApi, type Nullable } from 'twenty-shared/types';
-import { isDefined } from 'twenty-shared/utils';
-import { getCommandMenuItemPlaceholderValues } from '@/command-menu-item/utils/getCommandMenuItemPlaceholderValues';
+import { interpolateCommandMenuItemTemplate } from 'twenty-shared/utils';
 import { type CommandMenuItemFieldsFragment } from '~/generated-metadata/graphql';
 
 type InterpolatedCommandMenuItemFields = {
@@ -11,19 +9,24 @@ type InterpolatedCommandMenuItemFields = {
 };
 
 export const interpolateCommandMenuItemFields = (
-  item: Pick<CommandMenuItemFieldsFragment, 'label' | 'shortLabel' | 'icon'>,
+  item: CommandMenuItemFieldsFragment,
   commandMenuContextApi: CommandMenuContextApi,
 ): InterpolatedCommandMenuItemFields => {
-  const values = getCommandMenuItemPlaceholderValues(commandMenuContextApi);
+  const iconKey = interpolateCommandMenuItemTemplate({
+    label: item.icon,
+    context: commandMenuContextApi,
+  });
 
-  const interpolate = (value: Nullable<string>): Nullable<string> =>
-    isDefined(value)
-      ? interpolateCommandMenuItemPlaceholders(value, values)
-      : value;
+  const label =
+    interpolateCommandMenuItemTemplate({
+      label: item.label,
+      context: commandMenuContextApi,
+    }) ?? item.label;
 
-  return {
-    iconKey: interpolate(item.icon),
-    label: interpolateCommandMenuItemPlaceholders(item.label, values),
-    shortLabel: interpolate(item.shortLabel),
-  };
+  const shortLabel = interpolateCommandMenuItemTemplate({
+    label: item.shortLabel,
+    context: commandMenuContextApi,
+  });
+
+  return { iconKey, label, shortLabel };
 };

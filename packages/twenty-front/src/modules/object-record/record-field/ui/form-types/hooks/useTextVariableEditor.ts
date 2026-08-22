@@ -70,6 +70,7 @@ export const useTextVariableEditor = ({
         if (event.key === 'Enter' && !event.shiftKey) {
           event.preventDefault();
 
+          // Insert hard break using the view's state and dispatch
           if (multiline === true) {
             const { state } = view;
             const { tr } = state;
@@ -90,6 +91,7 @@ export const useTextVariableEditor = ({
           state: { schema, tr },
         } = view;
 
+        // Format pasted JSON content with pretty-printing
         if (isJsonObject(plainText)) {
           const parsedJson = parseJson<JsonValue>(plainText);
           const formattedJson = multiline
@@ -107,6 +109,7 @@ export const useTextVariableEditor = ({
           return true;
         }
 
+        // In multiline mode, convert newlines to hardBreak nodes
         if (multiline && plainText.includes('\n')) {
           const docNode = schema.nodeFromJSON(
             getInitialEditorContent(plainText),

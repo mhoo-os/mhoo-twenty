@@ -12,6 +12,7 @@ describe('DefaultSlashCommands', () => {
   let editor: Editor;
 
   beforeEach(() => {
+    // Initialize i18n for tests
     i18n.load('en', {});
     i18n.activate('en');
 
@@ -43,6 +44,7 @@ describe('DefaultSlashCommands', () => {
         expect(command).toHaveProperty('getIsVisible');
         expect(command).toHaveProperty('getOnSelect');
 
+        // Verify functions are actually functions
         expect(typeof command.getIsActive).toBe('function');
         expect(typeof command.getIsVisible).toBe('function');
         expect(typeof command.getOnSelect).toBe('function');
@@ -58,6 +60,7 @@ describe('DefaultSlashCommands', () => {
 
     it('should have translatable message descriptors for titles', () => {
       DEFAULT_SLASH_COMMANDS.forEach((command) => {
+        // MessageDescriptor should have an id property
         expect(command.title).toHaveProperty('id');
         expect(typeof command.title.id).toBe('string');
       });
@@ -105,7 +108,9 @@ describe('DefaultSlashCommands', () => {
         (cmd) => cmd.id === 'paragraph',
       );
 
+      // Paragraph command should have a getIsVisible function
       expect(typeof paragraphCommand?.getIsVisible).toBe('function');
+      // Result should be a boolean
       expect(typeof paragraphCommand?.getIsVisible(editor)).toBe('boolean');
     });
   });
@@ -260,6 +265,7 @@ describe('DefaultSlashCommands', () => {
     it('should have heading keywords for heading commands', () => {
       const h1Command = DEFAULT_SLASH_COMMANDS.find((cmd) => cmd.id === 'h1');
 
+      // Should have keywords array
       expect(h1Command?.keywords.length).toBeGreaterThan(0);
     });
 

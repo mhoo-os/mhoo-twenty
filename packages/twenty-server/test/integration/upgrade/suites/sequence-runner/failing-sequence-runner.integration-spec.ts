@@ -210,6 +210,7 @@ describe('UpgradeSequenceRunnerService — failing sequence (integration)', () =
     const executed = await testGetExecutedMigrationsInOrder(context.dataSource);
 
     expect(executed.map(migrationRecordToKey)).toStrictEqual([
+      // Seeds
       'Ic1:instance:completed:1',
 
       // Ic2 attempted and failed
@@ -251,6 +252,7 @@ describe('UpgradeSequenceRunnerService — failing sequence (integration)', () =
     const executed = await testGetExecutedMigrationsInOrder(context.dataSource);
 
     expect(executed.map(migrationRecordToKey)).toStrictEqual([
+      // Seeds
       'Ic1:instance:completed:1',
       `Ic1:${WS_1}:completed:1`,
 
@@ -286,6 +288,7 @@ describe('UpgradeSequenceRunnerService — failing sequence (integration)', () =
     const executed = await testGetExecutedMigrationsInOrder(context.dataSource);
 
     expect(executed.map(migrationRecordToKey)).toStrictEqual([
+      // Seeds
       `Wc1:${WS_1}:failed:1`,
 
       // Runner retries Wc1, still fails — Ic1 never reached
@@ -347,6 +350,7 @@ describe('UpgradeSequenceRunnerService — failing sequence (integration)', () =
     const executed = await testGetExecutedMigrationsInOrder(context.dataSource);
 
     expect(executed.map(migrationRecordToKey)).toStrictEqual([
+      // Seeds
       `Wc0:${WS_1}:completed:1`,
       `Wc0:${WS_2}:completed:1`,
       'Ic1:instance:completed:1',

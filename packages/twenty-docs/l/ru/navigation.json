@@ -145,14 +145,6 @@
               "label": "Инструкции"
             }
           }
-        },
-        "legal": {
-          "label": "Юридическая информация",
-          "groups": {
-            "legalHowTos": {
-              "label": "Инструкции"
-            }
-          }
         }
       }
     },
@@ -168,9 +160,6 @@
             "appsGettingStarted": {
               "label": "Начало работы"
             },
-            "appsTutorial": {
-              "label": "Обучение"
-            },
             "appsConfig": {
               "label": "Конфигурация"
             },
@@ -185,9 +174,6 @@
             },
             "appsOperations": {
               "label": "Операции"
-            },
-            "appsTranslations": {
-              "label": "Переводы"
             }
           }
         },

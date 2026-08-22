@@ -8,13 +8,6 @@ export const parseCalDAVError = (
 ): CalendarEventImportDriverException => {
   const { message } = error;
 
-  if (message.includes('Invalid credentials')) {
-    return new CalendarEventImportDriverException(
-      message,
-      CalendarEventImportDriverExceptionCode.INSUFFICIENT_PERMISSIONS,
-    );
-  }
-
   switch (message) {
     case 'Collection does not exist on server':
       return new CalendarEventImportDriverException(
@@ -22,7 +15,6 @@ export const parseCalDAVError = (
         CalendarEventImportDriverExceptionCode.NOT_FOUND,
       );
 
-    case 'cannot find principalUrl':
     case 'no account for smartCollectionSync':
     case 'no account for fetchAddressBooks':
     case 'no account for fetchCalendars':
@@ -39,6 +31,12 @@ export const parseCalDAVError = (
       return new CalendarEventImportDriverException(
         message,
         CalendarEventImportDriverExceptionCode.NOT_FOUND,
+      );
+
+    case 'Invalid credentials':
+      return new CalendarEventImportDriverException(
+        message,
+        CalendarEventImportDriverExceptionCode.INSUFFICIENT_PERMISSIONS,
       );
 
     case 'Invalid auth method':

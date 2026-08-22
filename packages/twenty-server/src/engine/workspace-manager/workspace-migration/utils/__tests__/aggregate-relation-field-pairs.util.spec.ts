@@ -57,6 +57,7 @@ describe('aggregateRelationFieldPairs', () => {
       orchestratorActionsReport: input,
     });
 
+    // Should be bundled into a single action with flatEntity and relatedUniversalFlatFieldMetadata
     expect(result.fieldMetadata.create).toMatchObject([
       {
         flatEntity: { universalIdentifier: targetTaskFieldId },
@@ -99,6 +100,7 @@ describe('aggregateRelationFieldPairs', () => {
       orchestratorActionsReport: input,
     });
 
+    // Should remain as single action without relatedUniversalFlatFieldMetadata
     expect(result.fieldMetadata.create).toMatchObject([
       {
         flatEntity: { universalIdentifier: fieldUniversalId },
@@ -144,6 +146,7 @@ describe('aggregateRelationFieldPairs', () => {
       orchestratorActionsReport: input,
     });
 
+    // Should remain as single action without relatedUniversalFlatFieldMetadata (target not being created)
     expect(result.fieldMetadata.create).toMatchObject([
       {
         flatEntity: { universalIdentifier: relationFieldId },
@@ -231,6 +234,7 @@ describe('aggregateRelationFieldPairs', () => {
       orchestratorActionsReport: input,
     });
 
+    // Should result in 2 bundled actions (one per pair)
     expect(result.fieldMetadata.create).toMatchObject([
       {
         flatEntity: { universalIdentifier: pair1FieldA },

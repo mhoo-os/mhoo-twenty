@@ -6,8 +6,8 @@ import {
   type RemoteElementEventListenerDefinition,
   type RemoteElementEventListenersDefinition,
 } from '@remote-dom/core/elements';
-import { applySerializedEventProperties } from '@/remote/elements/utils/applySerializedEventProperties';
-import { applySerializedEventTargetProperties } from '@/remote/elements/utils/applySerializedEventTargetProperties';
+import { applySerializedEventProperties } from '@/constants/applySerializedEventProperties';
+import { applySerializedEventTargetProperties } from '@/constants/applySerializedEventTargetProperties';
 import { type SerializedEventData } from '@/types/SerializedEventData';
 
 export type HtmlCommonProperties = {

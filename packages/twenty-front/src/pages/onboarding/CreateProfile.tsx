@@ -157,7 +157,7 @@ export const CreateProfile = () => {
           return current;
         });
 
-        setNextOnboardingStatus({ stepHistoryEffect: 'recordAsReversible' });
+        setNextOnboardingStatus();
         setIsNavigating(true);
       } catch (error: any) {
         setIsNavigating(false);

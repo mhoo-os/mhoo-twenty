@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Any, In, Repository } from 'typeorm';
@@ -26,8 +26,6 @@ import { type WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-membe
 
 @Injectable()
 export class MessageChannelSyncStatusService {
-  private readonly logger = new Logger(MessageChannelSyncStatusService.name);
-
   constructor(
     @InjectCacheStorage(CacheStorageNamespace.ModuleMessaging)
     private readonly cacheStorage: CacheStorageService,
@@ -313,10 +311,6 @@ export class MessageChannelSyncStatusService {
     if (!messageChannelIds.length) {
       return;
     }
-
-    this.logger.warn(
-      `Marking message channels [${messageChannelIds.join(', ')}] as ${syncStatus} in workspace ${workspaceId}`,
-    );
 
     const authContext = buildSystemAuthContext(workspaceId);
 

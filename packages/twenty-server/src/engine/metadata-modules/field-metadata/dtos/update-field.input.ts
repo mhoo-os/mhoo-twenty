@@ -18,7 +18,6 @@ import { RelationUpdatePayload } from 'twenty-shared/types';
 
 import { UUIDScalarType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/scalars';
 import { FieldMetadataDTO } from 'src/engine/metadata-modules/field-metadata/dtos/field-metadata.dto';
-import { MetadataTranslationOverrideInput } from 'src/engine/metadata-modules/metadata-translation/dtos/metadata-translation-override.input';
 
 @InputType()
 export class UpdateFieldInput extends OmitType(
@@ -42,12 +41,6 @@ export class UpdateFieldInput extends OmitType(
   @IsOptional()
   @Field(() => [GraphQLJSON], { nullable: true })
   morphRelationsUpdatePayload?: RelationUpdatePayload[];
-
-  @Type(() => MetadataTranslationOverrideInput)
-  @ValidateNested({ each: true })
-  @IsOptional()
-  @Field(() => [MetadataTranslationOverrideInput], { nullable: true })
-  translations?: MetadataTranslationOverrideInput[];
 }
 
 @InputType()

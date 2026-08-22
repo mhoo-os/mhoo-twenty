@@ -10,18 +10,8 @@ type OverridesTranslationEntry<T extends AllMetadataName> = {
   [P in MetadataEntityTranslatablePropertyName<T>]?: string | null;
 };
 
-// Only translatable properties are guaranteed to hold strings. The rest are
-// overridable but not textual -- pageLayoutTab.position is a number,
-// commandMenuItem.isPinned a boolean -- so typing every overridable property as
-// `string | null` made the entity-local override types unassignable to this one
-// and kept those entities out of the shared resolver.
 export type MetadataPresentationOverrides<T extends AllMetadataName> = {
-  [P in MetadataEntityTranslatablePropertyName<T>]?: string | null;
-} & {
-  [P in Exclude<
-    MetadataEntityOverridablePropertyName<T>,
-    MetadataEntityTranslatablePropertyName<T>
-  >]?: unknown;
+  [P in MetadataEntityOverridablePropertyName<T>]?: string | null;
 } & {
   translations?: Partial<
     Record<keyof typeof APP_LOCALES, OverridesTranslationEntry<T>>

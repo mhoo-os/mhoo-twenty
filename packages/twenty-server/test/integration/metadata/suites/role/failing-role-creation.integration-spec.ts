@@ -53,6 +53,7 @@ describe('Role creation should fail', () => {
   });
 
   const failingRoleCreationTestCases: CreateOneRoleTestingContext = [
+    // Missing required properties tests
     {
       title: 'when label is missing',
       context: {
@@ -66,6 +67,7 @@ describe('Role creation should fail', () => {
         } as CreateRoleInput,
       },
     },
+    // Label uniqueness test
     {
       title: 'when label already exists',
       context: {
@@ -80,6 +82,7 @@ describe('Role creation should fail', () => {
         },
       },
     },
+    // Read/Write permissions consistency tests
     {
       title:
         'when canReadAllObjectRecords is false but canUpdateAllObjectRecords is true',

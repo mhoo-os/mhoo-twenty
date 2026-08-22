@@ -3,7 +3,8 @@ import { type CoreApiClient } from 'twenty-client-sdk/core';
 import { SLACK_ASSISTANT_FAILURE_TEXT } from 'src/logic-functions/constants/slack-assistant-failure-text';
 import { SLACK_ASSISTANT_REQUEST_STATUS } from 'src/logic-functions/constants/slack-assistant-request-status';
 import { updateSlackAssistantRequest } from 'src/logic-functions/data/update-slack-assistant-request';
-import { slackPostMessageHandler } from 'src/logic-functions/handlers/slack-post-message-handler';
+import { slackUpdateMessageHandler } from 'src/logic-functions/handlers/slack-update-message-handler';
+import { clearSlackAssistantThinkingReaction } from 'src/logic-functions/utils/clear-slack-assistant-thinking-reaction';
 
 type SlackAssistantRequestFailureResult = {
   failed: true;
@@ -14,19 +15,25 @@ export const finishSlackAssistantRequestWithFailure = async ({
   client,
   requestId,
   slackChannelId,
-  parentMessageTimestamp,
+  slackMessageTimestamp,
+  placeholderTimestamp,
   errorMessage,
 }: {
   client: CoreApiClient;
   requestId: string;
   slackChannelId: string;
-  parentMessageTimestamp: string;
+  slackMessageTimestamp: string;
+  placeholderTimestamp: string;
   errorMessage: string;
 }): Promise<SlackAssistantRequestFailureResult> => {
-  await slackPostMessageHandler({
+  await slackUpdateMessageHandler({
     slackChannelId,
-    messageText: SLACK_ASSISTANT_FAILURE_TEXT,
-    parentMessageTimestamp,
+    messageTimestamp: placeholderTimestamp,
+    newMessageText: SLACK_ASSISTANT_FAILURE_TEXT,
+  });
+  await clearSlackAssistantThinkingReaction({
+    slackChannelId,
+    slackMessageTimestamp,
   });
 
   await updateSlackAssistantRequest(client, {

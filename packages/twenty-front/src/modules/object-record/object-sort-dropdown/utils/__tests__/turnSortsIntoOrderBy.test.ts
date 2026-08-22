@@ -98,7 +98,7 @@ const turnSortsIntoOrderByTestUseCases: TurnSortsIntoOrderTestContext[] = [
           direction: ViewSortDirection.ASC,
         },
       ],
-      expected: [{ field1: 'AscNullsLast' }, { position: 'AscNullsFirst' }],
+      expected: [{ field1: 'AscNullsFirst' }, { position: 'AscNullsFirst' }],
     },
   },
   {
@@ -121,7 +121,7 @@ const turnSortsIntoOrderByTestUseCases: TurnSortsIntoOrderTestContext[] = [
         },
       ],
       expected: [
-        { field1: 'AscNullsLast' },
+        { field1: 'AscNullsFirst' },
         { field2: 'DescNullsLast' },
         { position: 'AscNullsFirst' },
       ],
@@ -280,8 +280,9 @@ describe('turnSortsIntoOrderBy', () => {
         companyObjectMetadataItem,
       ]);
 
+      // Should produce nested structure for GraphQL: { company: { name: 'AscNullsFirst' } }
       expect(result).toEqual([
-        { company: { name: 'AscNullsLast' } },
+        { company: { name: 'AscNullsFirst' } },
         { position: 'AscNullsFirst' },
       ]);
     });
@@ -299,6 +300,7 @@ describe('turnSortsIntoOrderBy', () => {
         companyObjectMetadataItem,
       ]);
 
+      // Should produce nested structure for GraphQL: { company: { name: 'DescNullsLast' } }
       expect(result).toEqual([
         { company: { name: 'DescNullsLast' } },
         { position: 'AscNullsFirst' },
@@ -314,10 +316,11 @@ describe('turnSortsIntoOrderBy', () => {
         },
       ];
 
+      // Pass empty objectMetadataItems array - related object not found
       const result = turnSortsIntoOrderBy(personObjectMetadataItem, sorts, []);
 
       expect(result).toEqual([
-        { companyId: 'AscNullsLast' },
+        { companyId: 'AscNullsFirst' },
         { position: 'AscNullsFirst' },
       ]);
     });

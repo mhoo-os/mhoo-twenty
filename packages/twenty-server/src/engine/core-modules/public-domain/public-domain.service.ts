@@ -149,10 +149,11 @@ export class PublicDomainService {
       });
 
     if (publicDomain.isValidated !== isCustomDomainWorking) {
-      await this.publicDomainRepository.update(
+      publicDomain.isValidated = isCustomDomainWorking;
+
+      await this.publicDomainRepository.save(
         publicDomain.workspaceId,
-        { id: publicDomain.id },
-        { isValidated: isCustomDomainWorking },
+        publicDomain,
       );
     }
 

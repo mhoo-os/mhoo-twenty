@@ -310,6 +310,7 @@ describe('McpCoreController', () => {
         mockRes,
       );
 
+      // SSE path returns nothing — response is written directly
       expect(result).toBeUndefined();
       expect(mockRes.setHeader).toHaveBeenCalledWith(
         'Content-Type',
@@ -331,6 +332,7 @@ describe('McpCoreController', () => {
         `event: message\ndata: ${JSON.stringify(mockResponse)}\n\n`,
       );
       expect(mockRes.end).toHaveBeenCalled();
+      // sseWriter callback should be passed to protocol service
       expect(mcpProtocolService.handleMCPCoreQuery).toHaveBeenCalledWith(
         mockRequest,
         {

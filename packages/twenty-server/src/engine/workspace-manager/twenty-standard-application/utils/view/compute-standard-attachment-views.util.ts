@@ -1,6 +1,5 @@
 import { ViewType, ViewKey } from 'twenty-shared/types';
 
-import { INDEX_VIEW_NAME } from 'src/engine/metadata-modules/view/constants/index-view-name.constant';
 import { type FlatView } from 'src/engine/metadata-modules/flat-view/types/flat-view.type';
 import {
   createStandardViewFlatMetadata,
@@ -16,7 +15,7 @@ export const computeStandardAttachmentViews = (
       objectName: 'attachment',
       context: {
         viewName: 'allAttachments',
-        name: INDEX_VIEW_NAME,
+        name: 'All {objectLabelPlural}',
         type: ViewType.TABLE,
         key: ViewKey.INDEX,
         position: 0,

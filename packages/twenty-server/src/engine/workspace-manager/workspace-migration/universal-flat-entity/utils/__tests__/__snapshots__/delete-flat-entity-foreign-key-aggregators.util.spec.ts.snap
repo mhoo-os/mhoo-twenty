@@ -37,7 +37,6 @@ exports[`deleteFlatEntityForeignKeyAggregators should strip raw workspace-scoped
   ],
   "viewFilterUniversalIdentifiers": [],
   "viewSortUniversalIdentifiers": [],
-  "writability": "OPEN",
 }
 `;
 
@@ -79,6 +78,5 @@ exports[`deleteFlatEntityForeignKeyAggregators should strip raw workspace-scoped
   "viewUniversalIdentifiers": [
     "view-universal-identifier",
   ],
-  "writability": "OPEN",
 }
 `;

@@ -72,7 +72,7 @@ export class RestApiFindManyHandler extends RestApiBaseHandler {
 
   private formatRestResponse(
     records: ObjectRecord[],
-    aggregatedValues: Record<string, number> | undefined,
+    aggregatedValues: Record<string, number>,
     objectNamePlural: string,
     pageInfo: PageInfo,
   ) {
@@ -80,7 +80,7 @@ export class RestApiFindManyHandler extends RestApiBaseHandler {
       data: {
         [objectNamePlural]: records,
       },
-      totalCount: Number(aggregatedValues?.totalCount ?? 0),
+      totalCount: Number(aggregatedValues.totalCount),
       pageInfo,
     };
   }

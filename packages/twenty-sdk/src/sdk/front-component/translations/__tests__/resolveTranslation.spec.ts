@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { setFrontComponentTranslations } from '@/sdk/front-component/translations/front-component-translations';
-import { generateMessageId } from 'twenty-shared/i18n';
+import { getTranslationCatalogKey } from '@/sdk/front-component/translations/message';
 import { resolveTranslation } from '@/sdk/front-component/translations/resolveTranslation';
 
 afterEach(() => {
@@ -10,17 +10,13 @@ afterEach(() => {
 
 describe('resolveTranslation', () => {
   it('returns the translation for the active locale', () => {
-    setFrontComponentTranslations({
-      'fr-FR': { [generateMessageId('Save')]: 'Enregistrer' },
-    });
+    setFrontComponentTranslations({ 'fr-FR': { Save: 'Enregistrer' } });
 
     expect(resolveTranslation('Save', undefined, 'fr-FR')).toBe('Enregistrer');
   });
 
   it('falls back to the source message when the locale is missing', () => {
-    setFrontComponentTranslations({
-      'fr-FR': { [generateMessageId('Save')]: 'Enregistrer' },
-    });
+    setFrontComponentTranslations({ 'fr-FR': { Save: 'Enregistrer' } });
 
     expect(resolveTranslation('Save', undefined, 'de-DE')).toBe('Save');
   });
@@ -34,8 +30,8 @@ describe('resolveTranslation', () => {
   it('resolves context-disambiguated messages independently', () => {
     setFrontComponentTranslations({
       'fr-FR': {
-        [generateMessageId('Open', 'door')]: 'Ouvrir',
-        [generateMessageId('Open', 'window')]: 'Lever',
+        [getTranslationCatalogKey('Open', 'door')]: 'Ouvrir',
+        [getTranslationCatalogKey('Open', 'window')]: 'Lever',
       },
     });
 
@@ -57,10 +53,7 @@ describe('resolveTranslation', () => {
 
   it('interpolates values into the resolved translation', () => {
     setFrontComponentTranslations({
-      'fr-FR': {
-        [generateMessageId('Saved {count} cards')]:
-          'Cartes enregistrées : {count}',
-      },
+      'fr-FR': { 'Saved {count} cards': 'Cartes enregistrées : {count}' },
     });
 
     expect(

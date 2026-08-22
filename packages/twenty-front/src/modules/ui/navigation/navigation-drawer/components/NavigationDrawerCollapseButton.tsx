@@ -1,6 +1,4 @@
-import { useIsSettingsDrawer } from '@/navigation/hooks/useIsSettingsDrawer';
 import { isNavigationDrawerExpandedState } from '@/ui/navigation/states/isNavigationDrawerExpanded';
-import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { navigationDrawerActiveTabState } from '@/ui/navigation/states/navigationDrawerActiveTabState';
 import { NAVIGATION_DRAWER_TABS } from '@/ui/navigation/states/navigationDrawerTabs';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
@@ -33,8 +31,6 @@ export const NavigationDrawerCollapseButton = ({
   className,
   direction = 'left',
 }: NavigationDrawerCollapseButtonProps) => {
-  const isMobile = useIsMobile();
-  const isSettingsDrawer = useIsSettingsDrawer();
   const [isNavigationDrawerExpanded, setIsNavigationDrawerExpanded] =
     useAtomState(isNavigationDrawerExpandedState);
   const setNavigationDrawerActiveTab = useSetAtomState(
@@ -47,11 +43,6 @@ export const NavigationDrawerCollapseButton = ({
     }
     setIsNavigationDrawerExpanded((previousIsExpanded) => !previousIsExpanded);
   };
-
-  // The main navigation is a page on mobile, so there is no drawer to toggle.
-  if (isMobile && !isSettingsDrawer) {
-    return null;
-  }
 
   return (
     <StyledCollapseButton className={className} onClick={handleClick}>

@@ -13,34 +13,25 @@ export const BookCallOnboardingStepActions = () => {
 
   // Kept stable so BookCallBookingSuccessEffect subscribes to the embed once
   // instead of cycling its listener on every render.
-  const completeStep = useCallback(
-    async ({ hasBookedCall }: { hasBookedCall: boolean }) => {
-      setIsCompleting(true);
+  const completeStep = useCallback(async () => {
+    setIsCompleting(true);
 
-      try {
-        await completeBookCallOnboardingStep({ hasBookedCall });
-      } catch (error) {
-        setIsCompleting(false);
+    try {
+      await completeBookCallOnboardingStep();
+    } catch (error) {
+      setIsCompleting(false);
 
-        enqueueErrorSnackBar({
-          apolloError: CombinedGraphQLErrors.is(error) ? error : undefined,
-        });
-      }
-    },
-    [completeBookCallOnboardingStep, enqueueErrorSnackBar],
-  );
-
-  const completeStepAfterBooking = useCallback(() => {
-    void completeStep({ hasBookedCall: true });
-  }, [completeStep]);
+      enqueueErrorSnackBar({
+        apolloError: CombinedGraphQLErrors.is(error) ? error : undefined,
+      });
+    }
+  }, [completeBookCallOnboardingStep, enqueueErrorSnackBar]);
 
   return (
     <>
-      <BookCallBookingSuccessEffect
-        onBookingSuccessful={completeStepAfterBooking}
-      />
+      <BookCallBookingSuccessEffect onBookingSuccessful={completeStep} />
       <OnboardingSkipButton
-        onClick={() => void completeStep({ hasBookedCall: false })}
+        onClick={() => void completeStep()}
         disabled={isCompleting}
       />
     </>
