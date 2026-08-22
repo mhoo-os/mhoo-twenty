@@ -2,7 +2,7 @@
 
 ## Status
 
-Candidate `mhoo/candidate/v2.30.1-2` is the promotion gate for a durable,
+Candidate `mhoo/candidate/v2.30.1-3` is the promotion gate for a durable,
 digest-addressed migration-rehearsal image. Until the tag-triggered workflow
 finishes and this record is updated with its exact registry digest and verified
 signature identity, durable candidate artifact and signed artifact custody
@@ -12,15 +12,23 @@ The disposable candidate-1 digest is evidence from its CI run only. It is not
 available in a registry and must not be rebuilt or represented as the same
 artifact.
 
+Candidate `mhoo/candidate/v2.30.1-2` is retired. Its authoritative workflow
+[run 32593506611](https://github.com/mhoo-os/mhoo-twenty/actions/runs/32593506611)
+passed exact-source and controlled-overlay verification, then failed before
+BuildKit started because the qualified registry tag was not passed to the
+build script. It produced no image, registry package, digest, signature, or
+custody claim. Its annotated tag remains unchanged as the failure receipt and
+must not be moved or reused.
+
 ## Promotion boundary
 
 The publication workflow is triggered only by the annotated Git tag
-`mhoo/candidate/v2.30.1-2`. The tag must point to the current canonical `main`
+`mhoo/candidate/v2.30.1-3`. The tag must point to the current canonical `main`
 revision. The workflow then:
 
 1. verifies the exact upstream tree and controlled provenance overlay;
 2. builds once from the tagged full source revision;
-3. pushes `ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-2` without an SBOM or
+3. pushes `ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-3` without an SBOM or
    provenance attestation;
 4. records the registry manifest digest;
 5. pulls and validates that exact digest in a disposable server, worker,
