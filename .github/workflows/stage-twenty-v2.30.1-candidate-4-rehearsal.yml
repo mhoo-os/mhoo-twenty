@@ -1,0 +1,38 @@
+name: Stage Twenty v2.30.1 candidate 4 for migration rehearsal
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: stage-twenty-v2.30.1-candidate-4-rehearsal
+  cancel-in-progress: false
+
+env:
+  CANDIDATE_IMAGE: ghcr.io/mhoo-os/mhoo-twenty@sha256:c0f7f17aadec0ba66e6fbd94e4733ec33116ba64c5c4c23b1a666e48867cd2f5
+
+jobs:
+  stage-candidate:
+    name: Pull exact candidate into disposable rehearsal host
+    if: github.ref == 'refs/heads/main'
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - mhoo-twenty-migration-rehearsal-candidate-4
+    timeout-minutes: 10
+
+    steps:
+      - name: Stage exact candidate with the run-scoped read token
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$CANDIDATE_IMAGE" = \
+            'ghcr.io/mhoo-os/mhoo-twenty@sha256:c0f7f17aadec0ba66e6fbd94e4733ec33116ba64c5c4c23b1a666e48867cd2f5'
+          printf '%s' "$GHCR_TOKEN" |
+            /opt/mhoo/twenty-migration-rehearsal/bin/stage-candidate.sh

@@ -31,6 +31,9 @@ There is no upstream GitHub Release object or `sdk/v2.30.1` tag. The official `t
 The candidate source revision may differ from the upstream tree only at:
 
 - `.twenty-source`
+- `.github/workflows/publish-twenty-v2.30.1-candidate.yml`
+- `.github/workflows/sign-twenty-v2.30.1-candidate-4.yml`
+- `.github/workflows/stage-twenty-v2.30.1-candidate-4-rehearsal.yml`
 - `.github/workflows/twenty-v2.30.1-provenance.yml`
 - `docs/provenance/`
 - `scripts/provenance/`
