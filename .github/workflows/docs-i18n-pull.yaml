@@ -5,8 +5,8 @@ permissions:
   pull-requests: write
 
 on:
-  schedule:
-    - cron: '0 */2 * * *' # Every two hours
+  # Crowdin is configured for TwentyHQ. Retain manual/call interfaces for
+  # upstream synchronization, but do not schedule or run it in Mhoo.
   workflow_dispatch:
     inputs:
       force_pull:
@@ -21,11 +21,6 @@ on:
         required: false
         type: boolean
         default: false
-  pull_request:
-    paths:
-      - 'packages/twenty-docs/**'
-      - '.github/crowdin-docs.yml'
-      - '.github/workflows/docs-i18n-pull.yaml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -34,6 +29,7 @@ concurrency:
 jobs:
   pull_docs_translations:
     name: Pull docs translations
+    if: github.repository == 'twentyhq/twenty'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

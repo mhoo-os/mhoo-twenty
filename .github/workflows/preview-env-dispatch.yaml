@@ -3,13 +3,9 @@ name: 'Preview Environment Dispatch'
 permissions: {}
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened, labeled]
-    paths:
-      - packages/twenty-docker/**
-      - packages/twenty-server/**
-      - packages/twenty-front/**
-      - .github/workflows/preview-env-dispatch.yaml
+  # Retained for upstream synchronization; Mhoo preview infrastructure is not
+  # the TwentyHQ ci-public/ci-privileged environment.
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,7 +14,9 @@ concurrency:
 jobs:
   trigger-preview:
     if: |
-      (github.event.action == 'labeled' && github.event.label.name == 'preview-app') ||
+      github.repository == 'twentyhq/twenty' &&
+      github.event_name != 'workflow_dispatch' &&
+      ((github.event.action == 'labeled' && github.event.label.name == 'preview-app') ||
       (
         (
           github.event.pull_request.author_association == 'MEMBER' ||
@@ -29,7 +27,7 @@ jobs:
           github.event.action == 'synchronize' ||
           github.event.action == 'reopened'
         )
-      )
+      ))
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
