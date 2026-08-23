@@ -104,6 +104,7 @@ UNEXPECTED_PATHS="$(
     ':(exclude).github/workflows/cd-deploy-main.yaml' \
     ':(exclude).github/workflows/cd-deploy-tag.yaml' \
     ':(exclude).github/workflows/ci-ai-catalog-sync.yaml' \
+    ':(exclude).github/workflows/ci-app-docs-drift.yaml' \
     ':(exclude).github/workflows/ci-blocked-contributors.yaml' \
     ':(exclude).github/workflows/ci-breaking-changes.yaml' \
     ':(exclude).github/workflows/ci-create-app-e2e-minimal.yaml' \
@@ -115,6 +116,7 @@ UNEXPECTED_PATHS="$(
     ':(exclude).github/workflows/ci-sdk.yaml' \
     ':(exclude).github/workflows/ci-server.yaml' \
     ':(exclude).github/workflows/ci-zapier.yaml' \
+    ':(exclude).github/workflows/ci-utils.yaml' \
     ':(exclude).github/workflows/claude.yml' \
     ':(exclude).github/workflows/docs-i18n-pull.yaml' \
     ':(exclude).github/workflows/docs-i18n-push.yaml' \
@@ -133,6 +135,7 @@ UNEXPECTED_PATHS="$(
     ':(exclude).github/workflows/stage-twenty-v2.30.1-candidate-4-rehearsal.yml' \
     ':(exclude).github/workflows/twenty-v2.30.1-provenance.yml' \
     ':(exclude)docs/provenance/**' \
+    ':(exclude)packages/twenty-utils/dangerfile.ts' \
     ':(exclude)scripts/provenance/**'
 )"
 

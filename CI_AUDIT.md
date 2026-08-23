@@ -21,7 +21,8 @@ removed in this cleanup PR.
 | `cd-deploy-tag.yaml` / `dispatch-tag` | Dispatches tagged releases to TwentyHQ staging infrastructure. | GATE | Keep file, manual upstream-only trigger, owner gate. | No TwentyHQ infrastructure or deployment side effect is part of Mhoo CI. |
 | `changed-files.yaml` / `changed-files` | Reusable path-change detector used by CI matrices. | KEEP | Continue using it for path-based gating. | Generic correctness optimization; it does not depend on TwentyHQ services. |
 | `ci-ai-catalog-sync.yaml` / `sync-catalog` | Fetches an external model catalog, opens an automated PR, and asks TwentyHQ infra to automerge it. | GATE | Disable schedule; retain manual upstream-only trigger and owner gate. | The catalog source and automerge policy are not currently Mhoo-owned. |
-| `ci-app-docs-drift.yaml` / `changed-files-check`, `docs-drift-check` | Detects app-platform documentation drift and reports it on a PR with Claude. | KEEP | Preserve. | A useful app-contract review; its Claude credential is separate from TwentyHQ infrastructure. |
+| `ci-app-docs-drift.yaml` / `changed-files-check` | Identifies app-platform changes that may need documentation review. | KEEP | Preserve. | Generic, credential-free path guard. |
+| `ci-app-docs-drift.yaml` / `docs-drift-check` | Uses Claude to inspect app-platform documentation drift and comment on a PR. | GATE | Run automatically only for `twentyhq/twenty`. | Mhoo has no `CLAUDE_CODE_OAUTH_TOKEN`; adding an owned token and policy is a separate decision. |
 | `ci-blocked-contributors.yaml` / `check-blocked-contributors` | Enforces TwentyHQ contributor-blocking policy across PR conversations. | GATE | Disable automatic triggers; retain upstream-only manual trigger and owner gate. | Organization policy is not an Mhoo product or source-control contract. |
 | `ci-breaking-changes.yaml` / `changed-files-check` | Limits API compatibility work to relevant source changes. | KEEP | Preserve. | Generic path guard. |
 | `ci-breaking-changes.yaml` / `api-breaking-changes` | Builds both API revisions, runs GraphQL/REST/OpenAPI compatibility checks, and emits artifacts. | ADAPT | Preserve; pin Postgres, Redis, ClickHouse, and OpenAPI Diff inputs. | High-value compatibility protection; mutable service/tool references made results non-repeatable. |
@@ -51,7 +52,8 @@ removed in this cleanup PR.
 | `ci-test-docker-compose.yaml` / `changed-files-check`, `test-compose`, `test-app-dev`, `ci-test-docker-status-check` | Builds and starts local Docker Compose/server app-dev variants. | KEEP | Preserve. | Mhoo needs local build/runtime confidence; it does not use the TwentyHQ deployment stack. |
 | `ci-twenty-apps.yaml` / `discover`, `ci`, `integration`, `ci-twenty-apps-status-check` | Discovers changed apps and tests them against local and Docker Hub server variants. | ADAPT | Preserve; Docker Hub app-dev default is pinned to v2.30.1 digest. | Valuable app compatibility check, previously exposed by a moving `latest` image. |
 | `ci-ui.yaml` / `changed-files-check`, `ui-task`, `ui-sb-build`, `ui-sb-test`, `ci-ui-status-check` | Runs UI lint/typecheck/test/Storybook checks. | KEEP | Preserve. | Generic UI protection. |
-| `ci-utils.yaml` / `danger-js`, `congratulate` | Runs PR policy checks and a merged-PR congratulation script. | KEEP | Preserve. | Repository-local PR tooling; no private infrastructure dispatch. |
+| `ci-utils.yaml` / `danger-js` | Warns about package-lock and `.env.example` changes, posts the TwentyHQ CLA note, and finds TODO/FIXME markers. | ADAPT | Retain local warnings and TODO/FIXME checks; show the CLA note only in `twentyhq/twenty`. | The CLA is TwentyHQ policy, not a Mhoo contribution requirement. |
+| `ci-utils.yaml` / `congratulate` | On a merged PR, queries TwentyHQ contributor services and posts rankings. | GATE | Run only in `twentyhq/twenty`. | It queries `twenty.com` and `twentyhq/twenty` contributor history, neither of which is Mhoo-owned automation. |
 | `ci-website.yaml` / `changed-files-check`, `website-task`, `ci-website-status-check` | Tests the website package. | KEEP | Preserve. | Generic website package protection. |
 | `ci-zapier.yaml` / `changed-files-check`, `server-setup`, `zapier-test`, `ci-zapier-status-check` | Runs Zapier integration tests against a local server. | KEEP | Preserve; pin service images. | Protects the integration package. |
 | `claude.yml` / `claude` | Runs explicitly authorized local Claude work from trusted PR/issue interactions. | ADAPT | Preserve as a separately authorized Mhoo capability; pin local service images. | Not TwentyHQ infrastructure, but requires its own Mhoo secret/policy review. |
@@ -84,7 +86,7 @@ removed in this cleanup PR.
 | `restore-cache/action.yaml` | KEEP | Generic cache restore. |
 | `save-cache/action.yaml` | KEEP | Generic cache save. |
 | `spawn-twenty-app-dev-test/action.yml` | ADAPT | Default is the v2.30.1 app-dev image index digest; reject a reference without `@sha256`. |
-| `spawn-twenty-docker-image/action.yaml` | ADAPT | Reject `latest` and moving `main`; require semver plus immutable digest and derive the matching source tag. |
+| `spawn-twenty-docker-image/action.yaml` | ADAPT | Reject `latest` and moving `main`; require semver plus immutable digest and derive the matching source tag. Tag-to-digest correspondence remains a documented follow-up. |
 | `spawn-twenty-server/action.yml` | ADAPT | Keep the existing `dockerhub-latest` compatibility name, but make its default image and local Postgres/Redis immutable. |
 | `test-twenty-app/action.yml` | KEEP | Generic installed-app test helper. |
 | `upgrade-mutation-guard/action.yaml` | KEEP | High-value migration/upgrade immutability helper. |
@@ -94,6 +96,8 @@ removed in this cleanup PR.
 
 The useful inherited contract is the build/test/upgrade/source-trust/release
 layer. The unowned layer is the TwentyHQ organization and infrastructure
-dispatch layer. This PR gates the latter without deleting the upstream files,
-and it keeps the Mhoo-owned overlay visible to the exact-source verifier.
-
+dispatch layer. This PR gates the latter without deleting the upstream files.
+The source verifier enforces the Twenty source/runtime boundary by excluding
+only the documented CI overlay paths from its upstream-difference check; it
+does not attest the contents of that overlay. Overlay integrity instead relies
+on normal repository governance: review, protected `main`, and required checks.

@@ -109,6 +109,12 @@ gates/pins, and the listed composite-action input protections to that
 allowlist. The allowlist is deliberately path-specific; it is not a blanket
 permission to alter application source or bypass provenance.
 
+The verifier protects the Twenty source/runtime boundary; it deliberately does
+not attest the reviewed CI-overlay contents that its allowlist excludes. Those
+paths require normal repository governance (review, protected `main`, and
+required checks). Missing overlay protections must be reported as a governance
+gap, not represented as source-verifier coverage.
+
 Historical rehearsal, recovery, publication, signing, and provenance records
 remain historical evidence. They are not rewritten to reflect the fresh-build
 strategy.
@@ -157,6 +163,12 @@ source checkout. The existing `dockerhub-latest` source name in
 `spawn-twenty-server` is retained only as an upstream compatibility name; its
 Mhoo default is the immutable v2.30.1 app-dev reference.
 
+The semver tag and digest are both required syntactically, but the reusable
+Docker action does not yet independently prove that the supplied tag resolves
+to the supplied digest in the registry. Tag-to-digest correspondence is an
+explicit follow-up before treating that pair as a stronger release-identity
+claim.
+
 ## Concurrency and trigger rules
 
 - Obsolete PR runs should be cancelled where the workflow has no release or
@@ -168,6 +180,8 @@ Mhoo default is the immutable v2.30.1 app-dev reference.
 - TwentyHQ dispatch, Crowdin, private preview, private review, organization
   policy, Trust Center, and engineering-webhook automation has no automatic
   Mhoo trigger.
+- TwentyHQ CLA messaging, contributor-ranking congratulations, and automated
+  Claude documentation-drift review have no automatic Mhoo trigger.
 - Retained upstream-only workflows use a manual or reusable interface plus an
   explicit `github.repository == 'twentyhq/twenty'` gate. This protects Mhoo
   even if a future sync accidentally restores a trigger before the workflow is
@@ -182,6 +196,11 @@ dependencies:
 - TwentyHQ GitHub App client IDs/private keys;
 - TwentyHQ Crowdin projects or Crowdin tokens;
 - TwentyHQ Argos/comment/review/preview infrastructure;
+- TwentyHQ CLA and contributor-ranking automation;
+- automated Claude documentation-drift review: Mhoo currently has no
+  `CLAUDE_CODE_OAUTH_TOKEN`. The local `claude.yml` job remains an explicitly
+  invoked, separately authorized capability until Mhoo deliberately configures
+  its own credential and policy;
 - TwentyHQ contributor-blocking policy and engineering webhook;
 - production deployment/cutover, DNS, Cloudflare, Tailscale, or database
   mutation;

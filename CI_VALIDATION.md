@@ -13,6 +13,8 @@ Changed for the Mhoo overlay:
 - required immutable old-version input for cross-version upgrade;
 - required immutable semver-plus-digest input in the reusable Docker image
   action;
+- gated TwentyHQ-only CLA/contributor automation and automated Claude
+  documentation-drift review;
 - updated `scripts/provenance/verify-source.sh` with a path-specific Mhoo
   overlay allowlist.
 
@@ -25,7 +27,6 @@ database was changed.
 The core generic checks and release custody workflows remain untouched:
 
 - `changed-files.yaml`;
-- `ci-app-docs-drift.yaml`;
 - `ci-codex-plugin.yaml`;
 - `ci-create-app.yaml`;
 - `ci-docs.yaml`;
@@ -38,7 +39,6 @@ The core generic checks and release custody workflows remain untouched:
 - `ci-test-docker-compose.yaml`;
 - `ci-twenty-apps.yaml`;
 - `ci-ui.yaml`;
-- `ci-utils.yaml`;
 - `ci-website.yaml`;
 - `discover-apps.yaml`;
 - candidate publication, signing, staging, and provenance workflows.
@@ -60,11 +60,14 @@ TwentyHQ secrets:
 - Crowdin app/docs/website workflows;
 - downstream visual regression dispatch;
 - TwentyHQ cross-repository Claude response dispatch;
+- automated Claude documentation-drift review (Mhoo has zero configured
+  Actions secrets, so it has no `CLAUDE_CODE_OAUTH_TOKEN`);
+- TwentyHQ CLA messaging and contributor-ranking congratulations;
 - the `engineering.twenty.com` main-failure webhook.
 
 The local Claude job, where explicitly invoked and separately authorized,
-remains distinct from the gated cross-repository job. CI UI/Front screenshot
-artifacts remain produced locally.
+remains distinct from the gated cross-repository and documentation-drift jobs.
+CI UI/Front screenshot artifacts remain produced locally.
 
 ## Checks run on this branch
 
@@ -83,7 +86,9 @@ Recorded checks:
 - Composite-action YAML parsing, provenance shell syntax, whitespace checks,
   and the no-moving-image scan: PASS.
 - Source/provenance verification: PASS on the clean committed checkout,
-  including the upstream remote tag and exact overlay allowlist.
+  including the upstream remote tag and exact overlay allowlist. This proves
+  the source/runtime boundary; CI-overlay integrity remains governed by review,
+  protected `main`, and required checks.
 - Relevant package/runtime tests: not yet run locally; GitHub Actions is the
   authoritative environment for the full matrix.
 
@@ -125,10 +130,12 @@ and signing paths remain available. Skipped/manual upstream-only workflow
 files may remain visible in the Actions UI, but they should not fail due to
 missing TwentyHQ secrets.
 
-## Final PR validation
+## Validated implementation snapshot
 
-The final branch head is `463a42cbba8ec5176187bfa3ac529849a536fbd3`.
-Branch-associated checks completed successfully:
+The validated implementation snapshot is
+`463a42cbba8ec5176187bfa3ac529849a536fbd3`. Later commits at that point only
+recorded validation reports; they did not change the implementation.
+Its branch-associated checks completed successfully:
 
 - `CI SDK`, run `32649388025`: SDK lint, typecheck, unit, integration, and E2E
   jobs plus the status gate: PASS.
@@ -153,4 +160,6 @@ The PR comment records why this base-branch result cannot evaluate the changed
 `pull_request_target` definitions. No TwentyHQ or Mhoo credentials were added.
 The changed branch definitions gate these workflows to the canonical TwentyHQ
 repository and manual upstream-only use, so their post-merge Mhoo behavior does
-not require those secrets.
+not require those secrets. Results for this review-correction commit will be
+reported in the PR discussion after its live checks complete, rather than by a
+self-referential validation-report commit.

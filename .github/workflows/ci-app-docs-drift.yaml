@@ -32,6 +32,7 @@ jobs:
     # Secrets are unavailable on fork PRs; skip there and on bot PRs.
     if: >-
       needs.changed-files-check.outputs.any_changed == 'true' &&
+      github.repository == 'twentyhq/twenty' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.user.type != 'Bot'
     timeout-minutes: 30
