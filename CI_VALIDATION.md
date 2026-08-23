@@ -127,29 +127,30 @@ missing TwentyHQ secrets.
 
 ## Final PR validation
 
-The branch-associated checks completed with no fresh failures:
+The final branch head is `463a42cbba8ec5176187bfa3ac529849a536fbd3`.
+Branch-associated checks completed successfully:
 
-- `CI SDK`, run `32648388139`: SDK lint, typecheck, unit, integration, and E2E
+- `CI SDK`, run `32649388025`: SDK lint, typecheck, unit, integration, and E2E
   jobs plus the status gate: PASS.
-- `GraphQL and OpenAPI Breaking Changes Detection`, run `32648388150`:
+- `GraphQL and OpenAPI Breaking Changes Detection`, run `32649387917`:
   GraphQL and REST compatibility comparison: PASS.
-- `Twenty v2.30.1 provenance`, run `32648388016`: canonical source trust,
-  deterministic candidate build, and disposable exact-image runtime validation:
-  PASS.
+- `Twenty v2.30.1 provenance`, run `32649387821`: canonical source trust:
+  PASS. Its first candidate-build attempt (`97218663385`) hit a transient
+  `ENOTEMPTY` race while parallel SDK build tasks removed `dist`; the targeted
+  retry (`97219977780`, attempt 2) passed deterministic build and disposable
+  exact-image runtime validation.
 
-The final PR check snapshot contained 88 entries: 47 passed, 39 were skipped
-by path or trigger conditions, 0 were pending, and 2 failed. The two failures
-are inherited `pull_request_target` runs from the unmerged base branch, not
-fresh branch failures:
+The final PR check snapshot contained 87 entries: 47 passed, 39 were skipped
+by path or trigger conditions, 0 were pending, and 1 failed. The remaining
+failure is an inherited `pull_request_target` run from the unmerged base
+branch, not a fresh branch failure:
 
-- Auto-Draft External PRs, run `32648388042`, job `dispatch`: failed while
+- `PR Review Dispatch #10`, run `32649386010`, job `dispatch`: failed while
   minting the TwentyHQ `ci-privileged` dispatch token because
   `TWENTY_WORKFLOW_DISPATCHER_CLIENT_ID` is absent.
-- PR Review Dispatch, run `32648388019`, job `dispatch`: failed at the same
-  TwentyHQ token-mint step for the same reason.
 
-The PR comment records why these base-branch results cannot evaluate the
-changed `pull_request_target` definitions. No TwentyHQ or Mhoo credentials were
-added. The changed branch definitions gate these workflows to the canonical
-TwentyHQ repository and manual upstream-only use, so their post-merge Mhoo
-behavior does not require those secrets.
+The PR comment records why this base-branch result cannot evaluate the changed
+`pull_request_target` definitions. No TwentyHQ or Mhoo credentials were added.
+The changed branch definitions gate these workflows to the canonical TwentyHQ
+repository and manual upstream-only use, so their post-merge Mhoo behavior does
+not require those secrets.
