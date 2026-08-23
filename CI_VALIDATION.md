@@ -124,3 +124,32 @@ integration, migration, upgrade, app, screenshot, source-trust, candidate,
 and signing paths remain available. Skipped/manual upstream-only workflow
 files may remain visible in the Actions UI, but they should not fail due to
 missing TwentyHQ secrets.
+
+## Final PR validation
+
+The branch-associated checks completed with no fresh failures:
+
+- `CI SDK`, run `32648388139`: SDK lint, typecheck, unit, integration, and E2E
+  jobs plus the status gate: PASS.
+- `GraphQL and OpenAPI Breaking Changes Detection`, run `32648388150`:
+  GraphQL and REST compatibility comparison: PASS.
+- `Twenty v2.30.1 provenance`, run `32648388016`: canonical source trust,
+  deterministic candidate build, and disposable exact-image runtime validation:
+  PASS.
+
+The final PR check snapshot contained 88 entries: 47 passed, 39 were skipped
+by path or trigger conditions, 0 were pending, and 2 failed. The two failures
+are inherited `pull_request_target` runs from the unmerged base branch, not
+fresh branch failures:
+
+- Auto-Draft External PRs, run `32648388042`, job `dispatch`: failed while
+  minting the TwentyHQ `ci-privileged` dispatch token because
+  `TWENTY_WORKFLOW_DISPATCHER_CLIENT_ID` is absent.
+- PR Review Dispatch, run `32648388019`, job `dispatch`: failed at the same
+  TwentyHQ token-mint step for the same reason.
+
+The PR comment records why these base-branch results cannot evaluate the
+changed `pull_request_target` definitions. No TwentyHQ or Mhoo credentials were
+added. The changed branch definitions gate these workflows to the canonical
+TwentyHQ repository and manual upstream-only use, so their post-merge Mhoo
+behavior does not require those secrets.
