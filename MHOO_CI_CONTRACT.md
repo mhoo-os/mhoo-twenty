@@ -138,7 +138,7 @@ reference. The current verified inputs are:
 | Postgres 16 upgrade/Claude service | `postgres:16@sha256:56f243d2355bad7d2016b1e78b80da8ac9e7967b766be2bfbff84fe85ffa30bc` |
 | Redis 7 service | `redis:7@sha256:9815d9e94c50caed3d5b79ce0e4dfd916582560ec83c92d0fe3b8772579e6b86` |
 | Redis 7 Alpine upgrade service | `redis:7-alpine@sha256:1db42ccef14898aa29bae778452d567534b59c107129cbc1163fb552de184d3c` |
-| ClickHouse 25.8.8 service | `clickhouse/clickhouse-server:25.8.8@sha256:894fff7d48555eeb43a6b6467a514a03d74c6865cd9051191a6a44e27c3e7e456` |
+| ClickHouse 25.8.8 service | `clickhouse/clickhouse-server:25.8.8@sha256:894fff7d48555eeb43a6b6467a514a03d74c6865cd905119a6a44e27c3e7e456` |
 | OpenAPI Diff tool | `openapitools/openapi-diff@sha256:82291446e5554742d9c0725d7b315d18e93958c5526f9a663e8885227bdd6cb6` |
 | Oldest supported Twenty image | `twentycrm/twenty:v1.22@sha256:63f5e89a1409816dba7fec7753747bf3d0fcfbef822f95048f029334e70f9116` |
 

@@ -75,10 +75,15 @@ Recorded checks:
   Postgres 18, Redis 7, and ClickHouse 25.8.8: PASS.
 - OpenAPI Diff digest invocation with `--help`: PASS on the resolved amd64
   image manifest; full compatibility remains a CI check.
-- Workflow/action YAML validation: pending the repository's available
-  `actionlint`/workflow validation tool, then recorded below.
-- Source/provenance verification: pending a clean committed checkout, then
-  recorded below.
+- Workflow/action YAML validation: PASS for changed workflow syntax and
+  expressions with the repository's known baseline findings excluded.
+  Unfiltered actionlint still reports pre-existing missing descriptions on
+  local composite actions, the pre-existing `ci-zapier` needs-schema warning,
+  and the pre-existing custom rehearsal runner label.
+- Composite-action YAML parsing, provenance shell syntax, whitespace checks,
+  and the no-moving-image scan: PASS.
+- Source/provenance verification: PASS on the clean committed checkout,
+  including the upstream remote tag and exact overlay allowlist.
 - Relevant package/runtime tests: not yet run locally; GitHub Actions is the
   authoritative environment for the full matrix.
 
@@ -94,6 +99,10 @@ Recorded checks:
 - Crowdin, TwentyHQ private dispatch, preview, review, and engineering webhook
   checks were intentionally not invoked because Mhoo does not own their
   credentials or external systems.
+
+An initial local manifest loop caught a 65-character ClickHouse digest typo
+before commit; the corrected amd64 manifest and the full immutable-image loop
+then passed.
 
 ## Failures and unresolved items
 
@@ -115,4 +124,3 @@ integration, migration, upgrade, app, screenshot, source-trust, candidate,
 and signing paths remain available. Skipped/manual upstream-only workflow
 files may remain visible in the Actions UI, but they should not fail due to
 missing TwentyHQ secrets.
-

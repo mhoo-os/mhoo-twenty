@@ -51,7 +51,7 @@ jobs:
         ports:
           - 6379:6379
       clickhouse:
-        image: clickhouse/clickhouse-server:25.8.8@sha256:894fff7d48555eeb43a6b6467a514a03d74c6865cd9051191a6a44e27c3e7e456
+        image: clickhouse/clickhouse-server:25.8.8@sha256:894fff7d48555eeb43a6b6467a514a03d74c6865cd905119a6a44e27c3e7e456
         env:
           CLICKHOUSE_PASSWORD: clickhousePassword
           CLICKHOUSE_URL: "http://default:clickhousePassword@localhost:8123/twenty"
