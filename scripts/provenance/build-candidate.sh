@@ -90,8 +90,22 @@ case "$OUTPUT_MODE" in
     ;;
 esac
 
-docker buildx build "${BUILD_ARGUMENTS[@]}" \
-  "${SOURCE_REPOSITORY}.git#${SOURCE_REVISION}"
+run_build() {
+  docker buildx build "${BUILD_ARGUMENTS[@]}" \
+    "${SOURCE_REPOSITORY}.git#${SOURCE_REVISION}"
+}
+
+BUILD_LOG="$(mktemp)"
+trap 'rm -f "$BUILD_LOG"' EXIT
+
+if ! run_build 2>&1 | tee "$BUILD_LOG"; then
+  if rg --quiet 'ENOTEMPTY.*packages/twenty-sdk/dist' "$BUILD_LOG"; then
+    echo "retrying candidate build after transient twenty-sdk dist cleanup race" >&2
+    run_build
+  else
+    fail "docker buildx build failed"
+  fi
+fi
 
 IMAGE_DIGEST="$(jq -r '."containerimage.digest" // empty' "$METADATA_PATH")"
 [[ "$IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] ||
