@@ -94,6 +94,7 @@ assert_equal "$(node -p "require('./package.json').packageManager")" \
 UNEXPECTED_PATHS="$(
   git diff --name-only "$UPSTREAM_COMMIT" HEAD -- . \
     ':(exclude).twenty-source' \
+    ':(exclude)AGENTS.md' \
     ':(exclude)CI_AUDIT.md' \
     ':(exclude)CI_GOVERNANCE_VALIDATION.md' \
     ':(exclude)MHOO_CI_CONTRACT.md' \
