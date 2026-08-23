@@ -95,6 +95,7 @@ UNEXPECTED_PATHS="$(
   git diff --name-only "$UPSTREAM_COMMIT" HEAD -- . \
     ':(exclude).twenty-source' \
     ':(exclude)CI_AUDIT.md' \
+    ':(exclude)CI_GOVERNANCE_VALIDATION.md' \
     ':(exclude)MHOO_CI_CONTRACT.md' \
     ':(exclude)CI_VALIDATION.md' \
     ':(exclude).github/actions/spawn-twenty-app-dev-test/action.yml' \
