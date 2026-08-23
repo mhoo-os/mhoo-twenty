@@ -89,14 +89,53 @@ assert_equal "$(cat .nvmrc)" "$(manifest_value TWENTY_SOURCE_NODE_VERSION)" \
 assert_equal "$(node -p "require('./package.json').packageManager")" \
   "yarn@$(manifest_value TWENTY_YARN_VERSION)" "Yarn package manager pin"
 
+# Mhoo CI contract overlay. These paths are intentionally reviewed separately
+# from the exact upstream source tree and are not application-source edits.
 UNEXPECTED_PATHS="$(
   git diff --name-only "$UPSTREAM_COMMIT" HEAD -- . \
     ':(exclude).twenty-source' \
+    ':(exclude)CI_AUDIT.md' \
+    ':(exclude)MHOO_CI_CONTRACT.md' \
+    ':(exclude)CI_VALIDATION.md' \
+    ':(exclude).github/actions/spawn-twenty-app-dev-test/action.yml' \
+    ':(exclude).github/actions/spawn-twenty-docker-image/action.yaml' \
+    ':(exclude).github/actions/spawn-twenty-server/action.yml' \
+    ':(exclude).github/workflows/app-prod-parity-e2e-dispatch.yaml' \
+    ':(exclude).github/workflows/cd-deploy-main.yaml' \
+    ':(exclude).github/workflows/cd-deploy-tag.yaml' \
+    ':(exclude).github/workflows/ci-ai-catalog-sync.yaml' \
+    ':(exclude).github/workflows/ci-app-docs-drift.yaml' \
+    ':(exclude).github/workflows/ci-blocked-contributors.yaml' \
+    ':(exclude).github/workflows/ci-breaking-changes.yaml' \
+    ':(exclude).github/workflows/ci-create-app-e2e-minimal.yaml' \
+    ':(exclude).github/workflows/ci-cross-version-upgrade.yaml' \
+    ':(exclude).github/workflows/ci-dpa-subprocessors-sync.yaml' \
+    ':(exclude).github/workflows/ci-e2e-main.yaml' \
+    ':(exclude).github/workflows/ci-example-app-hello-world.yaml' \
+    ':(exclude).github/workflows/ci-example-app-postcard.yaml' \
+    ':(exclude).github/workflows/ci-sdk.yaml' \
+    ':(exclude).github/workflows/ci-server.yaml' \
+    ':(exclude).github/workflows/ci-zapier.yaml' \
+    ':(exclude).github/workflows/ci-utils.yaml' \
+    ':(exclude).github/workflows/claude.yml' \
+    ':(exclude).github/workflows/docs-i18n-pull.yaml' \
+    ':(exclude).github/workflows/docs-i18n-push.yaml' \
+    ':(exclude).github/workflows/external-contributor-pr-auto-draft.yaml' \
+    ':(exclude).github/workflows/i18n-pull.yaml' \
+    ':(exclude).github/workflows/i18n-push.yaml' \
+    ':(exclude).github/workflows/post-ci-comments.yaml' \
+    ':(exclude).github/workflows/pr-review-dispatch.yaml' \
+    ':(exclude).github/workflows/preview-env-dispatch.yaml' \
+    ':(exclude).github/workflows/visual-regression-dispatch.yaml' \
+    ':(exclude).github/workflows/website-i18n-pull.yaml' \
+    ':(exclude).github/workflows/website-i18n-push.yaml' \
+    ':(exclude).github/workflows/website-preview-dispatch.yaml' \
     ':(exclude).github/workflows/publish-twenty-v2.30.1-candidate.yml' \
     ':(exclude).github/workflows/sign-twenty-v2.30.1-candidate-4.yml' \
     ':(exclude).github/workflows/stage-twenty-v2.30.1-candidate-4-rehearsal.yml' \
     ':(exclude).github/workflows/twenty-v2.30.1-provenance.yml' \
     ':(exclude)docs/provenance/**' \
+    ':(exclude)packages/twenty-utils/dangerfile.ts' \
     ':(exclude)scripts/provenance/**'
 )"
 

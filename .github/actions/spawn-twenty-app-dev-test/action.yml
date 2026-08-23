@@ -1,14 +1,14 @@
 name: Spawn Twenty App Dev Test
 description: >
   Starts a Twenty all-in-one test instance (server, worker, database, redis)
-  using the twentycrm/twenty-app-dev Docker image on port 2021.
+  using the immutable v2.30.1 twentycrm/twenty-app-dev Docker image on port 2021.
   The server is available at http://localhost:2021 with seeded demo data.
 
 inputs:
   twenty-version:
-    description: 'Twenty Docker Hub image tag for twenty-app-dev (e.g., "latest" or "v1.20.0").'
+    description: 'Immutable Twenty Docker image version (e.g., "v2.30.1@sha256:<digest>").'
     required: false
-    default: 'latest'
+    default: 'v2.30.1@sha256:fdcbd7d90c12a66a83efcdd204d6ea20eaf6fcf0a21ddfa5f2b9fe5e12846fce'
 
 outputs:
   server-url:
@@ -24,6 +24,12 @@ runs:
     - name: Start twenty-app-dev-test container
       shell: bash
       run: |
+        VERSION="${{ inputs.twenty-version }}"
+        if [[ "$VERSION" != *@sha256:* ]]; then
+          echo "::error::twenty-version must include an immutable @sha256 digest"
+          exit 1
+        fi
+
         docker run -d \
           --name twenty-app-dev-test \
           -p 2021:2021 \
@@ -32,7 +38,7 @@ runs:
           -e MARKETPLACE_CATALOG_SYNC_CRON_ENABLED=false \
           -e API_RATE_LIMITING_SHORT_LIMIT=100000 \
           -e API_RATE_LIMITING_LONG_LIMIT=100000 \
-          twentycrm/twenty-app-dev:${{ inputs.twenty-version }}
+          "twentycrm/twenty-app-dev:${VERSION}"
 
         echo "Waiting for Twenty test instance to become healthy…"
         TIMEOUT=180
