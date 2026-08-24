@@ -56,6 +56,31 @@ describe('WorkspaceDomainsService', () => {
   });
 
   describe('getWorkspaceUrls', () => {
+    it('uses one configured stable host for every Workspace in Mhoo mode', () => {
+      jest
+        .spyOn(twentyConfigService, 'get')
+        .mockImplementation((key: string) => {
+          const env = {
+            FRONTEND_URL: 'https://app.mhoo.app',
+            IS_MHOO_FOUNDATION_ENABLED: true,
+          };
+
+          // @ts-expect-error legacy noImplicitAny
+          return env[key];
+        });
+
+      expect(
+        workspaceDomainsService.getWorkspaceUrls({
+          subdomain: 'workspace-a',
+          customDomain: 'customer.example.com',
+          isCustomDomainEnabled: true,
+        }),
+      ).toEqual({
+        customUrl: undefined,
+        subdomainUrl: 'https://app.mhoo.app/',
+      });
+    });
+
     it('should return a URL containing the correct customDomain if customDomain is provided', () => {
       jest
         .spyOn(twentyConfigService, 'get')

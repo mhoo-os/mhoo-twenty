@@ -16,6 +16,7 @@ import {
 } from 'src/engine/core-modules/twenty-config/twenty-config.exception';
 import { configVariableMaskSensitiveData } from 'src/engine/core-modules/twenty-config/utils/config-variable-mask-sensitive-data.util';
 import { isEnvOnlyConfigVar } from 'src/engine/core-modules/twenty-config/utils/is-env-only-config-var.util';
+import { isMhooDisabledBusinessProviderConfigKey } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 import { TypedReflect } from 'src/utils/typed-reflect';
 
 @Injectable()
@@ -54,6 +55,14 @@ export class TwentyConfigService {
   }
 
   get<T extends keyof ConfigVariables>(key: T): ConfigVariables[T] {
+    if (
+      key !== 'IS_MHOO_FOUNDATION_ENABLED' &&
+      this.get('IS_MHOO_FOUNDATION_ENABLED') &&
+      isMhooDisabledBusinessProviderConfigKey(key)
+    ) {
+      return false as ConfigVariables[T];
+    }
+
     if (isEnvOnlyConfigVar(key)) {
       return this.environmentConfigDriver.get(key);
     }
