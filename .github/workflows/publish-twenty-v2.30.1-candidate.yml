@@ -1,9 +1,9 @@
-name: Publish signed Twenty v2.30.1 candidate
+name: Publish signed Twenty v2.30.1 candidate 5
 
 on:
   push:
     tags:
-      - 'mhoo/candidate/v2.30.1-4'
+      - 'mhoo/candidate/v2.30.1-5'
 
 permissions:
   contents: read
@@ -11,16 +11,16 @@ permissions:
   packages: write
 
 concurrency:
-  group: publish-twenty-v2.30.1-candidate-4
+  group: publish-twenty-v2.30.1-candidate-5
   cancel-in-progress: false
 
 env:
-  BUILD_ID: mhoo-twenty-v2.30.1-candidate.4
-  CANDIDATE_TAG: mhoo/candidate/v2.30.1-4
+  BUILD_ID: mhoo-twenty-v2.30.1-candidate.5
+  CANDIDATE_TAG: mhoo/candidate/v2.30.1-5
   CERTIFICATE_IDENTITY: https://github.com/${{ github.repository }}/.github/workflows/publish-twenty-v2.30.1-candidate.yml@${{ github.ref }}
   CERTIFICATE_OIDC_ISSUER: https://token.actions.githubusercontent.com
   IMAGE_REPOSITORY: ghcr.io/mhoo-os/mhoo-twenty
-  IMAGE_TAG: ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-4
+  IMAGE_TAG: ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-5
 
 jobs:
   publish:
@@ -225,7 +225,7 @@ jobs:
       - name: Preserve custody receipt
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: mhoo-twenty-v2.30.1-candidate-4-custody
+          name: mhoo-twenty-v2.30.1-candidate-5-custody
           path: ${{ runner.temp }}/candidate-custody/
           if-no-files-found: error
           retention-days: 90
