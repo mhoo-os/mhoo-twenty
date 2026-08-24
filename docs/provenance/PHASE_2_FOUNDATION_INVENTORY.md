@@ -29,8 +29,25 @@ No checked-in source indicates a need for Core users, Core passwords, Core
 browser sessions, Core Workspace membership, wildcard tenants, or
 Workspace-driven Cloudflare/DNS/Tunnel operations.
 
-Primary classification count across the 32 boundary findings below: **A 6, B 4,
+Mhoo must also disable Twenty-owned **business-provider** integrations. They
+would otherwise make Twenty an OAuth credential, API-client, webhook, or
+provider-semantics authority contrary to ADR-0005. This does not prohibit
+Twenty human-identity federation: Google/Microsoft sign-in and SAML/OIDC SSO
+remain Twenty human-authentication flows when deliberately configured. The
+business-provider boundary is configuration, not a new identity authority or a
+proposed fork delta.
+
+Primary classification count across the 34 boundary findings below: **A 8, B 4,
 C 15, D 1, E 2, F 4**. Each row has one primary class.
+
+**Classification legend**
+
+- **A — runtime/configuration only:** set or constrain deployment/runtime configuration; no source change.
+- **B — Twenty App/extension:** implement through a supported Twenty App or SDK extension point.
+- **C — necessary Mhoo fork delta:** bounded source change required to meet the Mhoo contract.
+- **D — infrastructure responsibility:** deployment, edge, hostname, or provider-environment work outside Twenty.
+- **E — Core/connectors responsibility:** capability belongs to Core or connectors, not Twenty.
+- **F — leave untouched upstream:** preserve existing Twenty behavior without a Mhoo change.
 
 ## Boundary matrix
 
@@ -46,9 +63,11 @@ C 15, D 1, E 2, F 4**. Each row has one primary class.
 | Cookie sessions | user-session/services/user-session-cookie.service.ts | Optional cookie sessions; HTTPS cookie is __Host-twenty-session | A | Enable only in a focused later PR | Medium |
 | Credentialed CORS/CSRF | user-session/utils/resolve-allowed-credentialed-origins.util.ts; middlewares/cookie-session-csrf.middleware.ts | Allows server/front/explicit origins; unsafe cookie requests require allowed Origin | A | Keep only app host by default | Medium |
 | Google/Microsoft sign-in callbacks | auth/strategies/google.auth.strategy.ts; microsoft.auth.strategy.ts | Explicit AUTH callback URL configuration | A | Later register app-host callbacks | Medium |
-| OIDC/SAML callbacks | auth/controllers/sso-auth.controller.ts; sso/services/sso.service.ts | Builds callback and redirect URLs from Workspace domain | C | Stable-host URL builder applies | Medium |
+| SAML/OIDC issuer + callback endpoint | sso/services/sso.service.ts | buildIssuerURL() and buildCallbackUrl() build from SERVER_URL | A | Set SERVER_URL to https://app.mhoo.app; no SSO callback-builder fork | Low |
+| SAML/OIDC post-auth + error redirect | auth/controllers/sso-auth.controller.ts; auth/services/auth.service.ts; guard-redirect; workspace-domains | SSOAuthController passes successful login through computeRedirectURI() and errors through Workspace-domain fallback | C | Stable-host redirect handling applies after, not to, the issuer/callback endpoint | Medium |
 | OAuth propagator | auth/controllers/oauth-propagator.controller.ts | Validates decoded redirect against resolved Twenty domain | C | Permit fixed canonical origin/trusted state, not Workspace hosts | Medium |
-| Provider account OAuth | auth/controllers/google-apis-auth.controller.ts; microsoft-apis-auth.controller.ts | Account integration callbacks are config values | E | Future connector ingress at connect.mhoo.app; leave upstream account integrations alone | Medium |
+| Twenty business-provider integrations | twenty-config/config-variables.ts; auth/controllers/google-apis-auth.controller.ts; microsoft-apis-auth.controller.ts | Google/Microsoft account integrations, IMAP/SMTP/CalDAV, and connected-account webhooks are feature-flag/config controlled; IMAP/SMTP/CalDAV currently defaults true | A | Explicitly set IS_IMAP_SMTP_CALDAV_ENABLED=false; CALENDAR_PROVIDER_GOOGLE_ENABLED=false; MESSAGING_PROVIDER_GMAIL_ENABLED=false; CALENDAR_PROVIDER_MICROSOFT_ENABLED=false; MESSAGING_PROVIDER_MICROSOFT_ENABLED=false; and IS_CONNECTED_ACCOUNT_WEBHOOK_SUBSCRIPTION_ENABLED=false | High |
+| Mhoo business-provider OAuth/webhooks | No Twenty source is Mhoo authority | ADR-0005 assigns provider OAuth, API clients, webhooks, and provider semantics to connectors | E | Connectors own provider credentials and connect.mhoo.app ingress; do not enable Twenty account integrations unless a future ADR changes ownership | High |
 | Invitations | workspace-invitation; auth/services/sign-in-up.service.ts; twenty-emails send-invite-link | Twenty invite token/membership and Workspace URL | C | Preserve token/membership; stable-host links | High |
 | Password reset | auth/services/reset-password.service.ts | Hashed/revocable Twenty AppToken; buildWorkspaceURL mail link | C | Preserve token semantics; stable-host link | High |
 | Email verification | email-verification/services/email-verification.service.ts | Twenty verification token and Workspace/base link | C | Preserve semantics; stable-host link | Medium |
@@ -118,6 +137,32 @@ React presentation lives in twenty-front/modules/auth. Invalid/expired
 invitation/reset tokens remain rejected by existing Twenty services. Phase 3
 must never mint an Mhoo user, session, password store, or membership.
 
+## Provider-account boundary
+
+ADR-0005 distinguishes **human authentication** from **business-provider
+integration**. Twenty remains the authority for the former: an intentionally
+enabled `AUTH_GOOGLE_ENABLED`, `AUTH_MICROSOFT_ENABLED`, or Workspace SAML/OIDC
+provider signs a human into Twenty. It must not thereby become Mhoo's provider
+credential, API-client, webhook, or provider-semantics authority.
+
+The checked-in configuration class exposes a separate connected-account and
+messaging/calendar surface. A later deployment configuration must make the
+following boundary explicit; this Phase 2 record neither sets values nor
+registers any provider callback:
+
+| Surface | v2.30.1 source/config | Current default | Required Mhoo deployment policy | Class |
+| --- | --- | --- | --- | --- |
+| Generic business mail/calendar account | `IS_IMAP_SMTP_CALDAV_ENABLED` | `true` | Set `false` | A |
+| Google Calendar and Gmail account integration | `CALENDAR_PROVIDER_GOOGLE_ENABLED`; `MESSAGING_PROVIDER_GMAIL_ENABLED` | `false`; `false` | Keep both `false` | A |
+| Microsoft calendar and messaging account integration | `CALENDAR_PROVIDER_MICROSOFT_ENABLED`; `MESSAGING_PROVIDER_MICROSOFT_ENABLED` | `false`; `false` | Keep both `false` | A |
+| Connected-account webhook subscriptions | `IS_CONNECTED_ACCOUNT_WEBHOOK_SUBSCRIPTION_ENABLED` | `false` | Keep `false` | A |
+| Human Google/Microsoft/SSO login | `AUTH_GOOGLE_ENABLED`; `AUTH_MICROSOFT_ENABLED`; `SSOService` | Google/Microsoft `false`; Workspace SSO is separately entitled/configured | May be enabled only as Twenty human authentication on the canonical app host | F |
+
+If a future Mhoo requirement needs provider OAuth, API clients, webhook ingress,
+or provider-specific behavior, Connectors owns it at `connect.mhoo.app`. It
+requires an ADR to deliberately change that authority; enabling an upstream
+Twenty account integration is not an implicit exception.
+
 ## Canonical-origin map
 
 | Source/configuration | Current behavior | app.mhoo.app assessment |
@@ -128,8 +173,9 @@ must never mint an Mhoo user, session, password store, or membership.
 | WorkspaceDomainsService | Builds and resolves subdomain/custom Workspace URLs | C: principal blocker |
 | Reset/verification/invitation services | Build absolute mail links through domain service | C only because builder changes; tokens remain F |
 | Google/Microsoft callback config | Explicit config callback values | A |
-| SSO service/OAuth propagator | Builds/revalidates Workspace-domain redirects | C |
-| Connected-account webhook drivers | Compose public URLs from server URL | E/D later: connector ingress belongs at connect.mhoo.app |
+| SSOService issuer + callback builder | buildIssuerURL() and buildCallbackUrl() start from SERVER_URL | A: app.mhoo.app works without an SSO callback-builder fork |
+| SSOAuthController post-auth/error redirect; OAuth propagator | Successful SSO calls computeRedirectURI(); errors and propagator re-enter Workspace-domain resolution | C: stable-host redirect handling is still required |
+| Connected-account integration/webhook configuration | Provider account callbacks use explicit configuration; webhook subscriptions are flag-controlled | A: keep Twenty business-provider integrations disabled; connector ingress is E/D later at connect.mhoo.app |
 | Credentialed-origin resolver | Derives allowlist from server/front/explicit origins | A: one app origin requires no extra origin |
 
 No Mhoo-Twenty source assumes mhoo.app. It does contain localhost,
@@ -210,8 +256,10 @@ These are proposals, not authorization to implement:
    links, and transactional-email header/footer/product copy. No current config
    or App API reaches these global components.
 4. **Canonical-link source tests (C).** Focused tests prove invite, reset,
-   verification, social SSO, OIDC/SAML, and switching use only app.mhoo.app in
-   Mhoo mode. Existing tests prove upstream domain behavior, not ADR-0005.
+   verification, and all post-auth/switch redirects use only app.mhoo.app in
+   Mhoo mode. They also preserve the existing SAML/OIDC issuer and callback
+   builder's SERVER_URL behavior (A). Existing tests prove upstream domain
+   behavior, not ADR-0005.
 
 ## Legacy OVH conflict — inventory only
 
@@ -237,7 +285,9 @@ never reconcile it.
 2. Bounded stable-host routing/policy fork delta with multi-Workspace,
    invitation/reset/verification/switch and membership-isolation tests.
 3. Local/disposable canonical URL plus host-only cookie-session candidate; no
-   provider registration or infrastructure change.
+   provider registration or infrastructure change. Include the explicit
+   business-provider-disable configuration contract; human-auth federation is
+   separately scoped and remains Twenty-owned.
 4. Customer-brand seam and rendered screen/email tests.
 5. First-party Mhoo App for Mhoo Home and bounded views/actions.
 6. Separate infrastructure reconciliation after source proof and approval.
@@ -246,9 +296,10 @@ never reconcile it.
 
 - Inspected checked-in v2.30.1 server, front end, emails, SDK, App fixtures, and
   only the needed legacy OVH deployment source.
-- No AGENTS.md applies at Mhoo-Twenty root. Nested App instructions were not
-  applicable because no App source changed; root mhoo and infrastructure
-  instructions governed read-only inspection.
+- Root `AGENTS.md` applies and was reviewed. The inventory follows its
+  source-provenance, least-invasive-layer, Twenty-authority,
+  connector-authority, and no-external-effects requirements. Nested App
+  instructions were not applicable because no App source changed.
 - No source, .twenty-source, lockfile, migration, runtime behavior,
   infrastructure file, provider, DNS, Cloudflare, Tunnel, credential,
   publication, or cutover was changed.
