@@ -144,6 +144,7 @@ UNEXPECTED_PATHS="$(
     ':(exclude)packages/twenty-emails/src/components/Logo.tsx' \
     ':(exclude)packages/twenty-emails/src/components/get-customer-brand.ts' \
     ':(exclude)packages/twenty-front/src/modules/auth/components/Logo.tsx' \
+    ':(exclude)packages/twenty-front/src/generated-metadata/graphql.ts' \
     ':(exclude)packages/twenty-front/src/modules/app/components/RootAppProviders.tsx' \
     ':(exclude)packages/twenty-front/src/modules/app/components/WorkspaceAppProviders.tsx' \
     ':(exclude)packages/twenty-front/src/modules/auth/sign-in-up/components/FooterNote.tsx' \
@@ -184,10 +185,17 @@ UNEXPECTED_PATHS="$(
     ':(exclude)packages/twenty-server/src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util.ts' \
     ':(exclude)packages/twenty-server/src/engine/core-modules/twenty-config/utils/validate-mhoo-foundation-config.util.ts' \
     ':(exclude)packages/twenty-server/src/engine/core-modules/twenty-config/utils/__tests__/validate-mhoo-foundation-config.util.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.module.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.resolver.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.resolver.ts' \
     ':(exclude)packages/twenty-server/src/engine/core-modules/workspace/crons/jobs/check-custom-domain-valid-records.cron.job.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/workspace/services/__tests__/workspace.service.spec.ts' \
     ':(exclude)packages/twenty-server/src/engine/core-modules/workspace/services/workspace.service.ts' \
     ':(exclude)packages/twenty-server/src/engine/core-modules/workspace/workspace.resolver.ts' \
     ':(exclude)packages/twenty-server/src/modules/connected-account/channel-sync/services/channel-sync.service.ts' \
+    ':(exclude)packages/twenty-client-sdk/src/metadata/generated/schema.graphql' \
+    ':(exclude)packages/twenty-client-sdk/src/metadata/generated/schema.ts' \
+    ':(exclude)packages/twenty-client-sdk/src/metadata/generated/types.ts' \
     ':(exclude)packages/twenty-utils/dangerfile.ts' \
     ':(exclude)scripts/provenance/**'
 )"

@@ -22,8 +22,9 @@ or Twenty version change is included.
 
 - Server foundation/configuration: `config-variables.ts`, `twenty-config.service.ts`,
   the two Mhoo config utilities, client-config entity/service, stable domain
-  services, auth resolver/OAuth propagator/provider guards, Workspace
-  service/resolver/cron, and connected-account webhook scheduling.
+  services, auth resolver/OAuth propagator/provider guards, pre-auth 2FA
+  provisioning, Workspace service/resolver/cron, and connected-account webhook
+  scheduling.
 - Front presentation/routing: client-config state/hook/type, stable-host domain
   hooks/effect, auth/onboarding components, app providers/favicon, and the
   customer-brand helper.
@@ -98,7 +99,7 @@ upstream technical assets.
 
 Focused coverage was added for Mhoo configuration validity and default-off
 behavior, stable Workspace URL generation, token-derived Workspace selection
-without hostname resolution, OAuth callback allow/deny behavior,
+without hostname resolution (including pre-auth 2FA provisioning), OAuth callback allow/deny behavior,
 custom-domain DNS-call prevention, client-config exposure, and customer-brand
 defaults/override. Existing source tests remain the pattern used.
 

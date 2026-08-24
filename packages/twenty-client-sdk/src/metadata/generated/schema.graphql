@@ -1917,6 +1917,7 @@ type ClientConfig {
   aiModels: [ClientAiModelConfig!]!
   signInPrefilled: Boolean!
   isMultiWorkspaceEnabled: Boolean!
+  isMhooFoundationEnabled: Boolean!
   isEmailVerificationRequired: Boolean!
   defaultSubdomain: String
   frontDomain: String!
