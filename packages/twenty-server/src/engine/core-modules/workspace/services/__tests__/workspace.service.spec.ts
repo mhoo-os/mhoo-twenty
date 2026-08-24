@@ -45,6 +45,7 @@ describe('WorkspaceService', () => {
   let workspaceCacheStorageService: WorkspaceCacheStorageService;
   let messageQueueService: MessageQueueService;
   let dnsManagerService: DnsManagerService;
+  let twentyConfigService: TwentyConfigService;
   let billingSubscriptionService: BillingSubscriptionService;
   let userWorkspaceService: UserWorkspaceService;
   let flatEntityMapsCacheService: WorkspaceManyOrAllFlatEntityMapsCacheService;
@@ -125,7 +126,10 @@ describe('WorkspaceService', () => {
           UpgradeSequenceReaderService,
         ].map((service) => ({
           provide: service,
-          useValue: {},
+          useValue:
+            service === TwentyConfigService
+              ? { get: jest.fn().mockReturnValue(false) }
+              : {},
         })),
         {
           provide: WorkspaceCacheStorageService,
@@ -196,6 +200,7 @@ describe('WorkspaceService', () => {
     );
     dnsManagerService = module.get<DnsManagerService>(DnsManagerService);
     dnsManagerService.deleteHostnameSilently = jest.fn();
+    twentyConfigService = module.get<TwentyConfigService>(TwentyConfigService);
     billingSubscriptionService = module.get<BillingSubscriptionService>(
       BillingSubscriptionService,
     );
@@ -383,6 +388,27 @@ describe('WorkspaceService', () => {
       expect(dnsManagerService.deleteHostnameSilently).toHaveBeenCalledWith(
         customDomain,
       );
+    });
+
+    it('should not delete the custom domain in Mhoo foundation mode', async () => {
+      const customDomain = 'custom.example.com';
+      const mockWorkspace = {
+        id: 'workspace-id',
+        metadataVersion: 0,
+        customDomain,
+      } as WorkspaceEntity;
+
+      jest
+        .spyOn(workspaceRepository, 'findOne')
+        .mockResolvedValue(mockWorkspace);
+      jest.spyOn(userWorkspaceRepository, 'find').mockResolvedValue([]);
+      jest
+        .mocked(twentyConfigService.get)
+        .mockImplementation((key) => key === 'IS_MHOO_FOUNDATION_ENABLED');
+
+      await service.deleteWorkspace(mockWorkspace.id, false);
+
+      expect(dnsManagerService.deleteHostnameSilently).not.toHaveBeenCalled();
     });
 
     it('should not delete the custom domain when soft deleting a workspace with a custom domain', async () => {

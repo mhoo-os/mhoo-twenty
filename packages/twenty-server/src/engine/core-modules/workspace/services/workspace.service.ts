@@ -44,6 +44,7 @@ import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queu
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
 import { SdkClientGenerationService } from 'src/engine/core-modules/sdk-client/sdk-client-generation.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 import { UpgradeMigrationService } from 'src/engine/core-modules/upgrade/services/upgrade-migration.service';
 import { UpgradeSequenceReaderService } from 'src/engine/core-modules/upgrade/services/upgrade-sequence-reader.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
@@ -173,6 +174,16 @@ export class WorkspaceService {
     });
 
     assertIsDefinedOrThrow(workspace, WorkspaceNotFoundDefaultError);
+
+    if (
+      isMhooFoundationEnabled(this.twentyConfigService) &&
+      (isDefined(payload.subdomain) || payload.customDomain !== undefined)
+    ) {
+      throw new WorkspaceException(
+        'Workspace hostname settings are unavailable in Mhoo foundation mode',
+        WorkspaceExceptionCode.WORKSPACE_CUSTOM_DOMAIN_DISABLED,
+      );
+    }
 
     await this.validateWorkspaceUpdatePermissions({
       payload,
@@ -614,7 +625,10 @@ export class WorkspaceService {
       },
     );
 
-    if (workspace.customDomain) {
+    if (
+      workspace.customDomain &&
+      !isMhooFoundationEnabled(this.twentyConfigService)
+    ) {
       await this.dnsManagerService.deleteHostnameSilently(
         workspace.customDomain,
       );

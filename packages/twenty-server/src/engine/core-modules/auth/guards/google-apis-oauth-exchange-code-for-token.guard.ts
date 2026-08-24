@@ -13,6 +13,7 @@ import { setRequestExtraParams } from 'src/engine/core-modules/auth/utils/google
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
 @Injectable()
@@ -36,8 +37,9 @@ export class GoogleAPIsOauthExchangeCodeForTokenGuard extends AuthGuard(
       const state = JSON.parse(request.query.state);
 
       if (
-        !this.twentyConfigService.get('MESSAGING_PROVIDER_GMAIL_ENABLED') &&
-        !this.twentyConfigService.get('CALENDAR_PROVIDER_GOOGLE_ENABLED')
+        isMhooFoundationEnabled(this.twentyConfigService) ||
+        (!this.twentyConfigService.get('MESSAGING_PROVIDER_GMAIL_ENABLED') &&
+          !this.twentyConfigService.get('CALENDAR_PROVIDER_GOOGLE_ENABLED'))
       ) {
         throw new AuthException(
           'Google apis auth is not enabled',

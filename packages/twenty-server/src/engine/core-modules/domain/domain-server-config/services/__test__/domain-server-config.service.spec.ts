@@ -78,5 +78,25 @@ describe('SubdomainManagerService', () => {
 
       expect(result.toString()).toBe('https://test.example.com/');
     });
+
+    it('keeps the configured host stable in Mhoo multi-workspace mode', () => {
+      jest
+        .spyOn(twentyConfigService, 'get')
+        .mockImplementation((key: string) => {
+          const env = {
+            FRONTEND_URL: 'https://app.mhoo.app',
+            IS_MULTIWORKSPACE_ENABLED: true,
+            IS_MHOO_FOUNDATION_ENABLED: true,
+            DEFAULT_SUBDOMAIN: 'app',
+          };
+
+          // @ts-expect-error legacy noImplicitAny
+          return env[key];
+        });
+
+      expect(domainServerConfigService.getBaseUrl().toString()).toBe(
+        'https://app.mhoo.app/',
+      );
+    });
   });
 });

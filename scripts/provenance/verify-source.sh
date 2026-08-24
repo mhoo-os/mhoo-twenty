@@ -91,6 +91,8 @@ assert_equal "$(node -p "require('./package.json').packageManager")" \
 
 # Mhoo CI contract overlay. These paths are intentionally reviewed separately
 # from the exact upstream source tree and are not application-source edits.
+# Phase 3 Mhoo foundation fork deltas are explicitly enumerated below so this
+# check still fails closed for every other upstream source path.
 UNEXPECTED_PATHS="$(
   git diff --name-only "$UPSTREAM_COMMIT" HEAD -- . \
     ':(exclude).twenty-source' \
@@ -137,6 +139,63 @@ UNEXPECTED_PATHS="$(
     ':(exclude).github/workflows/stage-twenty-v2.30.1-candidate-4-rehearsal.yml' \
     ':(exclude).github/workflows/twenty-v2.30.1-provenance.yml' \
     ':(exclude)docs/provenance/**' \
+    ':(exclude)packages/twenty-emails/src/components/BaseHead.tsx' \
+    ':(exclude)packages/twenty-emails/src/components/Footer.tsx' \
+    ':(exclude)packages/twenty-emails/src/components/Logo.tsx' \
+    ':(exclude)packages/twenty-emails/src/components/get-customer-brand.ts' \
+    ':(exclude)packages/twenty-front/src/modules/auth/components/Logo.tsx' \
+    ':(exclude)packages/twenty-front/src/generated-metadata/graphql.ts' \
+    ':(exclude)packages/twenty-front/src/modules/app/components/RootAppProviders.tsx' \
+    ':(exclude)packages/twenty-front/src/modules/app/components/WorkspaceAppProviders.tsx' \
+    ':(exclude)packages/twenty-front/src/modules/auth/sign-in-up/components/FooterNote.tsx' \
+    ':(exclude)packages/twenty-front/src/modules/branding/utils/getCustomerBrand.ts' \
+    ':(exclude)packages/twenty-front/src/modules/branding/utils/__tests__/getCustomerBrand.test.ts' \
+    ':(exclude)packages/twenty-front/src/modules/client-config/hooks/useClientConfig.ts' \
+    ':(exclude)packages/twenty-front/src/modules/client-config/states/isMhooFoundationEnabledState.ts' \
+    ':(exclude)packages/twenty-front/src/modules/client-config/types/ClientConfig.ts' \
+    ':(exclude)packages/twenty-front/src/modules/client-config/utils/__tests__/clientConfigUtils.test.ts' \
+    ':(exclude)packages/twenty-front/src/modules/domain-manager/hooks/useGetPublicWorkspaceDataByDomain.ts' \
+    ':(exclude)packages/twenty-front/src/modules/domain-manager/hooks/useIsCurrentLocationOnDefaultDomain.ts' \
+    ':(exclude)packages/twenty-front/src/modules/onboarding/components/OnboardingHeader.tsx' \
+    ':(exclude)packages/twenty-front/src/modules/onboarding/components/OnboardingPulsingLogo.tsx' \
+    ':(exclude)packages/twenty-front/src/modules/workspace/components/WorkspaceProviderEffect.tsx' \
+    ':(exclude)packages/twenty-front/src/modules/ui/utilities/page-favicon/components/PageFavicon.tsx' \
+    ':(exclude)packages/twenty-front/src/pages/auth/SignInUp.tsx' \
+    ':(exclude)packages/twenty-front/src/testing/mock-data/config.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/auth/auth.resolver.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/auth/auth.resolver.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/auth/controllers/oauth-propagator.controller.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/auth/controllers/oauth-propagator.controller.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/auth/guards/google-apis-oauth-exchange-code-for-token.guard.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/auth/guards/google-apis-oauth-request-code.guard.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/auth/guards/microsoft-apis-oauth-exchange-code-for-token.guard.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/auth/guards/microsoft-apis-oauth-request-code.guard.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/client-config/client-config.controller.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/client-config/client-config.entity.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/client-config/services/client-config.service.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/client-config/services/client-config.service.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/domain/custom-domain-manager/services/custom-domain-manager.service.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/domain/custom-domain-manager/services/custom-domain-manager.service.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/domain/domain-server-config/services/__test__/domain-server-config.service.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/domain/workspace-domains/services/__test__/workspace-domains.service.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/twenty-config/config-variables.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/twenty-config/twenty-config.service.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/twenty-config/utils/validate-mhoo-foundation-config.util.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/twenty-config/utils/__tests__/validate-mhoo-foundation-config.util.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.module.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.resolver.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.resolver.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/workspace/crons/jobs/check-custom-domain-valid-records.cron.job.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/workspace/services/__tests__/workspace.service.spec.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/workspace/services/workspace.service.ts' \
+    ':(exclude)packages/twenty-server/src/engine/core-modules/workspace/workspace.resolver.ts' \
+    ':(exclude)packages/twenty-server/src/modules/connected-account/channel-sync/services/channel-sync.service.ts' \
+    ':(exclude)packages/twenty-client-sdk/src/metadata/generated/schema.graphql' \
+    ':(exclude)packages/twenty-client-sdk/src/metadata/generated/schema.ts' \
+    ':(exclude)packages/twenty-client-sdk/src/metadata/generated/types.ts' \
     ':(exclude)packages/twenty-utils/dangerfile.ts' \
     ':(exclude)scripts/provenance/**'
 )"

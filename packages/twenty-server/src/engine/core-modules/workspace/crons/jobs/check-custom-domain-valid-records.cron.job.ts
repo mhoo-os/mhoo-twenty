@@ -9,6 +9,8 @@ import { Process } from 'src/engine/core-modules/message-queue/decorators/proces
 import { Processor } from 'src/engine/core-modules/message-queue/decorators/processor.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 
 export const CHECK_CUSTOM_DOMAIN_VALID_RECORDS_CRON_PATTERN = '0 * * * *';
 
@@ -18,6 +20,7 @@ export class CheckCustomDomainValidRecordsCronJob {
     @InjectRepository(WorkspaceEntity)
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     private readonly customDomainManagerService: CustomDomainManagerService,
+    private readonly twentyConfigService: TwentyConfigService,
   ) {}
 
   @Process(CheckCustomDomainValidRecordsCronJob.name)
@@ -26,6 +29,10 @@ export class CheckCustomDomainValidRecordsCronJob {
     CHECK_CUSTOM_DOMAIN_VALID_RECORDS_CRON_PATTERN,
   )
   async handle(): Promise<void> {
+    if (isMhooFoundationEnabled(this.twentyConfigService)) {
+      return;
+    }
+
     const workspaces = await this.workspaceRepository.find({
       where: {
         activationStatus: WorkspaceActivationStatus.ACTIVE,

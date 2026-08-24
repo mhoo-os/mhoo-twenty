@@ -2,9 +2,12 @@ import { styled } from '@linaria/react';
 import { Trans } from '@lingui/react/macro';
 
 import { useWorkspaceBypass } from '@/auth/sign-in-up/hooks/useWorkspaceBypass';
+import { getCustomerBrand } from '@/branding/utils/getCustomerBrand';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import { useIsCurrentLocationOnAWorkspace } from '@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace';
 import { ONBOARDING_CONTENT_BLOCK_WIDTH } from '@/onboarding/constants/OnboardingContentBlockWidth';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 const StyledCopyContainer = styled.div`
   align-items: center;
@@ -64,6 +67,10 @@ export const FooterNote = ({
   secondaryAgreement = 'privacyPolicy',
 }: FooterNoteProps) => {
   const { isOnAWorkspace } = useIsCurrentLocationOnAWorkspace();
+  const isMhooFoundationEnabled = useAtomStateValue(
+    isMhooFoundationEnabledState,
+  );
+  const brand = getCustomerBrand(isMhooFoundationEnabled);
 
   const { shouldOfferBypass, shouldUseBypass, enableBypass } =
     useWorkspaceBypass();
@@ -71,29 +78,25 @@ export const FooterNote = ({
   if (!isOnAWorkspace) {
     return (
       <StyledCopyContainer>
-        <Trans>By using Twenty, you agree to the</Trans>{' '}
-        <a
-          href="https://twenty.com/legal/terms"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        {isMhooFoundationEnabled ? (
+          `By using ${brand.name}, you agree to the`
+        ) : (
+          <Trans>By using Twenty, you agree to the</Trans>
+        )}{' '}
+        <a href={brand.termsUrl} target="_blank" rel="noopener noreferrer">
           <Trans>Terms of Service</Trans>
         </a>{' '}
         <Trans>and</Trans>{' '}
         {secondaryAgreement === 'dataProcessingAgreement' ? (
           <a
-            href="https://twenty.com/legal/dpa"
+            href={brand.dataProcessingAgreementUrl}
             target="_blank"
             rel="noopener noreferrer"
           >
             <Trans>Data Processing Agreement</Trans>
           </a>
         ) : (
-          <a
-            href="https://twenty.com/legal/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href={brand.privacyUrl} target="_blank" rel="noopener noreferrer">
             <Trans>Privacy Policy</Trans>
           </a>
         )}
@@ -112,19 +115,11 @@ export const FooterNote = ({
           <StyledSeparator>•</StyledSeparator>
         </>
       )}
-      <a
-        href="https://twenty.com/legal/privacy"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a href={brand.privacyUrl} target="_blank" rel="noopener noreferrer">
         <Trans>Privacy Policy</Trans>
       </a>
       <StyledSeparator>•</StyledSeparator>
-      <a
-        href="https://twenty.com/legal/terms"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a href={brand.termsUrl} target="_blank" rel="noopener noreferrer">
         <Trans>Terms of Service</Trans>
       </a>
     </StyledLinksContainer>

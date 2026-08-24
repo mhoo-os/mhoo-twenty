@@ -13,6 +13,7 @@ import { TransientTokenService } from 'src/engine/core-modules/auth/token/servic
 import { setRequestExtraParams } from 'src/engine/core-modules/auth/utils/google-apis-set-request-extra-params.util';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 
@@ -38,8 +39,11 @@ export class MicrosoftAPIsOauthRequestCodeGuard extends AuthGuard(
 
     try {
       if (
-        !this.twentyConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED') &&
-        !this.twentyConfigService.get('CALENDAR_PROVIDER_MICROSOFT_ENABLED')
+        isMhooFoundationEnabled(this.twentyConfigService) ||
+        (!this.twentyConfigService.get(
+          'MESSAGING_PROVIDER_MICROSOFT_ENABLED',
+        ) &&
+          !this.twentyConfigService.get('CALENDAR_PROVIDER_MICROSOFT_ENABLED'))
       ) {
         throw new AuthException(
           'Microsoft apis auth is not enabled',
