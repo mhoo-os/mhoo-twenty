@@ -99,7 +99,7 @@ BUILD_LOG="$(mktemp)"
 trap 'rm -f "$BUILD_LOG"' EXIT
 
 if ! run_build 2>&1 | tee "$BUILD_LOG"; then
-  if rg --quiet 'ENOTEMPTY.*packages/twenty-sdk/dist' "$BUILD_LOG"; then
+  if grep -Eq 'ENOTEMPTY.*packages/twenty-sdk/dist' "$BUILD_LOG"; then
     echo "retrying candidate build after transient twenty-sdk dist cleanup race" >&2
     run_build
   else
