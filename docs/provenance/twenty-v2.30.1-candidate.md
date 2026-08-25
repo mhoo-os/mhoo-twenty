@@ -1,5 +1,11 @@
 # Twenty v2.30.1 source and candidate provenance
 
+> Historical candidate-1 receipt. Its disposable image is CI evidence only and
+> is not a current gate input. The controlling published-candidate record is
+> [Twenty v2.30.1 published candidate custody](twenty-v2.30.1-published-candidate.md):
+> only its signed, digest-bound candidate-4 reference may become a rehearsal
+> input. Production cutover remains NO-GO.
+
 ## Scope
 
 This gate canonicalizes the frozen Twenty `v2.30.1` migration target and builds a disposable candidate. It does not customize Twenty, deploy an image, connect to a production database, run production migrations, change secrets, rotate credentials, begin a rehearsal, or upgrade beyond `v2.30.1`.
@@ -93,9 +99,9 @@ The authoritative job printed `candidate validation passed` after all of the fol
 
 PostgreSQL, Redis, server, and worker ran only in the GitHub-hosted disposable job and were destroyed by its cleanup trap. No production deployment, production database access or migration, secret change, credential rotation, rehearsal, or version upgrade occurred.
 
-Two earlier builds produced manifests but ended in validation-harness false negatives and are explicitly not candidates: `sha256:7eeabc9c38dffdb78b5caa0cf043e62c3492ca930d037f5a6ec5e93bd7c8e428` and `sha256:fd000b0cc028030c1c51bf7a0aebf660c187fca54a85b29fcb5c617e74203b16`. Only the digest recorded in the candidate table above is approved for the next gate.
+Two earlier builds produced manifests but ended in validation-harness false negatives and are explicitly not candidates: `sha256:7eeabc9c38dffdb78b5caa0cf043e62c3492ca930d037f5a6ec5e93bd7c8e428` and `sha256:fd000b0cc028030c1c51bf7a0aebf660c187fca54a85b29fcb5c617e74203b16`. At the time of this candidate-1 receipt, only the digest recorded in the candidate table above was approved for its next gate; it is now historical evidence, not a current gate input.
 
-## Local commands
+## Historical reproduction commands
 
 ```bash
 scripts/provenance/verify-source.sh
