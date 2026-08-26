@@ -141,3 +141,49 @@ clients, cookie sessions, or Mhoo legal pages; those are later reviewed runtime
 or infrastructure work. It does not add a Core tenant mapping, a new Workspace
 selector, a Mhoo App, a connector, or a Core/API/MCP surface. Phase 3 must be
 reviewed and merged before any of those subsequent scoped changes begin.
+
+## Phase 4 source-only stable-host signup-scope successor
+
+The Candidate 5 static adjudication found that Foundation mode correctly
+rendered the global signup surface while the separate
+`useIsCurrentLocationOnAWorkspace` predicate still classified the same stable
+host through default-subdomain hostname arithmetic. The controlled successor
+base is Candidate source `c9f41183f301ef2bfafee98e438f0c8a353e409a`.
+
+The reviewed first successor incorrectly placed Foundation signup policy in
+the shared `useIsCurrentLocationOnAWorkspace` predicate. That predicate has
+multiple non-signup consumers, so the final successor restores its Candidate
+semantics. The narrow Foundation exception instead lives only in
+`useSignInUp`'s ordinary signup operation selection: it selects the existing
+global `SignUp` flow while preserving Candidate-base sign-in, invitation,
+personal-invite, verification, navigation, and Workspace-location behavior.
+Explicit Workspace naming remains in authenticated Workspace Creation.
+
+The production-wiring tests use the real location predicate with the actual
+browser hostname and configured domain inputs. They prove Foundation ordinary
+signup selects `SignUp`, while sign-in and invitation flows retain their
+Candidate behavior; focused verification and authenticated-navigation tests
+prove the shared predicate no longer carries the signup exception. The
+provenance allowlist records only the narrow signup source change and these
+focused frontend tests as the final additional Mhoo fork delta.
+
+PR-triggered automatic CI performs an ephemeral image build and generic
+disposable validation. The reviewed automatic run passed those steps, but it
+is neither the manual or authoritative Candidate build nor focused Phase 4
+runtime proof. No Candidate image was published, promoted, or deployed; no
+focused signup, verification, Workspace Creation, or authenticated-navigation
+runtime proof was performed; and Gate B was not invoked. Candidate source
+`c9f41183f301ef2bfafee98e438f0c8a353e409a` and digest
+`sha256:147f334411d394811c0b8692cc14dd5464f63bea1c0052f47273e588d228b8ba`
+remain unchanged. This PR head is only a source successor awaiting review and
+later authorization; Phase 4 remains blocked and R3 remains open.
+
+## PR #19 CI execution adaptation
+
+PR #19 adds a repository-local CI adaptation only: `CI Front` uses GitHub's
+standard public Ubuntu runner in place of the inherited unavailable larger-runner
+label, with a new stable concurrency generation and matching Storybook cache
+identity. It preserves all Front and Storybook jobs and changes no application
+source, test behavior, Candidate identity, runtime configuration, or Phase 4
+finding. Exact-head CI execution is required as its compatibility proof; this
+adaptation does not close R3 or Phase 4.

@@ -117,6 +117,7 @@ UNEXPECTED_PATHS="$(
     ':(exclude).github/workflows/ci-e2e-main.yaml' \
     ':(exclude).github/workflows/ci-example-app-hello-world.yaml' \
     ':(exclude).github/workflows/ci-example-app-postcard.yaml' \
+    ':(exclude).github/workflows/ci-front.yaml' \
     ':(exclude).github/workflows/ci-sdk.yaml' \
     ':(exclude).github/workflows/ci-server.yaml' \
     ':(exclude).github/workflows/ci-zapier.yaml' \
@@ -156,6 +157,10 @@ UNEXPECTED_PATHS="$(
     ':(exclude)packages/twenty-front/src/modules/client-config/utils/__tests__/clientConfigUtils.test.ts' \
     ':(exclude)packages/twenty-front/src/modules/domain-manager/hooks/useGetPublicWorkspaceDataByDomain.ts' \
     ':(exclude)packages/twenty-front/src/modules/domain-manager/hooks/useIsCurrentLocationOnDefaultDomain.ts' \
+    ':(exclude)packages/twenty-front/src/modules/auth/sign-in-up/hooks/useSignInUp.ts' \
+    ':(exclude)packages/twenty-front/src/modules/auth/sign-in-up/hooks/__tests__/useSignInUp.test.tsx' \
+    ':(exclude)packages/twenty-front/src/modules/auth/components/__tests__/VerifyEmail.test.tsx' \
+    ':(exclude)packages/twenty-front/src/hooks/__tests__/usePageChangeEffectNavigateLocationFoundation.test.tsx' \
     ':(exclude)packages/twenty-front/src/modules/onboarding/components/OnboardingHeader.tsx' \
     ':(exclude)packages/twenty-front/src/modules/onboarding/components/OnboardingPulsingLogo.tsx' \
     ':(exclude)packages/twenty-front/src/modules/workspace/components/WorkspaceProviderEffect.tsx' \
