@@ -88,8 +88,19 @@ The source and candidate workflows are:
 
 - `twenty-v2.30.1-provenance.yml`;
 - `publish-twenty-v2.30.1-candidate.yml`;
+- `publish-twenty-v2.30.1-candidate-6.yml` (Candidate 6-only, input-free
+  manual successor custody control);
 - `sign-twenty-v2.30.1-candidate-4.yml`;
 - `stage-twenty-v2.30.1-candidate-4-rehearsal.yml`.
+
+The Candidate 6 control is a reviewed workflow on `main`, dispatched without
+publication inputs. Before credentials or push, it resolves only
+`mhoo/candidate/v2.30.1-6`, requires an annotated tag object that peels to
+`08d55ab7ed4bbc4e72fee825822c3ce0656c82ef` and tree
+`8d7b43fe941bc648a35bb486642d0d532013e5ae`, then checks out that source
+commit. It refuses an existing `ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-6` tag and
+records a Candidate 6-specific structured custody receipt. It does not alter,
+inspect, retag, rebuild, or republish Candidate 5.
 
 A green health endpoint is not product readiness, and a signed image is not
 production authority. Deployment, DNS, Cloudflare, Tailscale, production

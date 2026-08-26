@@ -1,0 +1,262 @@
+name: Publish signed Twenty v2.30.1 candidate 6
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+
+concurrency:
+  group: publish-twenty-v2.30.1-candidate-6
+  cancel-in-progress: false
+
+env:
+  BUILD_ID: mhoo-twenty-v2.30.1-candidate.6
+  CANDIDATE_NUMBER: '6'
+  CANDIDATE_TAG: mhoo/candidate/v2.30.1-6
+  EXPECTED_REPOSITORY: mhoo-os/mhoo-twenty
+  EXPECTED_SOURCE_REVISION: 08d55ab7ed4bbc4e72fee825822c3ce0656c82ef
+  EXPECTED_SOURCE_TREE: 8d7b43fe941bc648a35bb486642d0d532013e5ae
+  EXPECTED_UPSTREAM_TAG: twenty/v2.30.1
+  EXPECTED_UPSTREAM_COMMIT: 064bdd795a0bd78c65f024350cefed2c8f38a661
+  EXPECTED_UPSTREAM_TREE: 7ebc5efa7f5f1bfdf9d238a88e3455decaa4f313
+  EXPECTED_WORKFLOW_REF: refs/heads/main
+  SOURCE_REMOTE: https://github.com/mhoo-os/mhoo-twenty.git
+  CERTIFICATE_IDENTITY: https://github.com/mhoo-os/mhoo-twenty/.github/workflows/publish-twenty-v2.30.1-candidate-6.yml@refs/heads/main
+  CERTIFICATE_OIDC_ISSUER: https://token.actions.githubusercontent.com
+  IMAGE_REPOSITORY: ghcr.io/mhoo-os/mhoo-twenty
+  IMAGE_TAG: ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-6
+
+jobs:
+  publish:
+    name: Build once, publish, validate, sign, and verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out reviewed workflow-control commit
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Validate immutable Candidate 6 workflow contract
+        run: scripts/provenance/validate-candidate-6-publication-workflow.sh
+
+      - name: Resolve and verify immutable Candidate 6 source
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REPOSITORY" == "$EXPECTED_REPOSITORY" ]] || { echo "unexpected repository" >&2; exit 1; }
+          [[ "$GITHUB_REF" == "$EXPECTED_WORKFLOW_REF" ]] || { echo "workflow must be dispatched from main" >&2; exit 1; }
+          [[ "$(git rev-parse HEAD)" == "$GITHUB_SHA" ]] || { echo "workflow-control checkout mismatch" >&2; exit 1; }
+
+          expected_ref="refs/tags/${CANDIDATE_TAG}"
+          remote_refs="$(git ls-remote --tags "$SOURCE_REMOTE" "$expected_ref" "${expected_ref}^{}")"
+          tag_object="$(awk -v ref="$expected_ref" '$2 == ref { print $1 }' <<<"$remote_refs")"
+          source_revision="$(awk -v ref="${expected_ref}^{}" '$2 == ref { print $1 }' <<<"$remote_refs")"
+          [[ "$tag_object" =~ ^[0-9a-f]{40}$ ]] || { echo "candidate ref is missing or is not an annotated tag" >&2; exit 1; }
+          [[ "$source_revision" == "$EXPECTED_SOURCE_REVISION" ]] || { echo "candidate tag peeled commit is not allowed" >&2; exit 1; }
+
+          git fetch --no-tags "$SOURCE_REMOTE" "${expected_ref}:${expected_ref}"
+          [[ "$(git cat-file -t "$expected_ref")" == tag ]] || { echo "candidate ref must be annotated" >&2; exit 1; }
+          [[ "$(git rev-parse "$expected_ref")" == "$tag_object" ]] || { echo "fetched tag object differs from remote advertisement" >&2; exit 1; }
+          [[ "$(git rev-parse "${expected_ref}^{commit}")" == "$EXPECTED_SOURCE_REVISION" ]] || { echo "fetched tag commit is not allowed" >&2; exit 1; }
+          source_tree="$(git rev-parse "${EXPECTED_SOURCE_REVISION}^{tree}")"
+          [[ "$source_tree" == "$EXPECTED_SOURCE_TREE" ]] || { echo "candidate source tree is not allowed" >&2; exit 1; }
+
+          git checkout --detach "$EXPECTED_SOURCE_REVISION"
+          [[ "$(git rev-parse HEAD)" == "$EXPECTED_SOURCE_REVISION" ]] || { echo "source checkout mismatch" >&2; exit 1; }
+          [[ -z "$(git status --porcelain)" ]] || { echo "candidate source worktree must be clean" >&2; exit 1; }
+          {
+            echo "source_revision=${EXPECTED_SOURCE_REVISION}"
+            echo "source_tree=${EXPECTED_SOURCE_TREE}"
+            echo "tag_object=${tag_object}"
+            echo "workflow_control_commit=${GITHUB_SHA}"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Fetch canonical upstream objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags https://github.com/twentyhq/twenty.git refs/tags/twenty/v2.30.0 refs/tags/twenty/v2.30.1
+
+      - name: Verify exact source and controlled overlay
+        id: provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          scripts/provenance/verify-source.sh
+          [[ "$(sed -n 's/^TWENTY_UPSTREAM_REF=refs\/tags\///p' .twenty-source)" == "$EXPECTED_UPSTREAM_TAG" ]]
+          [[ "$(sed -n 's/^TWENTY_UPSTREAM_COMMIT=//p' .twenty-source)" == "$EXPECTED_UPSTREAM_COMMIT" ]]
+          [[ "$(sed -n 's/^TWENTY_UPSTREAM_TREE=//p' .twenty-source)" == "$EXPECTED_UPSTREAM_TREE" ]]
+          echo 'result=passed' >>"$GITHUB_OUTPUT"
+
+      - name: Check Candidate 6 tag before registry login
+        shell: bash
+        run: |
+          set -euo pipefail
+          if docker manifest inspect "$IMAGE_TAG" >/dev/null 2>&1; then
+            echo "${IMAGE_TAG} already exists; refusing to rebuild or move it" >&2
+            exit 1
+          fi
+          echo 'Anonymous registry inspection did not resolve Candidate 6; authenticated refusal remains required.'
+
+      - name: Set up BuildKit
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: Record builder identity
+        id: builder
+        shell: bash
+        run: echo "identity=$(docker buildx version)" >>"$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Refuse to replace an existing Candidate 6 tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          if docker buildx imagetools inspect "$IMAGE_TAG" >/dev/null 2>&1; then
+            echo "${IMAGE_TAG} already exists; refusing to rebuild or move it" >&2
+            exit 1
+          fi
+
+      - name: Build once and push Candidate 6
+        id: build
+        env:
+          IMAGE_NAME: ${{ env.IMAGE_TAG }}
+          METADATA_PATH: ${{ runner.temp }}/candidate-6-build-metadata.json
+          OUTPUT_MODE: registry
+          SOURCE_REPOSITORY: https://github.com/mhoo-os/mhoo-twenty
+          SOURCE_REVISION: ${{ steps.candidate.outputs.source_revision }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          scripts/provenance/build-candidate.sh
+          build_completed_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          digest="$(jq -r '."containerimage.digest" // empty' "$METADATA_PATH")"
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "BuildKit did not report a registry digest" >&2; exit 1; }
+          {
+            echo "digest=${digest}"
+            echo "image_ref=${IMAGE_REPOSITORY}@${digest}"
+            echo "started_at=${build_started_at}"
+            echo "completed_at=${build_completed_at}"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Pull and inspect the exact published digest
+        id: remote_verification
+        env:
+          IMAGE_REF: ${{ steps.build.outputs.image_ref }}
+          REMOTE_MANIFEST_PATH: ${{ runner.temp }}/candidate-6-remote-manifest.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull --platform linux/amd64 "$IMAGE_REF"
+          docker buildx imagetools inspect --raw "$IMAGE_REF" >"$REMOTE_MANIFEST_PATH"
+          jq -e 'type == "object"' "$REMOTE_MANIFEST_PATH" >/dev/null
+          echo 'result=passed' >>"$GITHUB_OUTPUT"
+
+      - name: Validate the exact published digest
+        id: validation
+        env:
+          CANDIDATE_DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE_NAME: ${{ steps.build.outputs.image_ref }}
+          REPORT_PATH: ${{ runner.temp }}/candidate-6-validation.json
+          SOURCE_REVISION: ${{ steps.candidate.outputs.source_revision }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          scripts/provenance/validate-candidate.sh
+          echo 'result=passed' >>"$GITHUB_OUTPUT"
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
+        with:
+          cosign-release: v2.6.1
+
+      - name: Sign the validated digest with GitHub OIDC
+        env:
+          IMAGE_REF: ${{ steps.build.outputs.image_ref }}
+        run: cosign sign --yes "$IMAGE_REF"
+
+      - name: Verify the digest-bound keyless signature
+        env:
+          IMAGE_REF: ${{ steps.build.outputs.image_ref }}
+          VERIFICATION_PATH: ${{ runner.temp }}/candidate-6-cosign-verification.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          cosign verify --certificate-identity "$CERTIFICATE_IDENTITY" --certificate-oidc-issuer "$CERTIFICATE_OIDC_ISSUER" --output json "$IMAGE_REF" | tee "$VERIFICATION_PATH"
+          jq -e 'length > 0' "$VERIFICATION_PATH" >/dev/null
+
+      - name: Record Candidate 6 custody receipt
+        env:
+          BUILD_COMPLETED_AT: ${{ steps.build.outputs.completed_at }}
+          BUILD_STARTED_AT: ${{ steps.build.outputs.started_at }}
+          BUILDER_IDENTITY: ${{ steps.builder.outputs.identity }}
+          CANDIDATE_DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE_REF: ${{ steps.build.outputs.image_ref }}
+          SOURCE_REVISION: ${{ steps.candidate.outputs.source_revision }}
+          SOURCE_TREE: ${{ steps.candidate.outputs.source_tree }}
+          TAG_OBJECT: ${{ steps.candidate.outputs.tag_object }}
+          WORKFLOW_CONTROL_COMMIT: ${{ steps.candidate.outputs.workflow_control_commit }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          receipt_directory="$RUNNER_TEMP/candidate-6-custody"
+          mkdir -p "$receipt_directory"
+          cp "$RUNNER_TEMP/candidate-6-build-metadata.json" "$receipt_directory/build-metadata.json"
+          cp "$RUNNER_TEMP/candidate-6-validation.json" "$receipt_directory/validation.json"
+          cp "$RUNNER_TEMP/candidate-6-cosign-verification.json" "$receipt_directory/signature-verification.json"
+          cp "$RUNNER_TEMP/candidate-6-remote-manifest.json" "$receipt_directory/remote-manifest.json"
+
+          upstream_tag="$(sed -n 's/^TWENTY_VERSION=//p' .twenty-source)"
+          upstream_commit="$(sed -n 's/^TWENTY_UPSTREAM_COMMIT=//p' .twenty-source)"
+          upstream_tree="$(sed -n 's/^TWENTY_UPSTREAM_TREE=//p' .twenty-source)"
+          dockerfile="$(sed -n 's/^TWENTY_DOCKERFILE=//p' .twenty-source)"
+          build_target="$(sed -n 's/^TWENTY_BUILD_TARGET=//p' .twenty-source)"
+          build_platform="$(sed -n 's/^TWENTY_BUILD_PLATFORM=//p' .twenty-source)"
+          jq -n \
+            --arg candidateNumber "$CANDIDATE_NUMBER" --arg candidateTag "$CANDIDATE_TAG" --arg candidateTagObject "$TAG_OBJECT" \
+            --arg sourceRevision "$SOURCE_REVISION" --arg sourceTree "$SOURCE_TREE" --arg workflowControlCommit "$WORKFLOW_CONTROL_COMMIT" \
+            --arg workflowRun "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --arg workflowRunAttempt "$GITHUB_RUN_ATTEMPT" \
+            --arg upstreamTag "$upstream_tag" --arg upstreamCommit "$upstream_commit" --arg upstreamTree "$upstream_tree" \
+            --arg buildId "$BUILD_ID" --arg dockerfile "$dockerfile" --arg buildTarget "$build_target" --arg buildPlatform "$build_platform" \
+            --arg buildStartedAt "$BUILD_STARTED_AT" --arg buildCompletedAt "$BUILD_COMPLETED_AT" --arg builderIdentity "$BUILDER_IDENTITY" \
+            --arg runnerName "$RUNNER_NAME" --arg runnerOs "$RUNNER_OS" --arg runnerArch "$RUNNER_ARCH" --arg runnerActor "$GITHUB_ACTOR" \
+            --arg imageTag "$IMAGE_TAG" --arg imageRepository "$IMAGE_REPOSITORY" --arg digest "$CANDIDATE_DIGEST" --arg imageRef "$IMAGE_REF" \
+            '{result:"passed",candidate:{number:$candidateNumber,tag:$candidateTag,annotatedTagObject:$candidateTagObject,peeledSourceCommit:$sourceRevision,sourceTree:$sourceTree},workflow:{controlCommit:$workflowControlCommit,run:$workflowRun,attempt:$workflowRunAttempt,repository:"mhoo-os/mhoo-twenty"},provenance:{result:"passed",upstreamTag:$upstreamTag,upstreamCommit:$upstreamCommit,upstreamTree:$upstreamTree},build:{id:$buildId,definition:{helper:"scripts/provenance/build-candidate.sh",dockerfile:$dockerfile,target:$buildTarget,platform:$buildPlatform},startedAt:$buildStartedAt,completedAt:$buildCompletedAt,builderIdentity:$builderIdentity,runner:{name:$runnerName,os:$runnerOs,architecture:$runnerArch,actor:$runnerActor}},publication:{requestedImageTag:$imageTag,registryRepository:$imageRepository,digest:$digest,immutableImageReference:$imageRef,publishedPlatforms:[$buildPlatform],ociLabels:{source:"https://github.com/mhoo-os/mhoo-twenty",revision:$sourceRevision},remotePullAndInspectByDigest:"passed"},signature:{mode:"keyless",certificateIdentity:"https://github.com/mhoo-os/mhoo-twenty/.github/workflows/publish-twenty-v2.30.1-candidate-6.yml@refs/heads/main",certificateOidcIssuer:"https://token.actions.githubusercontent.com",verification:"passed",receipt:"signature-verification.json"},attestation:{sbom:"not produced by the established registry publication configuration",buildProvenance:"not produced by the established registry publication configuration"},candidate5:"not modified",validation:"passed"}' >"$receipt_directory/custody.json"
+
+          {
+            echo "## Signed Candidate 6"
+            echo
+            echo "- Workflow-control commit: \`${WORKFLOW_CONTROL_COMMIT}\`"
+            echo "- Source revision: \`${SOURCE_REVISION}\`"
+            echo "- Source tree: \`${SOURCE_TREE}\`"
+            echo "- Candidate tag object: \`${TAG_OBJECT}\`"
+            echo "- Candidate tag: \`${CANDIDATE_TAG}\`"
+            echo "- Digest-only image: \`${IMAGE_REF}\`"
+            echo "- Build validation: PASS"
+            echo "- Remote pull and inspect by digest: PASS"
+            echo "- Keyless signature verification: PASS"
+            echo "- Candidate 5: not modified"
+            echo "- Rehearsal and deployment: not performed"
+          } >>"$GITHUB_STEP_SUMMARY"
+
+      - name: Preserve Candidate 6 custody receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mhoo-twenty-v2.30.1-candidate-6-custody
+          path: ${{ runner.temp }}/candidate-6-custody/
+          if-no-files-found: error
+          retention-days: 90
