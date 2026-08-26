@@ -13,6 +13,7 @@ import { AuthenticatedMethod } from '@/auth/types/AuthenticatedMethod.enum';
 import { SignInUpMode } from '@/auth/types/signInUpMode';
 import { useReadCaptchaToken } from '@/captcha/hooks/useReadCaptchaToken';
 import { useCaptcha } from '@/client-config/hooks/useCaptcha';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
 import { useBuildSearchParamsFromUrlSyncedStates } from '@/domain-manager/hooks/useBuildSearchParamsFromUrlSyncedStates';
 import { useIsCurrentLocationOnAWorkspace } from '@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace';
@@ -37,6 +38,9 @@ export const useSignInUp = (form: UseFormReturn<Form>) => {
   const { isOnAWorkspace } = useIsCurrentLocationOnAWorkspace();
   const isMultiWorkspaceEnabled = useAtomStateValue(
     isMultiWorkspaceEnabledState,
+  );
+  const isMhooFoundationEnabled = useAtomStateValue(
+    isMhooFoundationEnabledState,
   );
   const { isCaptchaReady } = useCaptcha();
   const setLastAuthenticatedMethod = useSetAtomState(
@@ -161,7 +165,9 @@ export const useSignInUp = (form: UseFormReturn<Form>) => {
         if (
           !isInviteMode &&
           signInUpMode === SignInUpMode.SignUp &&
-          (!isOnAWorkspace || !isMultiWorkspaceEnabled)
+          (!isOnAWorkspace ||
+            !isMultiWorkspaceEnabled ||
+            isMhooFoundationEnabled)
         ) {
           return await signUpWithCredentials(
             data.email.toLowerCase().trim(),
@@ -204,6 +210,7 @@ export const useSignInUp = (form: UseFormReturn<Form>) => {
       buildSearchParamsFromUrlSyncedStates,
       isOnAWorkspace,
       isMultiWorkspaceEnabled,
+      isMhooFoundationEnabled,
       setLastAuthenticatedMethod,
       t,
     ],

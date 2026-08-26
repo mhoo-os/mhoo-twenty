@@ -1,3 +1,5 @@
+/** @jest-environment-options {"url":"https://app.mhoo.app/welcome"} */
+
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 import { act, renderHook } from '@testing-library/react';
@@ -16,8 +18,9 @@ import {
 } from '@/auth/states/signInUpStepState';
 import { SignInUpMode } from '@/auth/types/signInUpMode';
 import { useCaptcha } from '@/client-config/hooks/useCaptcha';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
-import { getIsCurrentLocationOnAWorkspace } from '@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace';
+import { domainConfigurationState } from '@/domain-manager/states/domainConfigurationState';
 import {
   jotaiStore,
   resetJotaiStore,
@@ -32,7 +35,6 @@ const mockCheckUserExistsQuery = jest.fn();
 const mockEnqueueErrorSnackBar = jest.fn();
 const mockReadCaptchaToken = jest.fn(() => 'captcha-token');
 const mockBuildSearchParamsFromUrlSyncedStates = jest.fn(async () => ({}));
-let mockIsOnAWorkspace = false;
 
 jest.mock('@/auth/hooks/useAuth', () => ({
   useAuth: () => ({
@@ -59,15 +61,6 @@ jest.mock(
     }),
   }),
 );
-
-jest.mock('@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace', () => ({
-  ...jest.requireActual(
-    '@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace',
-  ),
-  useIsCurrentLocationOnAWorkspace: () => ({
-    isOnAWorkspace: mockIsOnAWorkspace,
-  }),
-}));
 
 jest.mock('@/ui/feedback/snack-bar-manager/hooks/useSnackBar', () => ({
   useSnackBar: () => ({ enqueueErrorSnackBar: mockEnqueueErrorSnackBar }),
@@ -98,24 +91,35 @@ const TestWrapper = ({
   </MemoryRouter>
 );
 
-const renderSignUpHook = (initialEntry = '/welcome') =>
+const renderSignInUp = (initialEntry = '/welcome') =>
   renderHook(() => useSignInUp(form), {
     wrapper: ({ children }) => (
       <TestWrapper initialEntry={initialEntry}>{children}</TestWrapper>
     ),
   });
 
-const setSignUpState = ({
+const configureLocationAndMode = ({
+  isMhooFoundationEnabled,
   isMultiWorkspaceEnabled,
-  isOnAWorkspace,
+  mode,
+  frontDomain,
+  defaultSubdomain,
 }: {
+  isMhooFoundationEnabled: boolean;
   isMultiWorkspaceEnabled: boolean;
-  isOnAWorkspace: boolean;
+  mode: SignInUpMode;
+  frontDomain: string;
+  defaultSubdomain: string;
 }) => {
+  jotaiStore.set(isMhooFoundationEnabledState.atom, isMhooFoundationEnabled);
   jotaiStore.set(isMultiWorkspaceEnabledState.atom, isMultiWorkspaceEnabled);
-  jotaiStore.set(signInUpModeState.atom, SignInUpMode.SignUp);
+  jotaiStore.set(domainConfigurationState.atom, {
+    defaultSubdomain,
+    frontDomain,
+    publicFunctionDomain: undefined,
+  });
+  jotaiStore.set(signInUpModeState.atom, mode);
   jotaiStore.set(signInUpStepState.atom, SignInUpStep.Password);
-  mockIsOnAWorkspace = isOnAWorkspace;
 };
 
 const submitCredentials = async (
@@ -131,29 +135,23 @@ const submitCredentials = async (
   });
 };
 
-describe('useSignInUp signup operation selection', () => {
+describe('useSignInUp operation selection', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     resetJotaiStore();
-    mockIsOnAWorkspace = false;
     (useCaptcha as jest.Mock).mockReturnValue({ isCaptchaReady: true });
   });
 
-  it('keeps Foundation stable-host signup global despite a non-matching derived domain', async () => {
-    expect(
-      getIsCurrentLocationOnAWorkspace({
-        defaultDomain: 'app.app.mhoo.app',
-        hostname: 'app.mhoo.app',
-        isMhooFoundationEnabled: true,
-        isMultiWorkspaceEnabled: true,
-      }),
-    ).toBe(false);
-
-    setSignUpState({
+  it('selects global signup through the real Foundation stable-host wiring', async () => {
+    expect(window.location.hostname).toBe('app.mhoo.app');
+    configureLocationAndMode({
+      defaultSubdomain: 'app',
+      frontDomain: 'app.mhoo.app',
+      isMhooFoundationEnabled: true,
       isMultiWorkspaceEnabled: true,
-      isOnAWorkspace: false,
+      mode: SignInUpMode.SignUp,
     });
-    const { result } = renderSignUpHook();
+    const { result } = renderSignInUp();
 
     await submitCredentials(result.current.submitCredentials);
 
@@ -165,48 +163,112 @@ describe('useSignInUp signup operation selection', () => {
     expect(mockSignUpWithCredentialsInWorkspace).not.toHaveBeenCalled();
   });
 
-  it('preserves the invitation signup operation without hostname-derived workspace identity', async () => {
-    setSignUpState({
+  it('keeps Foundation stable-host sign-in on the Candidate-base workspace operation', async () => {
+    configureLocationAndMode({
+      defaultSubdomain: 'app',
+      frontDomain: 'app.mhoo.app',
+      isMhooFoundationEnabled: true,
       isMultiWorkspaceEnabled: true,
-      isOnAWorkspace: false,
+      mode: SignInUpMode.SignIn,
     });
-    const { result } = renderSignUpHook('/invite/verified-invite-hash');
+    const { result } = renderSignInUp();
+
+    await submitCredentials(result.current.submitCredentials);
+
+    expect(mockSignInWithCredentialsInWorkspace).toHaveBeenCalledWith(
+      'person@example.com',
+      'Password123!',
+      'captcha-token',
+    );
+    expect(mockSignInWithCredentials).not.toHaveBeenCalled();
+  });
+
+  it('keeps Foundation invitation signup on the workspace operation', async () => {
+    configureLocationAndMode({
+      defaultSubdomain: 'app',
+      frontDomain: 'app.mhoo.app',
+      isMhooFoundationEnabled: true,
+      isMultiWorkspaceEnabled: true,
+      mode: SignInUpMode.SignUp,
+    });
+    const { result } = renderSignInUp('/invite/verified-invite-hash');
+
+    await submitCredentials(result.current.submitCredentials);
+
+    expect(mockSignUpWithCredentials).not.toHaveBeenCalled();
+    expect(mockSignUpWithCredentialsInWorkspace).toHaveBeenCalledWith(
+      expect.objectContaining({ workspaceInviteHash: 'verified-invite-hash' }),
+    );
+  });
+
+  it('keeps Foundation personal-invite signup on the workspace operation', async () => {
+    configureLocationAndMode({
+      defaultSubdomain: 'app',
+      frontDomain: 'app.mhoo.app',
+      isMhooFoundationEnabled: true,
+      isMultiWorkspaceEnabled: true,
+      mode: SignInUpMode.SignUp,
+    });
+    const { result } = renderSignInUp(
+      '/invite/verified-invite-hash?inviteToken=verified-personal-invite-token',
+    );
 
     await submitCredentials(result.current.submitCredentials);
 
     expect(mockSignUpWithCredentials).not.toHaveBeenCalled();
     expect(mockSignUpWithCredentialsInWorkspace).toHaveBeenCalledWith(
       expect.objectContaining({
-        email: 'person@example.com',
-        password: 'Password123!',
         workspaceInviteHash: 'verified-invite-hash',
+        workspacePersonalInviteToken: 'verified-personal-invite-token',
       }),
     );
   });
 
-  it('preserves non-Foundation multi-workspace scoped signup selection', async () => {
-    setSignUpState({
-      isMultiWorkspaceEnabled: true,
-      isOnAWorkspace: true,
-    });
-    const { result } = renderSignUpHook();
-
-    await submitCredentials(result.current.submitCredentials);
-
-    expect(mockSignUpWithCredentials).not.toHaveBeenCalled();
-    expect(mockSignUpWithCredentialsInWorkspace).toHaveBeenCalled();
-  });
-
-  it('preserves single-workspace signup selection', async () => {
-    setSignUpState({
+  it('preserves non-Foundation single-workspace global signup', async () => {
+    configureLocationAndMode({
+      defaultSubdomain: 'app',
+      frontDomain: 'mhoo.app',
+      isMhooFoundationEnabled: false,
       isMultiWorkspaceEnabled: false,
-      isOnAWorkspace: true,
+      mode: SignInUpMode.SignUp,
     });
-    const { result } = renderSignUpHook();
+    const { result } = renderSignInUp();
 
     await submitCredentials(result.current.submitCredentials);
 
     expect(mockSignUpWithCredentials).toHaveBeenCalled();
     expect(mockSignUpWithCredentialsInWorkspace).not.toHaveBeenCalled();
+  });
+
+  it('preserves non-Foundation multi-workspace global-domain signup', async () => {
+    configureLocationAndMode({
+      defaultSubdomain: 'app',
+      frontDomain: 'mhoo.app',
+      isMhooFoundationEnabled: false,
+      isMultiWorkspaceEnabled: true,
+      mode: SignInUpMode.SignUp,
+    });
+    const { result } = renderSignInUp();
+
+    await submitCredentials(result.current.submitCredentials);
+
+    expect(mockSignUpWithCredentials).toHaveBeenCalled();
+    expect(mockSignUpWithCredentialsInWorkspace).not.toHaveBeenCalled();
+  });
+
+  it('preserves non-Foundation multi-workspace workspace-domain signup', async () => {
+    configureLocationAndMode({
+      defaultSubdomain: 'app',
+      frontDomain: 'app.mhoo.app',
+      isMhooFoundationEnabled: false,
+      isMultiWorkspaceEnabled: true,
+      mode: SignInUpMode.SignUp,
+    });
+    const { result } = renderSignInUp();
+
+    await submitCredentials(result.current.submitCredentials);
+
+    expect(mockSignUpWithCredentials).not.toHaveBeenCalled();
+    expect(mockSignUpWithCredentialsInWorkspace).toHaveBeenCalled();
   });
 });

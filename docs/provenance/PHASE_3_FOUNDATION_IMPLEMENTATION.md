@@ -150,19 +150,30 @@ rendered the global signup surface while the separate
 host through default-subdomain hostname arithmetic. The controlled successor
 base is Candidate source `c9f41183f301ef2bfafee98e438f0c8a353e409a`.
 
-The successor makes that frontend scope predicate return global in Mhoo
-Foundation mode, aligning mutation selection with the existing Foundation
-global-scope decision. It therefore selects the existing `SignUp` flow for an
-initial stable-host signup and leaves explicit Workspace naming in the later
-authenticated Workspace Creation flow. Invitation routing and non-Foundation
-workspace behavior retain their existing operation selection. It does not
-alter backend validation, GraphQL, image inputs, configuration, hostname
-routing, Workspace authority, or deployment controls.
+The reviewed first successor incorrectly placed Foundation signup policy in
+the shared `useIsCurrentLocationOnAWorkspace` predicate. That predicate has
+multiple non-signup consumers, so the final successor restores its Candidate
+semantics. The narrow Foundation exception instead lives only in
+`useSignInUp`'s ordinary signup operation selection: it selects the existing
+global `SignUp` flow while preserving Candidate-base sign-in, invitation,
+personal-invite, verification, navigation, and Workspace-location behavior.
+Explicit Workspace naming remains in authenticated Workspace Creation.
 
-The focused hook regression test asserts the exact stable-host configuration
-shape selects `SignUp`, not `SignUpInWorkspace`, and preserves invitation,
-multi-workspace, and single-workspace operation selection. The provenance
-allowlist explicitly records only this predicate and its focused test as the
-additional Mhoo fork delta. This remains source remediation only: no Candidate
-was rebuilt, no runtime proof was run, Phase 4 remains blocked, and R3 remains
-open.
+The production-wiring tests use the real location predicate with the actual
+browser hostname and configured domain inputs. They prove Foundation ordinary
+signup selects `SignUp`, while sign-in and invitation flows retain their
+Candidate behavior; focused verification and authenticated-navigation tests
+prove the shared predicate no longer carries the signup exception. The
+provenance allowlist records only the narrow signup source change and these
+focused frontend tests as the final additional Mhoo fork delta.
+
+PR-triggered automatic CI performs an ephemeral image build and generic
+disposable validation. The reviewed automatic run passed those steps, but it
+is neither the manual or authoritative Candidate build nor focused Phase 4
+runtime proof. No Candidate image was published, promoted, or deployed; no
+focused signup, verification, Workspace Creation, or authenticated-navigation
+runtime proof was performed; and Gate B was not invoked. Candidate source
+`c9f41183f301ef2bfafee98e438f0c8a353e409a` and digest
+`sha256:147f334411d394811c0b8692cc14dd5464f63bea1c0052f47273e588d228b8ba`
+remain unchanged. This PR head is only a source successor awaiting review and
+later authorization; Phase 4 remains blocked and R3 remains open.
