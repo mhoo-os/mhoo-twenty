@@ -39,7 +39,10 @@ complete server integration matrix when no executable or runtime input is
 changed.
 
 PR concurrency uses a stable workflow/ref identity and cancellation for obsolete
-PR work wherever the inherited workflow already supports it. Main/release,
+PR work wherever the inherited workflow already supports it. `CI Front` also
+uses the `mhoo-standard-runner-v1` generation in that identity, preserving its
+per-ref grouping and main-SHA suffix while preventing remediated runs from
+sharing the permanently stuck inherited larger-runner group. Main/release,
 merge-queue, signing, publication, and rehearsal jobs do not cancel in-flight
 work when doing so could destroy evidence or leave a release operation
 ambiguous.
@@ -155,8 +158,16 @@ compatibility result, and the reason for the change.
 
 GitHub Actions are pinned to commit SHAs in the active workflows. The runner
 label `ubuntu-latest` is a GitHub-managed execution environment rather than a
-container input; changing runner classes requires a separate capacity and
-compatibility review.
+container input. The public Mhoo fork's standard-runner capacity review records
+4 CPU, 16 GB RAM, and 14 GB storage. `front-build` retains its existing 10 GB
+Node heap. No frontend test, build, artifact, screenshot, or aggregate-status
+gate is removed by this runner adaptation; actual CI execution is the
+compatibility proof. If an actual standard-runner `front-build` or
+`front-sb-build` failure is solely disk exhaustion or the existing 30-minute
+timeout, one CI-only remediation may clean unused preinstalled runner
+toolchains before dependency installation (with disk usage before/after), or
+raise only the affected job timeout to at most 60 minutes. Functional failures
+remain failures.
 
 The reusable Docker action rejects the moving `latest` tag and moving `main`
 source checkout. The existing `dockerhub-latest` source name in

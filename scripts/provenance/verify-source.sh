@@ -117,6 +117,7 @@ UNEXPECTED_PATHS="$(
     ':(exclude).github/workflows/ci-e2e-main.yaml' \
     ':(exclude).github/workflows/ci-example-app-hello-world.yaml' \
     ':(exclude).github/workflows/ci-example-app-postcard.yaml' \
+    ':(exclude).github/workflows/ci-front.yaml' \
     ':(exclude).github/workflows/ci-sdk.yaml' \
     ':(exclude).github/workflows/ci-server.yaml' \
     ':(exclude).github/workflows/ci-zapier.yaml' \

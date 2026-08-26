@@ -177,3 +177,13 @@ runtime proof was performed; and Gate B was not invoked. Candidate source
 `sha256:147f334411d394811c0b8692cc14dd5464f63bea1c0052f47273e588d228b8ba`
 remain unchanged. This PR head is only a source successor awaiting review and
 later authorization; Phase 4 remains blocked and R3 remains open.
+
+## PR #19 CI execution adaptation
+
+PR #19 adds a repository-local CI adaptation only: `CI Front` uses GitHub's
+standard public Ubuntu runner in place of the inherited unavailable larger-runner
+label, with a new stable concurrency generation and matching Storybook cache
+identity. It preserves all Front and Storybook jobs and changes no application
+source, test behavior, Candidate identity, runtime configuration, or Phase 4
+finding. Exact-head CI execution is required as its compatibility proof; this
+adaptation does not close R3 or Phase 4.
