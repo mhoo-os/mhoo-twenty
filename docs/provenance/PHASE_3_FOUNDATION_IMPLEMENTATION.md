@@ -141,3 +141,28 @@ clients, cookie sessions, or Mhoo legal pages; those are later reviewed runtime
 or infrastructure work. It does not add a Core tenant mapping, a new Workspace
 selector, a Mhoo App, a connector, or a Core/API/MCP surface. Phase 3 must be
 reviewed and merged before any of those subsequent scoped changes begin.
+
+## Phase 4 source-only stable-host signup-scope successor
+
+The Candidate 5 static adjudication found that Foundation mode correctly
+rendered the global signup surface while the separate
+`useIsCurrentLocationOnAWorkspace` predicate still classified the same stable
+host through default-subdomain hostname arithmetic. The controlled successor
+base is Candidate source `c9f41183f301ef2bfafee98e438f0c8a353e409a`.
+
+The successor makes that frontend scope predicate return global in Mhoo
+Foundation mode, aligning mutation selection with the existing Foundation
+global-scope decision. It therefore selects the existing `SignUp` flow for an
+initial stable-host signup and leaves explicit Workspace naming in the later
+authenticated Workspace Creation flow. Invitation routing and non-Foundation
+workspace behavior retain their existing operation selection. It does not
+alter backend validation, GraphQL, image inputs, configuration, hostname
+routing, Workspace authority, or deployment controls.
+
+The focused hook regression test asserts the exact stable-host configuration
+shape selects `SignUp`, not `SignUpInWorkspace`, and preserves invitation,
+multi-workspace, and single-workspace operation selection. The provenance
+allowlist explicitly records only this predicate and its focused test as the
+additional Mhoo fork delta. This remains source remediation only: no Candidate
+was rebuilt, no runtime proof was run, Phase 4 remains blocked, and R3 remains
+open.

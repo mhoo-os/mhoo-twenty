@@ -155,7 +155,9 @@ UNEXPECTED_PATHS="$(
     ':(exclude)packages/twenty-front/src/modules/client-config/types/ClientConfig.ts' \
     ':(exclude)packages/twenty-front/src/modules/client-config/utils/__tests__/clientConfigUtils.test.ts' \
     ':(exclude)packages/twenty-front/src/modules/domain-manager/hooks/useGetPublicWorkspaceDataByDomain.ts' \
+    ':(exclude)packages/twenty-front/src/modules/domain-manager/hooks/useIsCurrentLocationOnAWorkspace.ts' \
     ':(exclude)packages/twenty-front/src/modules/domain-manager/hooks/useIsCurrentLocationOnDefaultDomain.ts' \
+    ':(exclude)packages/twenty-front/src/modules/auth/sign-in-up/hooks/__tests__/useSignInUp.test.tsx' \
     ':(exclude)packages/twenty-front/src/modules/onboarding/components/OnboardingHeader.tsx' \
     ':(exclude)packages/twenty-front/src/modules/onboarding/components/OnboardingPulsingLogo.tsx' \
     ':(exclude)packages/twenty-front/src/modules/workspace/components/WorkspaceProviderEffect.tsx' \
