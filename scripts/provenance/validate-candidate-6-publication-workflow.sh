@@ -4,15 +4,18 @@ set -euo pipefail
 
 REPOSITORY_ROOT="$(git rev-parse --show-toplevel)"
 WORKFLOW="$REPOSITORY_ROOT/.github/workflows/publish-twenty-v2.30.1-candidate-6.yml"
+PUBLISHER="$REPOSITORY_ROOT/scripts/provenance/publish-oci-layout.sh"
+PROOF="$REPOSITORY_ROOT/scripts/provenance/test-candidate-6-oci-publication.sh"
 
 command -v actionlint >/dev/null 2>&1 || { echo 'Candidate 6 workflow validation failed: actionlint is required' >&2; exit 1; }
 command -v python3 >/dev/null 2>&1 || { echo 'Candidate 6 workflow validation failed: python3 with PyYAML is required' >&2; exit 1; }
+[[ -x "$PUBLISHER" && -x "$PROOF" ]] || { echo 'Candidate 6 workflow validation failed: OCI publisher and disposable proof must be executable' >&2; exit 1; }
 
 if [[ "${1:-}" != --self-test ]]; then
   actionlint "$WORKFLOW"
 fi
 
-python3 - "$WORKFLOW" "${1:-}" <<'PY'
+python3 - "$WORKFLOW" "$PUBLISHER" "$PROOF" "${1:-}" <<'PY'
 import copy
 import re
 import sys
@@ -89,7 +92,7 @@ def load(text):
 def executable_lines(run):
     return [line.split('#', 1)[0].rstrip() for line in run.splitlines() if line.split('#', 1)[0].strip()]
 
-def validate(text):
+def validate(text, publisher, proof):
     doc = load(text)
     if set(doc) != {'name', 'on', 'permissions', 'env', 'jobs'}:
         raise ContractError('workflow has an unexpected top-level surface')
@@ -118,6 +121,11 @@ def validate(text):
         raise ContractError('custody steps are in an unsafe order')
     if names[-1] != 'Upload final custody receipt':
         raise ContractError('final receipt upload must be the final custody operation')
+    publish_step = next((step for step in steps if step.get('name') == 'Publish OCI layout by canonical digest and read it back'), None)
+    if not isinstance(publish_step, dict) or publish_step.get('env', {}).get('GITHUB_TOKEN') != '${{ github.token }}':
+        raise ContractError('registry publication must explicitly bind GITHUB_TOKEN from the GitHub token context')
+    if 'scripts/provenance/publish-oci-layout.sh' not in publish_step.get('run', ''):
+        raise ContractError('registry publication must use the source-faithful OCI graph publisher')
     runs = []
     for step in steps:
         if not isinstance(step, dict):
@@ -133,8 +141,7 @@ def validate(text):
     code = '\n'.join(runs)
     required_commands = [
         r'^\s*scripts/provenance/verify-source\.sh\s*$',
-        r'git ls-remote --tags', r'authenticated_curl',
-        r'--request PUT', r'Docker-Content-Digest|docker-content-digest',
+        r'git ls-remote --tags', r'scripts/provenance/publish-oci-layout\.sh',
         r'rawBodySha256', r'"\$COSIGN_PATH" sign', r'"\$COSIGN_PATH" verify',
     ]
     for pattern in required_commands:
@@ -148,44 +155,61 @@ def validate(text):
         raise ContractError('unverified cosign selected from PATH')
     if re.search(r'if\s+.*(?:docker|curl).*\b(?:401|403|429|5\d\d|nonzero)\b.*(?:continue|proceed|publish)', code, re.I):
         raise ContractError('registry failure path proceeds instead of failing closed')
-    if 'status="$(status_from' not in code or '[[ "$read_status" == 200 ]]' not in code:
-        raise ContractError('registry helper does not classify authenticated responses fail-closed')
-    if 'registry digest authorities disagree' not in code:
-        raise ContractError('authoritative registry digest read-back is absent')
+    publisher_required = [
+        'require_environment REGISTRY_API OCI_LAYOUT BUILD_CLAIMED_DIGEST IMAGE_REPOSITORY GITHUB_ACTOR GITHUB_TOKEN',
+        'OCI_PUBLICATION_TEST_OMIT_MANIFEST_DIGEST:-}',
+        'collect_manifest()', 'upload_blob()', 'publish_manifest()', 'verify_manifest_graph()',
+        'manifests_postorder', 'blobs/uploads/', '/manifests/$digest', 'referenced manifest ${digest} read-back is indeterminate',
+        'registry digest authorities disagree for ${digest}',
+    ]
+    if any(item not in publisher for item in publisher_required):
+        raise ContractError('OCI publisher omits fail-closed token binding or recursive descriptor publication')
+    if re.search(r'\b(?:docker\s+buildx\s+build\s+--push|docker\s+manifest\s+inspect)\b', publisher):
+        raise ContractError('OCI publisher contains forbidden check-then-act registry publication')
+    proof_required = [
+        'OCI_PUBLICATION_TEST_MODE=1', 'bound-disposable-token', 'manifest_digests',
+        'body does not match its descriptor digest', 'missing child-manifest publication unexpectedly passed',
+        'bound token path did not reach the first registry request',
+    ]
+    if any(item not in proof for item in proof_required):
+        raise ContractError('disposable OCI proof is incomplete')
     if any(field not in code for field in REQUIRED_RECEIPT_FIELDS):
         raise ContractError('final receipt omits required custody fields')
     if 'upload-evidence.outputs.artifact-id' not in text or 'upload-evidence.outputs.artifact-digest' not in text:
         raise ContractError('final receipt does not bind the uploaded evidence artifact')
     return 'Candidate 6 workflow structural contract passed'
 
-def expect_rejected(label, fixture, reason):
+def expect_rejected(label, fixture, reason, publisher, proof):
     try:
-        validate(fixture)
+        validate(fixture, publisher, proof)
     except ContractError as error:
         if reason not in str(error):
             raise SystemExit(f'self-test {label} rejected for unexpected reason: {error}')
     else:
         raise SystemExit(f'self-test {label} unexpectedly passed')
 
-path, mode = sys.argv[1:]
+path, publisher_path, proof_path, mode = sys.argv[1:]
 text = open(path, encoding='utf-8').read()
+publisher = open(publisher_path, encoding='utf-8').read()
+proof = open(proof_path, encoding='utf-8').read()
 if mode == '--self-test':
-    expect_rejected('duplicate top-level on', text.replace('on:\n', 'on:\n  workflow_dispatch:\non:\n', 1), 'duplicate key: on')
-    expect_rejected('unauthorized push', text.replace('workflow_dispatch:', 'push:\n    branches: [main]', 1), 'workflow must expose only')
-    expect_rejected('comment only command', text.replace('          scripts/provenance/verify-source.sh', '          # scripts/provenance/verify-source.sh', 1), 'missing executable')
+    expect_rejected('duplicate top-level on', text.replace('on:\n', 'on:\n  workflow_dispatch:\non:\n', 1), 'duplicate key: on', publisher, proof)
+    expect_rejected('unauthorized push', text.replace('workflow_dispatch:', 'push:\n    branches: [main]', 1), 'workflow must expose only', publisher, proof)
+    expect_rejected('comment only command', text.replace('          scripts/provenance/verify-source.sh', '          # scripts/provenance/verify-source.sh', 1), 'missing executable', publisher, proof)
     injection = '          if ! docker manifest inspect "$IMAGE_REF"; then echo absent; fi\n'
-    expect_rejected('old nonzero absent', text.replace('          set -euo pipefail\n', '          set -euo pipefail\n' + injection, 1), 'check-then-act')
+    expect_rejected('old nonzero absent', text.replace('          set -euo pipefail\n', '          set -euo pipefail\n' + injection, 1), 'check-then-act', publisher, proof)
     injection = '          if curl returns 401 then proceed publication\n'
-    expect_rejected('401 proceeds', text.replace('          set -euo pipefail\n', '          set -euo pipefail\n' + injection, 1), 'registry failure path')
+    expect_rejected('401 proceeds', text.replace('          set -euo pipefail\n', '          set -euo pipefail\n' + injection, 1), 'registry failure path', publisher, proof)
     injection = '          docker buildx build --push --tag ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-6 .\n'
-    expect_rejected('fixed tag push', text.replace('          set -euo pipefail\n', '          set -euo pipefail\n' + injection, 1), 'check-then-act')
-    expect_rejected('mutable OCI tag', text.replace('  IMAGE_REPOSITORY:', '  IMAGE_TAG: ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-6\n  IMAGE_REPOSITORY:', 1), 'digest-only')
+    expect_rejected('fixed tag push', text.replace('          set -euo pipefail\n', '          set -euo pipefail\n' + injection, 1), 'check-then-act', publisher, proof)
+    expect_rejected('mutable OCI tag', text.replace('  IMAGE_REPOSITORY:', '  IMAGE_TAG: ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-6\n  IMAGE_REPOSITORY:', 1), 'digest-only', publisher, proof)
     swapped = text.replace('      - name: Upload raw evidence bundle', '      - name: TEMPORARY\n', 1).replace('      - name: Create final receipt after evidence upload', '      - name: Upload raw evidence bundle', 1).replace('      - name: TEMPORARY', '      - name: Create final receipt after evidence upload', 1)
-    expect_rejected('unsafe receipt order', swapped, 'unsafe order')
+    expect_rejected('unsafe receipt order', swapped, 'unsafe order', publisher, proof)
     injection = '          cosign sign "$IMAGE_REF"\n'
-    expect_rejected('unverified cosign', text.replace('          set -euo pipefail\n', '          set -euo pipefail\n' + injection, 1), 'unverified cosign')
-    expect_rejected('missing readback', text.replace('registry digest authorities disagree', 'digest check', 1), 'authoritative registry')
-    expect_rejected('missing tagger receipt field', text.replace('--arg taggerName', '--arg missingTaggerName', 1), 'final receipt omits')
-    expect_rejected('unpinned action', text.replace('actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5', 'actions/checkout@v4', 1), 'immutable-SHA')
-print(validate(text))
+    expect_rejected('unverified cosign', text.replace('          set -euo pipefail\n', '          set -euo pipefail\n' + injection, 1), 'unverified cosign', publisher, proof)
+    expect_rejected('missing recursive readback', text, 'OCI publisher omits', publisher.replace('referenced manifest ${digest} read-back is indeterminate', 'missing recursive readback', 1), proof)
+    expect_rejected('missing tagger receipt field', text.replace('--arg taggerName', '--arg missingTaggerName', 1), 'final receipt omits', publisher, proof)
+    expect_rejected('unpinned action', text.replace('actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5', 'actions/checkout@v4', 1), 'immutable-SHA', publisher, proof)
+    expect_rejected('unbound token', text.replace('          GITHUB_TOKEN: ${{ github.token }}\n', '', 1), 'explicitly bind GITHUB_TOKEN', publisher, proof)
+print(validate(text, publisher, proof))
 PY

@@ -107,46 +107,16 @@ jobs:
         id: registry
         env:
           BUILD_CLAIMED_DIGEST: ${{ steps.build.outputs.buildx_digest }}
+          GITHUB_TOKEN: ${{ github.token }}
           OCI_TAR: ${{ runner.temp }}/candidate-6.oci.tar
+          OCI_LAYOUT: ${{ runner.temp }}/candidate-6-oci-layout
+          OCI_PUBLICATION_EVIDENCE_DIRECTORY: ${{ runner.temp }}/candidate-6-raw-evidence
         shell: bash
         run: |
           set -euo pipefail
-          evidence="$RUNNER_TEMP/candidate-6-raw-evidence"; layout="$RUNNER_TEMP/candidate-6-oci-layout"
-          mkdir -p "$evidence" "$layout"; tar -xf "$OCI_TAR" -C "$layout"
-          manifest_count="$(jq -er '.manifests | length' "$layout/index.json")"
-          [[ "$manifest_count" == 1 ]] || { echo "OCI layout must have exactly one root manifest" >&2; exit 1; }
-          canonical_digest="$(jq -er '.manifests[0].digest' "$layout/index.json")"
-          root_media_type="$(jq -er '.manifests[0].mediaType' "$layout/index.json")"
-          root_body="$layout/blobs/sha256/${canonical_digest#sha256:}"
-          [[ "$canonical_digest" =~ ^sha256:[0-9a-f]{64}$ && -f "$root_body" ]] || { echo "OCI root manifest descriptor is invalid" >&2; exit 1; }
-          [[ "sha256:$(sha256sum "$root_body" | awk '{print $1}')" == "$canonical_digest" && "$canonical_digest" == "$BUILD_CLAIMED_DIGEST" ]] || { echo "Buildx claimed digest does not match OCI manifest bytes" >&2; exit 1; }
-          authenticated_curl() { curl --silent --show-error --location --user "${GITHUB_ACTOR}:${GITHUB_TOKEN}" "$@"; }
-          status_from() { awk 'toupper($1) ~ /^HTTP\// { code=$2 } END { print code }' "$1"; }
-          location_from() { awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]*:[[:space:]]*/, ""); sub(/\r$/, ""); value=$0} END {print value}' "$1"; }
-          upload_blob() {
-            local file="$1" digest="$2" headers response location status
-            headers="$(mktemp)"; response="$(mktemp)"; authenticated_curl --dump-header "$headers" --output "$response" --request POST "$REGISTRY_API/blobs/uploads/"
-            status="$(status_from "$headers")"; [[ "$status" == 202 ]] || { echo "registry blob start is indeterminate (HTTP ${status:-none})" >&2; exit 1; }
-            location="$(location_from "$headers")"; [[ "$location" == https://ghcr.io/* ]] || { echo "registry blob start returned invalid location" >&2; exit 1; }
-            query_separator='?'; [[ "$location" == *\?* ]] && query_separator='&'
-            encoded_digest="${digest/:/%3A}"
-            authenticated_curl --dump-header "$headers" --output "$response" --request PUT --header 'Content-Type: application/octet-stream' --data-binary "@$file" "${location}${query_separator}digest=${encoded_digest}"
-            status="$(status_from "$headers")"; [[ "$status" == 201 ]] || { echo "registry blob completion is indeterminate (HTTP ${status:-none})" >&2; exit 1; }
-          }
-          while IFS= read -r blob; do upload_blob "$blob" "sha256:$(basename "$blob")"; done < <(find "$layout/blobs/sha256" -type f -print | sort)
-          put_headers="$evidence/registry-put-headers.txt"; put_body="$evidence/registry-put-body.txt"
-          authenticated_curl --dump-header "$put_headers" --output "$put_body" --request PUT --header "Content-Type: ${root_media_type}" --data-binary "@$root_body" "$REGISTRY_API/manifests/$canonical_digest"
-          put_status="$(status_from "$put_headers")"; [[ "$put_status" == 201 || "$put_status" == 202 ]] || { echo "registry digest publication is indeterminate (HTTP ${put_status:-none})" >&2; exit 1; }
-          read_headers="$evidence/registry-readback-headers.txt"; read_body="$evidence/registry-readback-body.json"
-          authenticated_curl --dump-header "$read_headers" --output "$read_body" --header 'Accept: application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json' "$REGISTRY_API/manifests/$canonical_digest"
-          read_status="$(status_from "$read_headers")"; [[ "$read_status" == 200 ]] || { echo "registry read-back is indeterminate (HTTP ${read_status:-none})" >&2; exit 1; }
-          header_count="$(awk 'BEGIN{IGNORECASE=1} /^docker-content-digest:/ {count++} END {print count+0}' "$read_headers")"
-          registry_digest="$(awk 'BEGIN{IGNORECASE=1} /^docker-content-digest:/ {sub(/^[^:]*:[[:space:]]*/, ""); sub(/\r$/, ""); value=$0} END {print value}' "$read_headers")"
-          body_digest="sha256:$(sha256sum "$read_body" | awk '{print $1}')"
-          [[ "$header_count" == 1 && "$registry_digest" =~ ^sha256:[0-9a-f]{64}$ && "$BUILD_CLAIMED_DIGEST" == "$canonical_digest" && "$canonical_digest" == "$registry_digest" && "$registry_digest" == "$body_digest" ]] || { echo "registry digest authorities disagree" >&2; exit 1; }
-          media_type="$(awk 'BEGIN{IGNORECASE=1} /^content-type:/ {sub(/^[^:]*:[[:space:]]*/, ""); sub(/;.*$/, ""); sub(/\r$/, ""); value=$0} END {print value}' "$read_headers")"; [[ -n "$media_type" ]] || { echo "registry media type missing" >&2; exit 1; }
-          jq -n --arg buildxDigest "$BUILD_CLAIMED_DIGEST" --arg canonicalDigest "$canonical_digest" --arg registryDigest "$registry_digest" --arg bodyDigest "$body_digest" --arg mediaType "$media_type" --arg status "$read_status" '{buildxClaimedDigest:$buildxDigest,canonicalDigest:$canonicalDigest,registryDigestHeader:$registryDigest,rawBodySha256:$bodyDigest,manifestMediaType:$mediaType,readbackHttpStatus:($status|tonumber)}' >"$evidence/registry-readback.json"
-          echo "digest=${canonical_digest}" >>"$GITHUB_OUTPUT"; echo "image_ref=${IMAGE_REPOSITORY}@${canonical_digest}" >>"$GITHUB_OUTPUT"
+          mkdir -p "$OCI_LAYOUT"
+          tar -xf "$OCI_TAR" -C "$OCI_LAYOUT"
+          scripts/provenance/publish-oci-layout.sh
       - name: Validate the authoritative digest
         env:
           CANDIDATE_DIGEST: ${{ steps.registry.outputs.digest }}
