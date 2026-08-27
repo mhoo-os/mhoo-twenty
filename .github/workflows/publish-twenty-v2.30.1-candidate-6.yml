@@ -103,6 +103,12 @@ jobs:
             echo "buildx_version=$(docker buildx version)"
             echo "docker_version=$(docker version --format '{{json .}}')"
           } >>"$GITHUB_OUTPUT"
+      - name: Authenticate the exact-digest validation and signature client
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
       - name: Publish OCI layout by canonical digest and read it back
         id: registry
         env:
@@ -117,6 +123,15 @@ jobs:
           mkdir -p "$OCI_LAYOUT"
           tar -xf "$OCI_TAR" -C "$OCI_LAYOUT"
           scripts/provenance/publish-oci-layout.sh
+      - name: Pull the authoritative digest for runtime validation
+        env:
+          IMAGE_REF: ${{ steps.registry.outputs.image_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$IMAGE_REF" =~ ^ghcr\.io/mhoo-os/mhoo-twenty@sha256:[0-9a-f]{64}$ ]]
+          docker pull --platform linux/amd64 "$IMAGE_REF"
+          docker image inspect "$IMAGE_REF" >/dev/null
       - name: Validate the authoritative digest
         env:
           CANDIDATE_DIGEST: ${{ steps.registry.outputs.digest }}

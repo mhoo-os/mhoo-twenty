@@ -64,7 +64,11 @@ ORDER = [
     'Resolve and verify immutable Candidate 6 source tag',
     'Verify exact source and controlled overlay',
     'Build Candidate 6 once as an OCI layout',
+    'Authenticate the exact-digest validation and signature client',
     'Publish OCI layout by canonical digest and read it back',
+    'Pull the authoritative digest for runtime validation',
+    'Validate the authoritative digest',
+    'Obtain and verify Cosign executable',
     'Sign the authoritative digest with GitHub OIDC',
     'Verify the digest-bound keyless signature',
     'Create and validate raw evidence bundle',
@@ -113,6 +117,23 @@ def validate(text, publisher, proof, auth_harness):
     if not isinstance(steps, list):
         raise ContractError('publish job must have ordered steps')
     names = [step.get('name') for step in steps if isinstance(step, dict)]
+    login_steps = [
+        step for step in steps
+        if isinstance(step, dict) and str(step.get('uses', '')).startswith('docker/login-action@')
+    ]
+    if len(login_steps) != 1:
+        raise ContractError('workflow must contain exactly one docker/login-action step')
+    login_step = login_steps[0]
+    if login_step.get('name') != 'Authenticate the exact-digest validation and signature client':
+        raise ContractError('docker/login-action step has an unexpected name')
+    if login_step.get('uses') != 'docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef':
+        raise ContractError('docker/login-action must use the required immutable SHA')
+    if login_step.get('with') != {
+        'registry': 'ghcr.io',
+        'username': '${{ github.actor }}',
+        'password': '${{ github.token }}',
+    }:
+        raise ContractError('docker/login-action inputs must be the exact GHCR GitHub-token binding')
     positions = []
     for required in ORDER:
         if required not in names:
@@ -127,6 +148,34 @@ def validate(text, publisher, proof, auth_harness):
         raise ContractError('registry publication must explicitly bind GITHUB_TOKEN from the GitHub token context')
     if 'scripts/provenance/publish-oci-layout.sh' not in publish_step.get('run', ''):
         raise ContractError('registry publication must use the source-faithful OCI graph publisher')
+    pull_step = next((step for step in steps if step.get('name') == 'Pull the authoritative digest for runtime validation'), None)
+    if not isinstance(pull_step, dict):
+        raise ContractError('workflow must pull the authoritative digest before validation')
+    if pull_step.get('env') != {'IMAGE_REF': '${{ steps.registry.outputs.image_ref }}'}:
+        raise ContractError('authoritative digest pull source must be exactly the registry step output')
+    if pull_step.get('shell') != 'bash':
+        raise ContractError('authoritative digest pull must use bash')
+    pull_lines = executable_lines(pull_step.get('run', ''))
+    expected_digest_assertion = '[[ "$IMAGE_REF" =~ ^ghcr\\.io/mhoo-os/mhoo-twenty@sha256:[0-9a-f]{64}$ ]]'
+    if expected_digest_assertion not in pull_lines:
+        raise ContractError('authoritative digest pull must assert the exact digest format before pulling')
+    if 'docker pull --platform linux/amd64 "$IMAGE_REF"' not in pull_lines:
+        raise ContractError('authoritative digest pull must use the exact digest reference and linux/amd64 platform')
+    if 'docker image inspect "$IMAGE_REF" >/dev/null' not in pull_lines:
+        raise ContractError('authoritative digest pull must locally inspect the loaded exact image')
+    if pull_lines.index(expected_digest_assertion) > pull_lines.index('docker pull --platform linux/amd64 "$IMAGE_REF"'):
+        raise ContractError('authoritative digest format assertion must precede the pull')
+    all_pull_lines = [line for step in steps if isinstance(step, dict) and isinstance(step.get('run'), str) for line in executable_lines(step['run']) if re.match(r'^\s*docker\s+pull\b', line)]
+    if all_pull_lines != ['docker pull --platform linux/amd64 "$IMAGE_REF"']:
+        raise ContractError('workflow must contain only the exact authoritative digest pull')
+    login_index = names.index('Authenticate the exact-digest validation and signature client')
+    publish_index = names.index('Publish OCI layout by canonical digest and read it back')
+    pull_index = names.index('Pull the authoritative digest for runtime validation')
+    validation_index = names.index('Validate the authoritative digest')
+    signing_index = names.index('Sign the authoritative digest with GitHub OIDC')
+    verification_index = names.index('Verify the digest-bound keyless signature')
+    if not (login_index < publish_index < pull_index < validation_index < signing_index < verification_index):
+        raise ContractError('registry login, publication, pull, validation, signing, and verification are in an unsafe order')
     runs = []
     for step in steps:
         if not isinstance(step, dict):
@@ -233,6 +282,39 @@ if mode == '--self-test':
     expect_rejected('missing tagger receipt field', text.replace('--arg taggerName', '--arg missingTaggerName', 1), 'final receipt omits', publisher, proof, auth_harness)
     expect_rejected('unpinned action', text.replace('actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5', 'actions/checkout@v4', 1), 'immutable-SHA', publisher, proof, auth_harness)
     expect_rejected('unbound token', text.replace('          GITHUB_TOKEN: ${{ github.token }}\n', '', 1), 'explicitly bind GITHUB_TOKEN', publisher, proof, auth_harness)
+    login_block = '''      - name: Authenticate the exact-digest validation and signature client
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+'''
+    expect_rejected('missing login', text.replace(login_block, '', 1), 'exactly one docker/login-action', publisher, proof, auth_harness)
+    expect_rejected('unpinned login action', text.replace('docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef', 'docker/login-action@v3', 1), 'required immutable SHA', publisher, proof, auth_harness)
+    expect_rejected('wrong login registry', text.replace('          registry: ghcr.io', '          registry: example.invalid', 1), 'exact GHCR GitHub-token binding', publisher, proof, auth_harness)
+    expect_rejected('arbitrary login username', text.replace('          username: ${{ github.actor }}', '          username: arbitrary-user', 1), 'exact GHCR GitHub-token binding', publisher, proof, auth_harness)
+    expect_rejected('arbitrary login password', text.replace('          password: ${{ github.token }}', '          password: arbitrary-password', 1), 'exact GHCR GitHub-token binding', publisher, proof, auth_harness)
+    expect_rejected('PAT login password', text.replace('          password: ${{ github.token }}', '          password: ${{ secrets.GHCR_PAT }}', 1), 'exact GHCR GitHub-token binding', publisher, proof, auth_harness)
+    expect_rejected('repository-secret login username', text.replace('          username: ${{ github.actor }}', '          username: ${{ secrets.REGISTRY_USERNAME }}', 1), 'exact GHCR GitHub-token binding', publisher, proof, auth_harness)
+    pull_block = '''      - name: Pull the authoritative digest for runtime validation
+        env:
+          IMAGE_REF: ${{ steps.registry.outputs.image_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$IMAGE_REF" =~ ^ghcr\\.io/mhoo-os/mhoo-twenty@sha256:[0-9a-f]{64}$ ]]
+          docker pull --platform linux/amd64 "$IMAGE_REF"
+          docker image inspect "$IMAGE_REF" >/dev/null
+'''
+    expect_rejected('missing exact-digest pull', text.replace(pull_block, '', 1), 'missing ordered custody step', publisher, proof, auth_harness)
+    expect_rejected('pull by tag', text.replace('docker pull --platform linux/amd64 "$IMAGE_REF"', 'docker pull --platform linux/amd64 ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-6', 1), 'exact digest reference and linux/amd64 platform', publisher, proof, auth_harness)
+    swapped = text.replace('      - name: Publish OCI layout by canonical digest and read it back', '      - name: TEMPORARY', 1).replace('      - name: Pull the authoritative digest for runtime validation', '      - name: Publish OCI layout by canonical digest and read it back', 1).replace('      - name: TEMPORARY', '      - name: Pull the authoritative digest for runtime validation', 1)
+    expect_rejected('pull before publication', swapped, 'unsafe order', publisher, proof, auth_harness)
+    swapped = text.replace('      - name: Pull the authoritative digest for runtime validation', '      - name: TEMPORARY', 1).replace('      - name: Validate the authoritative digest', '      - name: Pull the authoritative digest for runtime validation', 1).replace('      - name: TEMPORARY', '      - name: Validate the authoritative digest', 1)
+    expect_rejected('validation before pull', swapped, 'unsafe order', publisher, proof, auth_harness)
+    swapped = text.replace('      - name: Validate the authoritative digest', '      - name: TEMPORARY', 1).replace('      - name: Sign the authoritative digest with GitHub OIDC', '      - name: Validate the authoritative digest', 1).replace('      - name: TEMPORARY', '      - name: Sign the authoritative digest with GitHub OIDC', 1)
+    expect_rejected('signing before validation', swapped, 'unsafe order', publisher, proof, auth_harness)
+    expect_rejected('pull from non-registry output', text.replace('${{ steps.registry.outputs.image_ref }}', '${{ steps.build.outputs.buildx_digest }}', 1), 'authoritative digest pull source', publisher, proof, auth_harness)
     expect_rejected('missing Bearer exchange', text, 'does not obtain a scoped Bearer token', publisher.replace('obtain_scoped_bearer_token\n\nupload_blob()', 'missing_bearer_exchange\n\nupload_blob()', 1), proof, auth_harness)
     expect_rejected('Basic credentials sent to registry', text, 'does not confine Basic credentials', publisher.replace('authenticated_curl() {', 'authenticated_curl() { curl --user "${GITHUB_ACTOR}:${GITHUB_TOKEN}" "$REGISTRY_API"; ', 1), proof, auth_harness)
     expect_rejected('arbitrary token endpoint', text, 'omits fixed Bearer exchange', publisher.replace("GHCR_TOKEN_ENDPOINT='https://ghcr.io/token'", "GHCR_TOKEN_ENDPOINT='https://invalid.example/token'", 1), proof, auth_harness)
