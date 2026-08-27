@@ -1,4 +1,4 @@
-name: Publish signed Twenty v2.30.1 candidate 6
+name: Publish signed Twenty v2.30.1 candidate 6 by digest
 
 on:
   workflow_dispatch:
@@ -8,14 +8,10 @@ permissions:
   id-token: write
   packages: write
 
-concurrency:
-  group: publish-twenty-v2.30.1-candidate-6
-  cancel-in-progress: false
-
 env:
   BUILD_ID: mhoo-twenty-v2.30.1-candidate.6
   CANDIDATE_NUMBER: '6'
-  CANDIDATE_TAG: mhoo/candidate/v2.30.1-6
+  CANDIDATE_SOURCE_TAG: mhoo/candidate/v2.30.1-6
   EXPECTED_REPOSITORY: mhoo-os/mhoo-twenty
   EXPECTED_SOURCE_REVISION: 08d55ab7ed4bbc4e72fee825822c3ce0656c82ef
   EXPECTED_SOURCE_TREE: 8d7b43fe941bc648a35bb486642d0d532013e5ae
@@ -24,17 +20,19 @@ env:
   EXPECTED_UPSTREAM_TREE: 7ebc5efa7f5f1bfdf9d238a88e3455decaa4f313
   EXPECTED_WORKFLOW_REF: refs/heads/main
   SOURCE_REMOTE: https://github.com/mhoo-os/mhoo-twenty.git
+  IMAGE_REPOSITORY: ghcr.io/mhoo-os/mhoo-twenty
+  REGISTRY_API: https://ghcr.io/v2/mhoo-os/mhoo-twenty
   CERTIFICATE_IDENTITY: https://github.com/mhoo-os/mhoo-twenty/.github/workflows/publish-twenty-v2.30.1-candidate-6.yml@refs/heads/main
   CERTIFICATE_OIDC_ISSUER: https://token.actions.githubusercontent.com
-  IMAGE_REPOSITORY: ghcr.io/mhoo-os/mhoo-twenty
-  IMAGE_TAG: ghcr.io/mhoo-os/mhoo-twenty:v2.30.1-6
+  COSIGN_RELEASE: v2.6.1
+  COSIGN_DOWNLOAD_URL: https://github.com/sigstore/cosign/releases/download/v2.6.1/cosign-linux-amd64
+  COSIGN_SHA256: 064954c5d8c7e3b28188eee5b1727b31c411550bc5fefd41aa672d3c761d103a
 
 jobs:
   publish:
-    name: Build once, publish, validate, sign, and verify
+    name: Build once, publish by digest, validate, sign, and verify
     runs-on: ubuntu-latest
     timeout-minutes: 60
-
     steps:
       - name: Check out reviewed workflow-control commit
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -42,11 +40,9 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
-
       - name: Validate immutable Candidate 6 workflow contract
         run: scripts/provenance/validate-candidate-6-publication-workflow.sh
-
-      - name: Resolve and verify immutable Candidate 6 source
+      - name: Resolve and verify immutable Candidate 6 source tag
         id: candidate
         shell: bash
         run: |
@@ -54,39 +50,30 @@ jobs:
           [[ "$GITHUB_REPOSITORY" == "$EXPECTED_REPOSITORY" ]] || { echo "unexpected repository" >&2; exit 1; }
           [[ "$GITHUB_REF" == "$EXPECTED_WORKFLOW_REF" ]] || { echo "workflow must be dispatched from main" >&2; exit 1; }
           [[ "$(git rev-parse HEAD)" == "$GITHUB_SHA" ]] || { echo "workflow-control checkout mismatch" >&2; exit 1; }
-
-          expected_ref="refs/tags/${CANDIDATE_TAG}"
+          workflow_blob="$(git rev-parse "${GITHUB_SHA}:.github/workflows/publish-twenty-v2.30.1-candidate-6.yml")"
+          expected_ref="refs/tags/${CANDIDATE_SOURCE_TAG}"
           remote_refs="$(git ls-remote --tags "$SOURCE_REMOTE" "$expected_ref" "${expected_ref}^{}")"
           tag_object="$(awk -v ref="$expected_ref" '$2 == ref { print $1 }' <<<"$remote_refs")"
           source_revision="$(awk -v ref="${expected_ref}^{}" '$2 == ref { print $1 }' <<<"$remote_refs")"
-          [[ "$tag_object" =~ ^[0-9a-f]{40}$ ]] || { echo "candidate ref is missing or is not an annotated tag" >&2; exit 1; }
-          [[ "$source_revision" == "$EXPECTED_SOURCE_REVISION" ]] || { echo "candidate tag peeled commit is not allowed" >&2; exit 1; }
-
+          [[ "$tag_object" =~ ^[0-9a-f]{40}$ && "$source_revision" == "$EXPECTED_SOURCE_REVISION" ]] || { echo "candidate source tag identity failed" >&2; exit 1; }
           git fetch --no-tags "$SOURCE_REMOTE" "${expected_ref}:${expected_ref}"
-          [[ "$(git cat-file -t "$expected_ref")" == tag ]] || { echo "candidate ref must be annotated" >&2; exit 1; }
-          [[ "$(git rev-parse "$expected_ref")" == "$tag_object" ]] || { echo "fetched tag object differs from remote advertisement" >&2; exit 1; }
-          [[ "$(git rev-parse "${expected_ref}^{commit}")" == "$EXPECTED_SOURCE_REVISION" ]] || { echo "fetched tag commit is not allowed" >&2; exit 1; }
-          source_tree="$(git rev-parse "${EXPECTED_SOURCE_REVISION}^{tree}")"
+          [[ "$(git cat-file -t "$expected_ref")" == tag && "$(git rev-parse "$expected_ref")" == "$tag_object" ]] || { echo "candidate source tag must remain annotated and exact" >&2; exit 1; }
+          source_tree="$(git rev-parse "${expected_ref}^{commit}^{tree}")"
           [[ "$source_tree" == "$EXPECTED_SOURCE_TREE" ]] || { echo "candidate source tree is not allowed" >&2; exit 1; }
-
-          git checkout --detach "$EXPECTED_SOURCE_REVISION"
-          [[ "$(git rev-parse HEAD)" == "$EXPECTED_SOURCE_REVISION" ]] || { echo "source checkout mismatch" >&2; exit 1; }
-          [[ -z "$(git status --porcelain)" ]] || { echo "candidate source worktree must be clean" >&2; exit 1; }
+          tagger_name="$(git for-each-ref --format='%(taggername)' "$expected_ref")"
+          tagger_email="$(git for-each-ref --format='%(taggeremail)' "$expected_ref")"
+          tagger_date="$(git for-each-ref --format='%(taggerdate:iso-strict)' "$expected_ref")"
+          annotation_sha256="$(git cat-file tag "$tag_object" | sha256sum | awk '{print $1}')"
+          [[ -n "$tagger_name" && -n "$tagger_email" && -n "$tagger_date" ]] || { echo "candidate source tagger metadata is incomplete" >&2; exit 1; }
           {
-            echo "source_revision=${EXPECTED_SOURCE_REVISION}"
-            echo "source_tree=${EXPECTED_SOURCE_TREE}"
-            echo "tag_object=${tag_object}"
-            echo "workflow_control_commit=${GITHUB_SHA}"
+            echo "source_revision=${EXPECTED_SOURCE_REVISION}"; echo "source_tree=${EXPECTED_SOURCE_TREE}"; echo "tag_object=${tag_object}"
+            echo "tagger_name=${tagger_name}"; echo "tagger_email=${tagger_email}"; echo "tagger_date=${tagger_date}"
+            echo "annotation_sha256=${annotation_sha256}"; echo "workflow_blob=${workflow_blob}"
           } >>"$GITHUB_OUTPUT"
-
       - name: Fetch canonical upstream objects
         shell: bash
-        run: |
-          set -euo pipefail
-          git fetch --no-tags https://github.com/twentyhq/twenty.git refs/tags/twenty/v2.30.0 refs/tags/twenty/v2.30.1
-
+        run: git fetch --no-tags https://github.com/twentyhq/twenty.git refs/tags/twenty/v2.30.0 refs/tags/twenty/v2.30.1
       - name: Verify exact source and controlled overlay
-        id: provenance
         shell: bash
         run: |
           set -euo pipefail
@@ -94,169 +81,166 @@ jobs:
           [[ "$(sed -n 's/^TWENTY_UPSTREAM_REF=refs\/tags\///p' .twenty-source)" == "$EXPECTED_UPSTREAM_TAG" ]]
           [[ "$(sed -n 's/^TWENTY_UPSTREAM_COMMIT=//p' .twenty-source)" == "$EXPECTED_UPSTREAM_COMMIT" ]]
           [[ "$(sed -n 's/^TWENTY_UPSTREAM_TREE=//p' .twenty-source)" == "$EXPECTED_UPSTREAM_TREE" ]]
-          echo 'result=passed' >>"$GITHUB_OUTPUT"
-
-      - name: Check Candidate 6 tag before registry login
-        shell: bash
-        run: |
-          set -euo pipefail
-          if docker manifest inspect "$IMAGE_TAG" >/dev/null 2>&1; then
-            echo "${IMAGE_TAG} already exists; refusing to rebuild or move it" >&2
-            exit 1
-          fi
-          echo 'Anonymous registry inspection did not resolve Candidate 6; authenticated refusal remains required.'
-
       - name: Set up BuildKit
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
-
-      - name: Record builder identity
-        id: builder
-        shell: bash
-        run: echo "identity=$(docker buildx version)" >>"$GITHUB_OUTPUT"
-
-      - name: Log in to GHCR
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Refuse to replace an existing Candidate 6 tag
-        shell: bash
-        run: |
-          set -euo pipefail
-          if docker buildx imagetools inspect "$IMAGE_TAG" >/dev/null 2>&1; then
-            echo "${IMAGE_TAG} already exists; refusing to rebuild or move it" >&2
-            exit 1
-          fi
-
-      - name: Build once and push Candidate 6
+      - name: Build Candidate 6 once as an OCI layout
         id: build
         env:
-          IMAGE_NAME: ${{ env.IMAGE_TAG }}
+          IMAGE_NAME: mhoo-os/mhoo-twenty
           METADATA_PATH: ${{ runner.temp }}/candidate-6-build-metadata.json
-          OUTPUT_MODE: registry
+          OUTPUT_MODE: oci
+          OUTPUT_PATH: ${{ runner.temp }}/candidate-6.oci.tar
           SOURCE_REPOSITORY: https://github.com/mhoo-os/mhoo-twenty
           SOURCE_REVISION: ${{ steps.candidate.outputs.source_revision }}
         shell: bash
         run: |
           set -euo pipefail
-          build_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           scripts/provenance/build-candidate.sh
-          build_completed_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          digest="$(jq -r '."containerimage.digest" // empty' "$METADATA_PATH")"
-          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "BuildKit did not report a registry digest" >&2; exit 1; }
+          buildx_digest="$(jq -er '."containerimage.digest"' "$METADATA_PATH")"
+          [[ "$buildx_digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo "Buildx did not report an OCI digest" >&2; exit 1; }
           {
-            echo "digest=${digest}"
-            echo "image_ref=${IMAGE_REPOSITORY}@${digest}"
-            echo "started_at=${build_started_at}"
-            echo "completed_at=${build_completed_at}"
+            echo "buildx_digest=${buildx_digest}"
+            echo "buildx_version=$(docker buildx version)"
+            echo "docker_version=$(docker version --format '{{json .}}')"
           } >>"$GITHUB_OUTPUT"
-
-      - name: Pull and inspect the exact published digest
-        id: remote_verification
+      - name: Publish OCI layout by canonical digest and read it back
+        id: registry
         env:
-          IMAGE_REF: ${{ steps.build.outputs.image_ref }}
-          REMOTE_MANIFEST_PATH: ${{ runner.temp }}/candidate-6-remote-manifest.json
+          BUILD_CLAIMED_DIGEST: ${{ steps.build.outputs.buildx_digest }}
+          OCI_TAR: ${{ runner.temp }}/candidate-6.oci.tar
         shell: bash
         run: |
           set -euo pipefail
-          docker pull --platform linux/amd64 "$IMAGE_REF"
-          docker buildx imagetools inspect --raw "$IMAGE_REF" >"$REMOTE_MANIFEST_PATH"
-          jq -e 'type == "object"' "$REMOTE_MANIFEST_PATH" >/dev/null
-          echo 'result=passed' >>"$GITHUB_OUTPUT"
-
-      - name: Validate the exact published digest
-        id: validation
+          evidence="$RUNNER_TEMP/candidate-6-raw-evidence"; layout="$RUNNER_TEMP/candidate-6-oci-layout"
+          mkdir -p "$evidence" "$layout"; tar -xf "$OCI_TAR" -C "$layout"
+          manifest_count="$(jq -er '.manifests | length' "$layout/index.json")"
+          [[ "$manifest_count" == 1 ]] || { echo "OCI layout must have exactly one root manifest" >&2; exit 1; }
+          canonical_digest="$(jq -er '.manifests[0].digest' "$layout/index.json")"
+          root_media_type="$(jq -er '.manifests[0].mediaType' "$layout/index.json")"
+          root_body="$layout/blobs/sha256/${canonical_digest#sha256:}"
+          [[ "$canonical_digest" =~ ^sha256:[0-9a-f]{64}$ && -f "$root_body" ]] || { echo "OCI root manifest descriptor is invalid" >&2; exit 1; }
+          [[ "sha256:$(sha256sum "$root_body" | awk '{print $1}')" == "$canonical_digest" && "$canonical_digest" == "$BUILD_CLAIMED_DIGEST" ]] || { echo "Buildx claimed digest does not match OCI manifest bytes" >&2; exit 1; }
+          authenticated_curl() { curl --silent --show-error --location --user "${GITHUB_ACTOR}:${GITHUB_TOKEN}" "$@"; }
+          status_from() { awk 'toupper($1) ~ /^HTTP\// { code=$2 } END { print code }' "$1"; }
+          location_from() { awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]*:[[:space:]]*/, ""); sub(/\r$/, ""); value=$0} END {print value}' "$1"; }
+          upload_blob() {
+            local file="$1" digest="$2" headers response location status
+            headers="$(mktemp)"; response="$(mktemp)"; authenticated_curl --dump-header "$headers" --output "$response" --request POST "$REGISTRY_API/blobs/uploads/"
+            status="$(status_from "$headers")"; [[ "$status" == 202 ]] || { echo "registry blob start is indeterminate (HTTP ${status:-none})" >&2; exit 1; }
+            location="$(location_from "$headers")"; [[ "$location" == https://ghcr.io/* ]] || { echo "registry blob start returned invalid location" >&2; exit 1; }
+            query_separator='?'; [[ "$location" == *\?* ]] && query_separator='&'
+            encoded_digest="${digest/:/%3A}"
+            authenticated_curl --dump-header "$headers" --output "$response" --request PUT --header 'Content-Type: application/octet-stream' --data-binary "@$file" "${location}${query_separator}digest=${encoded_digest}"
+            status="$(status_from "$headers")"; [[ "$status" == 201 ]] || { echo "registry blob completion is indeterminate (HTTP ${status:-none})" >&2; exit 1; }
+          }
+          while IFS= read -r blob; do upload_blob "$blob" "sha256:$(basename "$blob")"; done < <(find "$layout/blobs/sha256" -type f -print | sort)
+          put_headers="$evidence/registry-put-headers.txt"; put_body="$evidence/registry-put-body.txt"
+          authenticated_curl --dump-header "$put_headers" --output "$put_body" --request PUT --header "Content-Type: ${root_media_type}" --data-binary "@$root_body" "$REGISTRY_API/manifests/$canonical_digest"
+          put_status="$(status_from "$put_headers")"; [[ "$put_status" == 201 || "$put_status" == 202 ]] || { echo "registry digest publication is indeterminate (HTTP ${put_status:-none})" >&2; exit 1; }
+          read_headers="$evidence/registry-readback-headers.txt"; read_body="$evidence/registry-readback-body.json"
+          authenticated_curl --dump-header "$read_headers" --output "$read_body" --header 'Accept: application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json' "$REGISTRY_API/manifests/$canonical_digest"
+          read_status="$(status_from "$read_headers")"; [[ "$read_status" == 200 ]] || { echo "registry read-back is indeterminate (HTTP ${read_status:-none})" >&2; exit 1; }
+          header_count="$(awk 'BEGIN{IGNORECASE=1} /^docker-content-digest:/ {count++} END {print count+0}' "$read_headers")"
+          registry_digest="$(awk 'BEGIN{IGNORECASE=1} /^docker-content-digest:/ {sub(/^[^:]*:[[:space:]]*/, ""); sub(/\r$/, ""); value=$0} END {print value}' "$read_headers")"
+          body_digest="sha256:$(sha256sum "$read_body" | awk '{print $1}')"
+          [[ "$header_count" == 1 && "$registry_digest" =~ ^sha256:[0-9a-f]{64}$ && "$BUILD_CLAIMED_DIGEST" == "$canonical_digest" && "$canonical_digest" == "$registry_digest" && "$registry_digest" == "$body_digest" ]] || { echo "registry digest authorities disagree" >&2; exit 1; }
+          media_type="$(awk 'BEGIN{IGNORECASE=1} /^content-type:/ {sub(/^[^:]*:[[:space:]]*/, ""); sub(/;.*$/, ""); sub(/\r$/, ""); value=$0} END {print value}' "$read_headers")"; [[ -n "$media_type" ]] || { echo "registry media type missing" >&2; exit 1; }
+          jq -n --arg buildxDigest "$BUILD_CLAIMED_DIGEST" --arg canonicalDigest "$canonical_digest" --arg registryDigest "$registry_digest" --arg bodyDigest "$body_digest" --arg mediaType "$media_type" --arg status "$read_status" '{buildxClaimedDigest:$buildxDigest,canonicalDigest:$canonicalDigest,registryDigestHeader:$registryDigest,rawBodySha256:$bodyDigest,manifestMediaType:$mediaType,readbackHttpStatus:($status|tonumber)}' >"$evidence/registry-readback.json"
+          echo "digest=${canonical_digest}" >>"$GITHUB_OUTPUT"; echo "image_ref=${IMAGE_REPOSITORY}@${canonical_digest}" >>"$GITHUB_OUTPUT"
+      - name: Validate the authoritative digest
         env:
-          CANDIDATE_DIGEST: ${{ steps.build.outputs.digest }}
-          IMAGE_NAME: ${{ steps.build.outputs.image_ref }}
+          CANDIDATE_DIGEST: ${{ steps.registry.outputs.digest }}
+          IMAGE_NAME: ${{ steps.registry.outputs.image_ref }}
           REPORT_PATH: ${{ runner.temp }}/candidate-6-validation.json
           SOURCE_REVISION: ${{ steps.candidate.outputs.source_revision }}
         shell: bash
+        run: scripts/provenance/validate-candidate.sh
+      - name: Obtain and verify Cosign executable
+        id: cosign
+        shell: bash
         run: |
           set -euo pipefail
-          scripts/provenance/validate-candidate.sh
-          echo 'result=passed' >>"$GITHUB_OUTPUT"
-
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
-        with:
-          cosign-release: v2.6.1
-
-      - name: Sign the validated digest with GitHub OIDC
+          cosign_path="$RUNNER_TEMP/cosign-v2.6.1-linux-amd64"; curl --fail --location --silent --show-error "$COSIGN_DOWNLOAD_URL" --output "$cosign_path"
+          actual_sha256="$(sha256sum "$cosign_path" | awk '{print $1}')"; [[ "$actual_sha256" == "$COSIGN_SHA256" ]] || { echo "Cosign executable checksum mismatch" >&2; exit 1; }
+          chmod 0755 "$cosign_path"; version="$($cosign_path version --json)"; jq -e --arg release "$COSIGN_RELEASE" '.gitVersion == $release' <<<"$version" >/dev/null
+          { echo "path=${cosign_path}"; echo "sha256=${actual_sha256}"; echo "version=$(jq -r '.gitVersion' <<<"$version")"; } >>"$GITHUB_OUTPUT"
+      - name: Sign the authoritative digest with GitHub OIDC
         env:
-          IMAGE_REF: ${{ steps.build.outputs.image_ref }}
-        run: cosign sign --yes "$IMAGE_REF"
-
+          COSIGN_PATH: ${{ steps.cosign.outputs.path }}
+          IMAGE_REF: ${{ steps.registry.outputs.image_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$(sha256sum "$COSIGN_PATH" | awk '{print $1}')" == "$COSIGN_SHA256" ]] || { echo "Cosign executable changed before signing" >&2; exit 1; }
+          "$COSIGN_PATH" sign --yes "$IMAGE_REF"
       - name: Verify the digest-bound keyless signature
         env:
-          IMAGE_REF: ${{ steps.build.outputs.image_ref }}
-          VERIFICATION_PATH: ${{ runner.temp }}/candidate-6-cosign-verification.json
+          COSIGN_PATH: ${{ steps.cosign.outputs.path }}
+          IMAGE_REF: ${{ steps.registry.outputs.image_ref }}
+          VERIFICATION_PATH: ${{ runner.temp }}/candidate-6-raw-evidence/signature-verification.json
         shell: bash
         run: |
           set -euo pipefail
-          cosign verify --certificate-identity "$CERTIFICATE_IDENTITY" --certificate-oidc-issuer "$CERTIFICATE_OIDC_ISSUER" --output json "$IMAGE_REF" | tee "$VERIFICATION_PATH"
-          jq -e 'length > 0' "$VERIFICATION_PATH" >/dev/null
-
-      - name: Record Candidate 6 custody receipt
+          [[ "$(sha256sum "$COSIGN_PATH" | awk '{print $1}')" == "$COSIGN_SHA256" ]] || { echo "Cosign executable changed before verification" >&2; exit 1; }
+          "$COSIGN_PATH" verify --certificate-identity "$CERTIFICATE_IDENTITY" --certificate-oidc-issuer "$CERTIFICATE_OIDC_ISSUER" --output json "$IMAGE_REF" >"$VERIFICATION_PATH"
+          jq -e 'type == "array" and length > 0' "$VERIFICATION_PATH" >/dev/null
+      - name: Create and validate raw evidence bundle
         env:
-          BUILD_COMPLETED_AT: ${{ steps.build.outputs.completed_at }}
-          BUILD_STARTED_AT: ${{ steps.build.outputs.started_at }}
-          BUILDER_IDENTITY: ${{ steps.builder.outputs.identity }}
-          CANDIDATE_DIGEST: ${{ steps.build.outputs.digest }}
-          IMAGE_REF: ${{ steps.build.outputs.image_ref }}
+          BUILDX_DIGEST: ${{ steps.build.outputs.buildx_digest }}
+          BUILDX_VERSION: ${{ steps.build.outputs.buildx_version }}
+          COSIGN_PATH: ${{ steps.cosign.outputs.path }}
+          COSIGN_VERSION: ${{ steps.cosign.outputs.version }}
+          COSIGN_EXECUTABLE_SHA256: ${{ steps.cosign.outputs.sha256 }}
+          IMAGE_REF: ${{ steps.registry.outputs.image_ref }}
           SOURCE_REVISION: ${{ steps.candidate.outputs.source_revision }}
-          SOURCE_TREE: ${{ steps.candidate.outputs.source_tree }}
-          TAG_OBJECT: ${{ steps.candidate.outputs.tag_object }}
-          WORKFLOW_CONTROL_COMMIT: ${{ steps.candidate.outputs.workflow_control_commit }}
         shell: bash
         run: |
           set -euo pipefail
-          receipt_directory="$RUNNER_TEMP/candidate-6-custody"
-          mkdir -p "$receipt_directory"
-          cp "$RUNNER_TEMP/candidate-6-build-metadata.json" "$receipt_directory/build-metadata.json"
-          cp "$RUNNER_TEMP/candidate-6-validation.json" "$receipt_directory/validation.json"
-          cp "$RUNNER_TEMP/candidate-6-cosign-verification.json" "$receipt_directory/signature-verification.json"
-          cp "$RUNNER_TEMP/candidate-6-remote-manifest.json" "$receipt_directory/remote-manifest.json"
-
-          upstream_tag="$(sed -n 's/^TWENTY_VERSION=//p' .twenty-source)"
-          upstream_commit="$(sed -n 's/^TWENTY_UPSTREAM_COMMIT=//p' .twenty-source)"
-          upstream_tree="$(sed -n 's/^TWENTY_UPSTREAM_TREE=//p' .twenty-source)"
-          dockerfile="$(sed -n 's/^TWENTY_DOCKERFILE=//p' .twenty-source)"
-          build_target="$(sed -n 's/^TWENTY_BUILD_TARGET=//p' .twenty-source)"
-          build_platform="$(sed -n 's/^TWENTY_BUILD_PLATFORM=//p' .twenty-source)"
-          jq -n \
-            --arg candidateNumber "$CANDIDATE_NUMBER" --arg candidateTag "$CANDIDATE_TAG" --arg candidateTagObject "$TAG_OBJECT" \
-            --arg sourceRevision "$SOURCE_REVISION" --arg sourceTree "$SOURCE_TREE" --arg workflowControlCommit "$WORKFLOW_CONTROL_COMMIT" \
-            --arg workflowRun "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --arg workflowRunAttempt "$GITHUB_RUN_ATTEMPT" \
-            --arg upstreamTag "$upstream_tag" --arg upstreamCommit "$upstream_commit" --arg upstreamTree "$upstream_tree" \
-            --arg buildId "$BUILD_ID" --arg dockerfile "$dockerfile" --arg buildTarget "$build_target" --arg buildPlatform "$build_platform" \
-            --arg buildStartedAt "$BUILD_STARTED_AT" --arg buildCompletedAt "$BUILD_COMPLETED_AT" --arg builderIdentity "$BUILDER_IDENTITY" \
-            --arg runnerName "$RUNNER_NAME" --arg runnerOs "$RUNNER_OS" --arg runnerArch "$RUNNER_ARCH" --arg runnerActor "$GITHUB_ACTOR" \
-            --arg imageTag "$IMAGE_TAG" --arg imageRepository "$IMAGE_REPOSITORY" --arg digest "$CANDIDATE_DIGEST" --arg imageRef "$IMAGE_REF" \
-            '{result:"passed",candidate:{number:$candidateNumber,tag:$candidateTag,annotatedTagObject:$candidateTagObject,peeledSourceCommit:$sourceRevision,sourceTree:$sourceTree},workflow:{controlCommit:$workflowControlCommit,run:$workflowRun,attempt:$workflowRunAttempt,repository:"mhoo-os/mhoo-twenty"},provenance:{result:"passed",upstreamTag:$upstreamTag,upstreamCommit:$upstreamCommit,upstreamTree:$upstreamTree},build:{id:$buildId,definition:{helper:"scripts/provenance/build-candidate.sh",dockerfile:$dockerfile,target:$buildTarget,platform:$buildPlatform},startedAt:$buildStartedAt,completedAt:$buildCompletedAt,builderIdentity:$builderIdentity,runner:{name:$runnerName,os:$runnerOs,architecture:$runnerArch,actor:$runnerActor}},publication:{requestedImageTag:$imageTag,registryRepository:$imageRepository,digest:$digest,immutableImageReference:$imageRef,publishedPlatforms:[$buildPlatform],ociLabels:{source:"https://github.com/mhoo-os/mhoo-twenty",revision:$sourceRevision},remotePullAndInspectByDigest:"passed"},signature:{mode:"keyless",certificateIdentity:"https://github.com/mhoo-os/mhoo-twenty/.github/workflows/publish-twenty-v2.30.1-candidate-6.yml@refs/heads/main",certificateOidcIssuer:"https://token.actions.githubusercontent.com",verification:"passed",receipt:"signature-verification.json"},attestation:{sbom:"not produced by the established registry publication configuration",buildProvenance:"not produced by the established registry publication configuration"},candidate5:"not modified",validation:"passed"}' >"$receipt_directory/custody.json"
-
-          {
-            echo "## Signed Candidate 6"
-            echo
-            echo "- Workflow-control commit: \`${WORKFLOW_CONTROL_COMMIT}\`"
-            echo "- Source revision: \`${SOURCE_REVISION}\`"
-            echo "- Source tree: \`${SOURCE_TREE}\`"
-            echo "- Candidate tag object: \`${TAG_OBJECT}\`"
-            echo "- Candidate tag: \`${CANDIDATE_TAG}\`"
-            echo "- Digest-only image: \`${IMAGE_REF}\`"
-            echo "- Build validation: PASS"
-            echo "- Remote pull and inspect by digest: PASS"
-            echo "- Keyless signature verification: PASS"
-            echo "- Candidate 5: not modified"
-            echo "- Rehearsal and deployment: not performed"
-          } >>"$GITHUB_STEP_SUMMARY"
-
-      - name: Preserve Candidate 6 custody receipt
+          evidence="$RUNNER_TEMP/candidate-6-raw-evidence"; cp "$RUNNER_TEMP/candidate-6-build-metadata.json" "$evidence/build-metadata.json"; cp "$RUNNER_TEMP/candidate-6-validation.json" "$evidence/validation.json"
+          jq -n --arg sourceRevision "$SOURCE_REVISION" --arg imageRef "$IMAGE_REF" --arg buildxDigest "$BUILDX_DIGEST" --arg buildxVersion "$BUILDX_VERSION" --arg cosignPath "$COSIGN_PATH" --arg cosignVersion "$COSIGN_VERSION" --arg cosignSha256 "$COSIGN_EXECUTABLE_SHA256" '{schema:"mhoo.candidate-6.raw-evidence/v1",sourceRevision:$sourceRevision,imageReference:$imageRef,buildxClaimedDigest:$buildxDigest,buildxVersion:$buildxVersion,cosign:{path:$cosignPath,version:$cosignVersion,sha256:$cosignSha256}}' >"$evidence/evidence.json"
+          jq -e '(.schema == "mhoo.candidate-6.raw-evidence/v1") and (.sourceRevision|test("^[0-9a-f]{40}$")) and (.imageReference|test("@sha256:[0-9a-f]{64}$")) and (.cosign.sha256|test("^[0-9a-f]{64}$"))' "$evidence/evidence.json" >/dev/null
+      - name: Upload raw evidence bundle
+        id: upload-evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: mhoo-twenty-v2.30.1-candidate-6-custody
-          path: ${{ runner.temp }}/candidate-6-custody/
+          name: mhoo-twenty-v2.30.1-candidate-6-raw-evidence
+          path: ${{ runner.temp }}/candidate-6-raw-evidence/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Create final receipt after evidence upload
+        env:
+          BUILDX_DIGEST: ${{ steps.build.outputs.buildx_digest }}
+          BUILDX_VERSION: ${{ steps.build.outputs.buildx_version }}
+          DOCKER_VERSION: ${{ steps.build.outputs.docker_version }}
+          COSIGN_PATH: ${{ steps.cosign.outputs.path }}
+          COSIGN_VERSION: ${{ steps.cosign.outputs.version }}
+          COSIGN_EXECUTABLE_SHA256: ${{ steps.cosign.outputs.sha256 }}
+          EVIDENCE_ARTIFACT_DIGEST: ${{ steps.upload-evidence.outputs.artifact-digest }}
+          EVIDENCE_ARTIFACT_ID: ${{ steps.upload-evidence.outputs.artifact-id }}
+          IMAGE_REF: ${{ steps.registry.outputs.image_ref }}
+          SOURCE_REVISION: ${{ steps.candidate.outputs.source_revision }}
+          SOURCE_TREE: ${{ steps.candidate.outputs.source_tree }}
+          TAG_ANNOTATION_SHA256: ${{ steps.candidate.outputs.annotation_sha256 }}
+          TAG_OBJECT: ${{ steps.candidate.outputs.tag_object }}
+          TAGGER_DATE: ${{ steps.candidate.outputs.tagger_date }}
+          TAGGER_EMAIL: ${{ steps.candidate.outputs.tagger_email }}
+          TAGGER_NAME: ${{ steps.candidate.outputs.tagger_name }}
+          WORKFLOW_BLOB: ${{ steps.candidate.outputs.workflow_blob }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/candidate-6-final-receipt"; readback="$RUNNER_TEMP/candidate-6-raw-evidence/registry-readback.json"
+          jq -n --arg repository "$GITHUB_REPOSITORY" --arg workflowName "$GITHUB_WORKFLOW" --arg workflowPath ".github/workflows/publish-twenty-v2.30.1-candidate-6.yml" --arg workflowRef "$GITHUB_WORKFLOW_REF" --arg workflowSha "$GITHUB_WORKFLOW_SHA" --arg workflowBlob "$WORKFLOW_BLOB" --arg runId "$GITHUB_RUN_ID" --arg runAttempt "$GITHUB_RUN_ATTEMPT" --arg actor "$GITHUB_ACTOR" --arg event "$GITHUB_EVENT_NAME" --arg ref "$GITHUB_REF" --arg executionCommit "$GITHUB_SHA" --arg sourceTag "$CANDIDATE_SOURCE_TAG" --arg tagObject "$TAG_OBJECT" --arg taggerName "$TAGGER_NAME" --arg taggerEmail "$TAGGER_EMAIL" --arg taggerTimestamp "$TAGGER_DATE" --arg annotationSha256 "$TAG_ANNOTATION_SHA256" --arg sourceCommit "$SOURCE_REVISION" --arg sourceTree "$SOURCE_TREE" --arg upstreamTag "$EXPECTED_UPSTREAM_TAG" --arg upstreamCommit "$EXPECTED_UPSTREAM_COMMIT" --arg upstreamTree "$EXPECTED_UPSTREAM_TREE" --arg buildxDigest "$BUILDX_DIGEST" --arg buildxVersion "$BUILDX_VERSION" --arg dockerVersion "$DOCKER_VERSION" --arg imageReference "$IMAGE_REF" --arg cosignRelease "$COSIGN_RELEASE" --arg cosignVersion "$COSIGN_VERSION" --arg cosignPath "$COSIGN_PATH" --arg cosignSha256 "$COSIGN_EXECUTABLE_SHA256" --arg cosignDownload "$COSIGN_DOWNLOAD_URL" --arg runnerOs "$RUNNER_OS" --arg runnerArch "$RUNNER_ARCH" --arg certificateIdentity "$CERTIFICATE_IDENTITY" --arg certificateIssuer "$CERTIFICATE_OIDC_ISSUER" --arg evidenceId "$EVIDENCE_ARTIFACT_ID" --arg evidenceDigest "$EVIDENCE_ARTIFACT_DIGEST" --slurpfile registry "$readback" '{schema:"mhoo.candidate-6.final-receipt/v1",repository:$repository,workflow:{name:$workflowName,path:$workflowPath,ref:$workflowRef,sha:$workflowSha,blobSha:$workflowBlob,runId:$runId,runAttempt:$runAttempt,actor:$actor,event:$event,ref:$ref,executionCommit:$executionCommit,actions:{checkout:"34e114876b0b11c390a56381ad16ebd13914f8d5",buildx:"8d2750c68a42422c14e847fe6c8ac0403b4cbd6f",uploadArtifact:"ea165f8d65b6e75b540449e92b4886f43607fa02"}},sourceTag:{name:$sourceTag,objectId:$tagObject,tagger:{name:$taggerName,email:$taggerEmail,timestamp:$taggerTimestamp},annotationSha256:$annotationSha256,peeledCommit:$sourceCommit,sourceTree:$sourceTree},upstream:{tag:$upstreamTag,commit:$upstreamCommit,tree:$upstreamTree},build:{buildxClaimedDigest:$buildxDigest,buildxVersion:$buildxVersion,dockerVersion:$dockerVersion},publication:{primitive:"digest-only",imageReference:$imageReference,registryReadback:$registry[0]},cosign:{requestedRelease:$cosignRelease,exactVersion:$cosignVersion,absolutePath:$cosignPath,executableSha256:$cosignSha256,downloadSource:$cosignDownload,runnerOs:$runnerOs,runnerArchitecture:$runnerArch,certificateIdentity:$certificateIdentity,certificateIssuer:$certificateIssuer,signatureVerification:"passed",transparencyEvidence:"signature-verification.json"},evidenceArtifact:{id:$evidenceId,url:("https://github.com/"+$repository+"/actions/runs/"+$runId+"/artifacts/"+$evidenceId),digest:$evidenceDigest},validation:{source:"passed",registryReadback:"passed",signature:"passed",candidate5:"not modified"}}' >"$RUNNER_TEMP/candidate-6-final-receipt/receipt.json"
+      - name: Validate final receipt structurally
+        shell: bash
+        run: |
+          set -euo pipefail
+          receipt="$RUNNER_TEMP/candidate-6-final-receipt/receipt.json"
+          jq -e '(.schema == "mhoo.candidate-6.final-receipt/v1") and (.repository == "mhoo-os/mhoo-twenty") and (.workflow.path == ".github/workflows/publish-twenty-v2.30.1-candidate-6.yml") and (.sourceTag.name == "mhoo/candidate/v2.30.1-6") and (.sourceTag.objectId|test("^[0-9a-f]{40}$")) and (.sourceTag.peeledCommit == "08d55ab7ed4bbc4e72fee825822c3ce0656c82ef") and (.sourceTag.sourceTree == "8d7b43fe941bc648a35bb486642d0d532013e5ae") and ([.workflow.ref,.workflow.sha,.workflow.blobSha,.workflow.runId,.workflow.runAttempt,.workflow.actor,.workflow.event,.workflow.ref,.workflow.executionCommit,.sourceTag.tagger.name,.sourceTag.tagger.email,.sourceTag.tagger.timestamp,.sourceTag.annotationSha256,.build.buildxClaimedDigest,.publication.imageReference,.publication.registryReadback.registryDigestHeader,.publication.registryReadback.rawBodySha256,.publication.registryReadback.manifestMediaType,.cosign.requestedRelease,.cosign.exactVersion,.cosign.absolutePath,.cosign.executableSha256,.cosign.downloadSource,.cosign.runnerOs,.cosign.runnerArchitecture,.cosign.certificateIdentity,.cosign.certificateIssuer,.evidenceArtifact.id,.evidenceArtifact.digest] | all(type == "string" and length > 0)) and (.publication.primitive == "digest-only") and (.publication.imageReference|test("^ghcr.io/mhoo-os/mhoo-twenty@sha256:[0-9a-f]{64}$")) and (.build.buildxClaimedDigest == .publication.registryReadback.registryDigestHeader and .publication.registryReadback.registryDigestHeader == .publication.registryReadback.rawBodySha256) and (.cosign.executableSha256|test("^[0-9a-f]{64}$")) and (.validation.candidate5 == "not modified")' "$receipt" >/dev/null
+      - name: Upload final custody receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mhoo-twenty-v2.30.1-candidate-6-final-receipt
+          path: ${{ runner.temp }}/candidate-6-final-receipt/receipt.json
           if-no-files-found: error
           retention-days: 90
