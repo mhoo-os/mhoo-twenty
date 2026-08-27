@@ -33,12 +33,28 @@ is_manifest_media_type() {
 
 require_environment REGISTRY_API OCI_LAYOUT BUILD_CLAIMED_DIGEST IMAGE_REPOSITORY GITHUB_ACTOR GITHUB_TOKEN
 
+GHCR_TOKEN_ENDPOINT='https://ghcr.io/token'
+GHCR_TOKEN_SERVICE='ghcr.io'
+GHCR_TOKEN_SCOPE='repository:mhoo-os/mhoo-twenty:pull,push'
+
 if [[ "${OCI_PUBLICATION_TEST_MODE:-}" == 1 ]]; then
   [[ "$REGISTRY_API" =~ ^http://127\.0\.0\.1:[0-9]+/v2/[a-z0-9][a-z0-9._/-]*$ ]] || fail "test registry API is not loopback scoped"
+  REGISTRY_ORIGIN="${REGISTRY_API%%/v2/*}"
+  REGISTRY_PATH="${REGISTRY_API#*/v2/}"
+  TOKEN_ENDPOINT="${REGISTRY_TOKEN_ENDPOINT:-}"
+  TOKEN_SERVICE="${REGISTRY_TOKEN_SERVICE:-}"
+  TOKEN_SCOPE="${REGISTRY_TOKEN_SCOPE:-}"
+  [[ "$TOKEN_ENDPOINT" == "${REGISTRY_ORIGIN}/token" && "$TOKEN_ENDPOINT" =~ ^http://127\.0\.0\.1:[0-9]+/token$ ]] || fail "test token endpoint is not loopback scoped and exact"
+  [[ "$TOKEN_SERVICE" == "${REGISTRY_ORIGIN#http://}" ]] || fail "test token service is not exact"
+  [[ "$TOKEN_SCOPE" == "repository:${REGISTRY_PATH}:pull,push" ]] || fail "test token scope is not exact"
 else
   [[ "$REGISTRY_API" == 'https://ghcr.io/v2/mhoo-os/mhoo-twenty' ]] || fail "registry API is not the fixed Candidate 6 destination"
   [[ "$IMAGE_REPOSITORY" == 'ghcr.io/mhoo-os/mhoo-twenty' ]] || fail "image repository is not the fixed Candidate 6 destination"
   [[ -z "${OCI_PUBLICATION_TEST_OMIT_MANIFEST_DIGEST:-}" ]] || fail "test-only omission hook is forbidden outside disposable proof"
+  [[ -z "${REGISTRY_TOKEN_ENDPOINT:-}${REGISTRY_TOKEN_SERVICE:-}${REGISTRY_TOKEN_SCOPE:-}" ]] || fail "test-only token overrides are forbidden outside disposable proof"
+  TOKEN_ENDPOINT="$GHCR_TOKEN_ENDPOINT"
+  TOKEN_SERVICE="$GHCR_TOKEN_SERVICE"
+  TOKEN_SCOPE="$GHCR_TOKEN_SCOPE"
 fi
 
 [[ -f "$OCI_LAYOUT/index.json" && -d "$OCI_LAYOUT/blobs/sha256" ]] || fail "OCI layout is incomplete"
@@ -60,12 +76,59 @@ mkdir -p "$EVIDENCE_DIRECTORY"
 REGISTRY_ORIGIN="${REGISTRY_API%%/v2/*}"
 ACCEPT_MANIFESTS='application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.artifact.manifest.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json'
 
-authenticated_curl() {
-  curl --silent --show-error --location --user "${GITHUB_ACTOR}:${GITHUB_TOKEN}" "$@"
-}
-
 status_from() {
   awk 'toupper($1) ~ /^HTTP\// { code=$2 } END { print code }' "$1"
+}
+
+obtain_scoped_bearer_token() {
+  local headers response status token_count token
+  headers="$(mktemp)"
+  response="$(mktemp)"
+  if ! curl --silent --show-error --dump-header "$headers" --output "$response" --get --user "${GITHUB_ACTOR}:${GITHUB_TOKEN}" \
+    --data-urlencode "service=${TOKEN_SERVICE}" --data-urlencode "scope=${TOKEN_SCOPE}" "$TOKEN_ENDPOINT"; then
+    rm -f "$headers" "$response"
+    fail 'token service request failed'
+  fi
+  status="$(status_from "$headers")"
+  if [[ ! "$status" =~ ^2[0-9][0-9]$ ]]; then
+    rm -f "$headers" "$response"
+    fail "token service response is indeterminate (HTTP ${status:-none})"
+  fi
+  if ! token_count="$(jq -er 'if type == "object" then [(.token?, .access_token?) | select(type == "string" and length > 0)] | length else -1 end' "$response")" || [[ "$token_count" != 1 ]]; then
+    rm -f "$headers" "$response"
+    fail 'token service response is malformed, missing, or ambiguous'
+  fi
+  if ! token="$(jq -er 'if type == "object" then [(.token?, .access_token?) | select(type == "string" and length > 0)] | .[0] else error("not an object") end' "$response")"; then
+    rm -f "$headers" "$response"
+    fail 'token service response does not contain a usable token'
+  fi
+  rm -f "$headers" "$response"
+  SCOPED_BEARER_TOKEN="$token"
+}
+
+authenticated_curl() {
+  local headers='' argument status attempt=0
+  local -a request=("$@")
+  for ((argument = 0; argument < ${#request[@]}; argument++)); do
+    if [[ "${request[$argument]}" == '--dump-header' || "${request[$argument]}" == '-D' ]]; then
+      ((argument + 1 < ${#request[@]})) || fail 'registry request did not bind a header file'
+      headers="${request[$((argument + 1))]}"
+      break
+    fi
+  done
+  [[ -n "$headers" ]] || fail 'registry request did not bind a header file'
+  while :; do
+    if ! curl --silent --show-error --header "Authorization: Bearer ${SCOPED_BEARER_TOKEN}" "${request[@]}"; then
+      fail 'registry request failed'
+    fi
+    status="$(status_from "$headers")"
+    if [[ "$status" == 401 && "$attempt" == 0 ]]; then
+      attempt=1
+      obtain_scoped_bearer_token
+      continue
+    fi
+    return 0
+  done
 }
 
 header_value() {
@@ -150,6 +213,11 @@ collect_manifest() {
 }
 
 collect_manifest "$ROOT_DIGEST" "$ROOT_MEDIA_TYPE"
+
+# Exchange the GitHub credential once before any registry request. Registry
+# operations below are Bearer-only; a single 401 may refresh this same grant.
+SCOPED_BEARER_TOKEN=''
+obtain_scoped_bearer_token
 
 upload_blob() {
   local digest="$1" file="$2" headers response location status query_separator encoded_digest
