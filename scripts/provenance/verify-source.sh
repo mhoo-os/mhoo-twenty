@@ -136,6 +136,7 @@ UNEXPECTED_PATHS="$(
     ':(exclude).github/workflows/website-i18n-push.yaml' \
     ':(exclude).github/workflows/website-preview-dispatch.yaml' \
     ':(exclude).github/workflows/publish-twenty-v2.30.1-candidate.yml' \
+    ':(exclude).github/workflows/publish-twenty-v2.30.1-candidate-6.yml' \
     ':(exclude).github/workflows/sign-twenty-v2.30.1-candidate-4.yml' \
     ':(exclude).github/workflows/stage-twenty-v2.30.1-candidate-4-rehearsal.yml' \
     ':(exclude).github/workflows/twenty-v2.30.1-provenance.yml' \

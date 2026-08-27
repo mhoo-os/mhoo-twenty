@@ -88,8 +88,72 @@ The source and candidate workflows are:
 
 - `twenty-v2.30.1-provenance.yml`;
 - `publish-twenty-v2.30.1-candidate.yml`;
+- `publish-twenty-v2.30.1-candidate-6.yml` (Candidate 6-only, input-free
+  manual successor custody control);
 - `sign-twenty-v2.30.1-candidate-4.yml`;
 - `stage-twenty-v2.30.1-candidate-4-rehearsal.yml`.
+
+## Candidate 6 custody control (remediated source/CI contract)
+
+Candidate 6 has two deliberately distinct identities. Its immutable Git source
+tag is the existing annotated `mhoo/candidate/v2.30.1-6` tag; it has object
+`cafe7198449e337520ca7283654678a166aa8e3c`, peels to
+`08d55ab7ed4bbc4e72fee825822c3ce0656c82ef`, and has source tree
+`8d7b43fe941bc648a35bb486642d0d532013e5ae`. It is not an OCI image tag. A
+later authorized publication identifies its OCI content only as
+`ghcr.io/mhoo-os/mhoo-twenty@sha256:...`; the custody workflow must never
+create or move a Candidate 6 OCI tag.
+
+The independently reviewed predecessor had six custody defects: nonzero
+registry inspection was treated as absence; a check-before-push mutable tag
+could race an external publisher; Buildx metadata was treated as registry
+authority; the receipt preceded evidence upload; grep trusted malformed YAML;
+and Cosign was selected from `PATH`. GitHub Actions concurrency cannot solve
+the external registry race. GHCR has no reviewed registry-enforced
+create-if-absent / immutable-tag primitive in this contract, so the selected
+primitive is digest-only OCI publication, not fixed-tag publication.
+
+The manual, input-free workflow on reviewed `main` first verifies the annotated
+Git source tag, its tagger metadata, peeled commit, source tree, exact upstream
+lineage, and workflow blob. It builds a local OCI layout once, uploads blobs
+and the root manifest/index to the authenticated OCI Registry API under its
+canonical digest, then reads that digest back. A registry state is PRESENT only
+for a valid authenticated response proving the object, ABSENT only for a valid
+authenticated manifest-not-found response, and INDETERMINATE for every other
+result. In particular, 401/403, 408/timeouts, DNS/TLS/transport failures, 429,
+5xx, malformed responses, and generic tool errors fail the job; none means
+absence.
+
+The authoritative read-back requires exactly one `Docker-Content-Digest`
+header, a supported manifest/index media type, and equality of Buildx's claimed
+digest, the canonical digest reference, the header digest, and the SHA-256 of
+the exact returned manifest/index bytes. Only then is the digest signed. Cosign
+v2.6.1 is downloaded to a controlled absolute path, checked against reviewed
+SHA-256 `064954c5d8c7e3b28188eee5b1727b31c411550bc5fefd41aa672d3c761d103a`,
+rehashes immediately before signing and verification, and records its version,
+path, checksum, source, runner OS, and architecture.
+
+Raw evidence is created and structurally checked after signature verification,
+uploaded with `if-no-files-found: error`, and its returned artifact ID, URL, and
+digest are bound into the final receipt. The final receipt is created and
+structurally validated only after that upload, and its upload is the final
+custody operation. It records workflow ref/SHA/blob/run identity and action
+SHAs; annotated-source-tag/tagger/annotation metadata; source and upstream
+identity; builder/Docker information; every digest authority; media type;
+digest-only reference; Cosign custody and verification; transparency evidence;
+and validation results. Local receipt creation is not workflow success: the
+terminal GitHub Actions conclusion remains authoritative.
+
+`validate-candidate-6-publication-workflow.sh` requires actionlint and a
+duplicate-key YAML parser, then structurally checks triggers, permissions,
+jobs, actions, step ordering, digest-only commands, receipt fields, and
+fail-closed registry handling. Its deterministic adversarial self-test rejects
+duplicate keys, unauthorized triggers, comment-only commands, nonzero-as-absent
+logic, permissive error paths, mutable tag pushes, unsafe receipt order,
+unverified PATH Cosign, missing read-back or receipt fields, and unpinned
+actions. No Candidate 6 publication occurred during this remediation. Phase 4
+remains BLOCKED and R3 remains OPEN pending independent custody re-review and a
+separately authorized publication run. Candidate 5 is not modified.
 
 A green health endpoint is not product readiness, and a signed image is not
 production authority. Deployment, DNS, Cloudflare, Tailscale, production

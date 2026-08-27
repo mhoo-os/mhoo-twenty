@@ -75,18 +75,8 @@ case "$OUTPUT_MODE" in
       --tag "$IMAGE_NAME"
     )
     ;;
-  registry)
-    [[ "$IMAGE_NAME" == ghcr.io/mhoo-os/mhoo-twenty:* ]] ||
-      fail "registry output must use a versioned ghcr.io/mhoo-os/mhoo-twenty tag"
-    BUILD_ARGUMENTS+=(
-      --provenance=false
-      --sbom=false
-      --push
-      --tag "$IMAGE_NAME"
-    )
-    ;;
   *)
-    fail "OUTPUT_MODE must be oci, docker, or registry"
+    fail "OUTPUT_MODE must be oci or docker; registry publication is handled by a digest-only OCI API custody workflow"
     ;;
 esac
 
