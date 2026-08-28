@@ -18,9 +18,7 @@ const TWENTY_BRAND: CustomerBrand = {
 
 const MHOO_BRAND: CustomerBrand = {
   name: 'Mhoo',
-  // No Mhoo visual asset is introduced by the foundation fork. This stable
-  // location is the intentional replacement seam for a later approved asset.
-  logoUrl: '/images/icons/android/android-launchericon-192-192.png',
+  logoUrl: '/images/mhoo/mhoo-snout-transparent-1024.png',
   websiteUrl: 'https://mhoo.app/',
   termsUrl: 'https://mhoo.app/legal/terms',
   dataProcessingAgreementUrl: 'https://mhoo.app/legal/dpa',

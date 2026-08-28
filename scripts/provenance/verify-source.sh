@@ -152,6 +152,7 @@ UNEXPECTED_PATHS="$(
     ':(exclude)packages/twenty-front/src/modules/auth/sign-in-up/components/FooterNote.tsx' \
     ':(exclude)packages/twenty-front/src/modules/branding/utils/getCustomerBrand.ts' \
     ':(exclude)packages/twenty-front/src/modules/branding/utils/__tests__/getCustomerBrand.test.ts' \
+    ':(exclude)packages/twenty-front/public/images/mhoo/**' \
     ':(exclude)packages/twenty-front/src/modules/client-config/hooks/useClientConfig.ts' \
     ':(exclude)packages/twenty-front/src/modules/client-config/states/isMhooFoundationEnabledState.ts' \
     ':(exclude)packages/twenty-front/src/modules/client-config/types/ClientConfig.ts' \

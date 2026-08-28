@@ -9,7 +9,7 @@ export const getEmailCustomerBrand = (): EmailCustomerBrand => {
     return {
       name: 'Mhoo',
       logoUrl:
-        'https://app.mhoo.app/images/icons/windows11/Square150x150Logo.scale-100.png',
+        'https://app.mhoo.app/images/mhoo/mhoo-snout-transparent-1024.png',
       websiteUrl: 'https://mhoo.app/',
     };
   }

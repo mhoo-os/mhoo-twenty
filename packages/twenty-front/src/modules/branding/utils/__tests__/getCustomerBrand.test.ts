@@ -8,6 +8,7 @@ describe('getCustomerBrand', () => {
   it('returns Mhoo customer-facing identity in foundation mode', () => {
     expect(getCustomerBrand(true)).toMatchObject({
       name: 'Mhoo',
+      logoUrl: '/images/mhoo/mhoo-snout-transparent-1024.png',
       websiteUrl: 'https://mhoo.app/',
     });
   });
