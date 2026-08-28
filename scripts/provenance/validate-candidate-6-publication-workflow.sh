@@ -9,7 +9,10 @@ PROOF="$REPOSITORY_ROOT/scripts/provenance/test-candidate-6-oci-publication.sh"
 AUTH_HARNESS="$REPOSITORY_ROOT/scripts/provenance/test-candidate-6-oci-auth-harness.py"
 
 command -v actionlint >/dev/null 2>&1 || { echo 'Candidate 6 workflow validation failed: actionlint is required' >&2; exit 1; }
+actionlint -version | grep -Fx '1.7.12' >/dev/null || { echo 'Candidate 6 workflow validation failed: actionlint 1.7.12 is required' >&2; exit 1; }
 command -v python3 >/dev/null 2>&1 || { echo 'Candidate 6 workflow validation failed: python3 with PyYAML is required' >&2; exit 1; }
+[[ "$(python3 -c 'import platform, sys; print(f"{platform.python_implementation()} {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")')" == 'CPython 3.12.14' ]] || { echo 'Candidate 6 workflow validation failed: CPython 3.12.14 is required' >&2; exit 1; }
+python3 -c 'import yaml; assert yaml.__version__ == "6.0.3", yaml.__version__' || { echo 'Candidate 6 workflow validation failed: PyYAML 6.0.3 is required' >&2; exit 1; }
 [[ -x "$PUBLISHER" && -x "$PROOF" && -f "$AUTH_HARNESS" ]] || { echo 'Candidate 6 workflow validation failed: OCI publisher, authentication harness, and disposable proof must be present' >&2; exit 1; }
 
 if [[ "${1:-}" != --self-test ]]; then
@@ -58,9 +61,20 @@ EXPECTED_ENV = {
     'EXPECTED_UPSTREAM_COMMIT': '064bdd795a0bd78c65f024350cefed2c8f38a661',
     'EXPECTED_UPSTREAM_TREE': '7ebc5efa7f5f1bfdf9d238a88e3455decaa4f313',
     'IMAGE_REPOSITORY': 'ghcr.io/mhoo-os/mhoo-twenty',
+    'VALIDATOR_PYTHON_VERSION': '3.12.14',
+    'ACTIONLINT_RELEASE': 'v1.7.12',
+    'ACTIONLINT_DOWNLOAD_URL': 'https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz',
+    'ACTIONLINT_ARCHIVE_SHA256': '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8',
+    'PYYAML_VERSION': '6.0.3',
+    'PYYAML_WHEEL_URL': 'https://files.pythonhosted.org/packages/8b/9d/b3589d3877982d4f2329302ef98a8026e7f4443c765c46cfecc8858c6b4b/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl',
+    'PYYAML_WHEEL_SHA256': 'ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc',
 }
 EXPECTED_PERMISSIONS = {'contents': 'read', 'id-token': 'write', 'packages': 'write'}
 ORDER = [
+    'Check out reviewed workflow-control commit',
+    'Set up immutable Candidate 6 validator Python',
+    'Provision immutable Candidate 6 validator dependencies',
+    'Validate immutable Candidate 6 workflow contract',
     'Resolve and verify immutable Candidate 6 source tag',
     'Verify exact source and controlled overlay',
     'Build Candidate 6 once as an OCI layout',
@@ -117,6 +131,54 @@ def validate(text, publisher, proof, auth_harness):
     if not isinstance(steps, list):
         raise ContractError('publish job must have ordered steps')
     names = [step.get('name') for step in steps if isinstance(step, dict)]
+    if names[:5] != ORDER[:5]:
+        raise ContractError('validator setup, provisioning, validation, and source resolution must be the exact first custody steps')
+
+    def named_step(name):
+        matches = [step for step in steps if isinstance(step, dict) and step.get('name') == name]
+        if len(matches) != 1:
+            raise ContractError(f'workflow must contain exactly one {name!r} step')
+        return matches[0]
+
+    setup_python = named_step('Set up immutable Candidate 6 validator Python')
+    if setup_python.get('uses') != 'actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97':
+        raise ContractError('setup-python action must use the required immutable SHA')
+    if 'cache' in setup_python.get('with', {}):
+        raise ContractError('setup-python dependency cache is forbidden')
+    if setup_python.get('with') != {'python-version': '3.12.14'}:
+        raise ContractError('setup-python must select exactly Python 3.12.14 without additional inputs')
+
+    provision = named_step('Provision immutable Candidate 6 validator dependencies')
+    if provision.get('shell') != 'bash' or not isinstance(provision.get('run'), str):
+        raise ContractError('validator dependency provisioning must use a bash script')
+    provision_lines = executable_lines(provision['run'])
+    provision_code = '\n'.join(provision_lines)
+    required_provisioning = [
+        'set -euo pipefail',
+        '[[ "$RUNNER_OS" == Linux ]]',
+        '[[ "$RUNNER_ARCH" == X64 ]]',
+        '[[ "$(python3 -c \'import platform, sys; print(f"{platform.python_implementation()} {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")\')" == "CPython 3.12.14" ]]',
+        'tools="$RUNNER_TEMP/candidate-6-validator-tools"',
+        'curl --fail --location --silent --show-error --proto \'=https\' --tlsv1.2 "$ACTIONLINT_DOWNLOAD_URL" --output "$actionlint_archive"',
+        '[[ "$(sha256sum "$actionlint_archive" | awk \'{print $1}\')" == "$ACTIONLINT_ARCHIVE_SHA256" ]]',
+        'tar -xzf "$actionlint_archive" -C "$actionlint_dir" actionlint',
+        '"$actionlint_dir/actionlint" -version | grep -Fx \'1.7.12\'',
+        'curl --fail --location --silent --show-error --proto \'=https\' --tlsv1.2 "$PYYAML_WHEEL_URL" --output "$pyyaml_wheel"',
+        '[[ "$(sha256sum "$pyyaml_wheel" | awk \'{print $1}\')" == "$PYYAML_WHEEL_SHA256" ]]',
+        'python3 -m pip install --disable-pip-version-check --no-index --no-deps --no-compile "$pyyaml_wheel"',
+        'python3 -c \'import yaml; assert yaml.__version__ == "6.0.3", yaml.__version__\'',
+        'echo "$actionlint_dir" >>"$GITHUB_PATH"',
+    ]
+    if any(line not in provision_lines for line in required_provisioning):
+        raise ContractError('validator dependency provisioning omits an immutable required command')
+    if provision_lines.index('[[ "$(sha256sum "$actionlint_archive" | awk \'{print $1}\')" == "$ACTIONLINT_ARCHIVE_SHA256" ]]') > provision_lines.index('tar -xzf "$actionlint_archive" -C "$actionlint_dir" actionlint'):
+        raise ContractError('actionlint archive checksum verification must precede extraction')
+    if provision_lines.index('[[ "$(sha256sum "$pyyaml_wheel" | awk \'{print $1}\')" == "$PYYAML_WHEEL_SHA256" ]]') > provision_lines.index('python3 -m pip install --disable-pip-version-check --no-index --no-deps --no-compile "$pyyaml_wheel"'):
+        raise ContractError('PyYAML wheel checksum verification must precede installation')
+    if provision_lines.index('"$actionlint_dir/actionlint" -version | grep -Fx \'1.7.12\'') > provision_lines.index('echo "$actionlint_dir" >>"$GITHUB_PATH"'):
+        raise ContractError('actionlint must be verified before GITHUB_PATH is updated')
+    if re.search(r'\b(?:apt(?:-get)?|brew|npm|go\s+install)\b|\blatest\b', provision_code):
+        raise ContractError('validator dependency provisioning contains an unpinned package-manager or installer path')
     login_steps = [
         step for step in steps
         if isinstance(step, dict) and str(step.get('uses', '')).startswith('docker/login-action@')
@@ -264,6 +326,31 @@ publisher = open(publisher_path, encoding='utf-8').read()
 proof = open(proof_path, encoding='utf-8').read()
 auth_harness = open(harness_path, encoding='utf-8').read()
 if mode == '--self-test':
+    expect_rejected('missing setup-python step', text.replace('      - name: Set up immutable Candidate 6 validator Python', '      - name: Removed immutable Candidate 6 validator Python', 1), 'exact first custody steps', publisher, proof, auth_harness)
+    expect_rejected('floating setup-python tag', text.replace('actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97', 'actions/setup-python@v7', 1), 'setup-python action', publisher, proof, auth_harness)
+    expect_rejected('wrong setup-python SHA', text.replace('actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97', 'actions/setup-python@0000000000000000000000000000000000000000', 1), 'setup-python action', publisher, proof, auth_harness)
+    expect_rejected('wrong validator Python version', text.replace("python-version: '3.12.14'", "python-version: '3.12.13'", 1), 'setup-python must select', publisher, proof, auth_harness)
+    expect_rejected('setup-python cache enabled', text.replace("          python-version: '3.12.14'", "          python-version: '3.12.14'\n          cache: pip", 1), 'dependency cache', publisher, proof, auth_harness)
+    expect_rejected('missing dependency-provisioning step', text.replace('      - name: Provision immutable Candidate 6 validator dependencies', '      - name: Removed immutable Candidate 6 validator dependencies', 1), 'exact first custody steps', publisher, proof, auth_harness)
+    swapped = text.replace('      - name: Provision immutable Candidate 6 validator dependencies', '      - name: TEMPORARY', 1).replace('      - name: Validate immutable Candidate 6 workflow contract', '      - name: Provision immutable Candidate 6 validator dependencies', 1).replace('      - name: TEMPORARY', '      - name: Validate immutable Candidate 6 workflow contract', 1)
+    expect_rejected('provisioning after validator', swapped, 'exact first custody steps', publisher, proof, auth_harness)
+    expect_rejected('wrong actionlint URL', text.replace('https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz', 'https://example.invalid/actionlint.tar.gz', 1), 'identity environment', publisher, proof, auth_harness)
+    expect_rejected('wrong actionlint checksum', text.replace('8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8', '0000000000000000000000000000000000000000000000000000000000000000', 1), 'identity environment', publisher, proof, auth_harness)
+    swapped = text.replace('          [[ "$(sha256sum "$actionlint_archive" | awk \'{print $1}\')" == "$ACTIONLINT_ARCHIVE_SHA256" ]]\n          tar -xzf "$actionlint_archive" -C "$actionlint_dir" actionlint', '          tar -xzf "$actionlint_archive" -C "$actionlint_dir" actionlint\n          [[ "$(sha256sum "$actionlint_archive" | awk \'{print $1}\')" == "$ACTIONLINT_ARCHIVE_SHA256" ]]', 1)
+    expect_rejected('actionlint extraction before checksum verification', swapped, 'checksum verification must precede extraction', publisher, proof, auth_harness)
+    expect_rejected('missing actionlint version assertion', text.replace('"$actionlint_dir/actionlint" -version | grep -Fx \'1.7.12\'', '"$actionlint_dir/actionlint" -version', 1), 'immutable required command', publisher, proof, auth_harness)
+    expect_rejected('wrong PyYAML URL', text.replace('https://files.pythonhosted.org/packages/8b/9d/b3589d3877982d4f2329302ef98a8026e7f4443c765c46cfecc8858c6b4b/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl', 'https://example.invalid/pyyaml.whl', 1), 'identity environment', publisher, proof, auth_harness)
+    expect_rejected('wrong PyYAML checksum', text.replace('ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc', '0000000000000000000000000000000000000000000000000000000000000000', 1), 'identity environment', publisher, proof, auth_harness)
+    expect_rejected('pip index access allowed', text.replace(' --no-index', '', 1), 'immutable required command', publisher, proof, auth_harness)
+    expect_rejected('missing pip no-deps', text.replace(' --no-deps', '', 1), 'immutable required command', publisher, proof, auth_harness)
+    expect_rejected('missing PyYAML version assertion', text.replace("python3 -c 'import yaml; assert yaml.__version__ == \"6.0.3\", yaml.__version__'", "python3 -c 'import yaml'", 1), 'immutable required command', publisher, proof, auth_harness)
+    for forbidden in ('apt-get install actionlint', 'brew install actionlint', 'npm install actionlint', 'go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12', 'curl https://example.invalid/latest'):
+        fixture = text.replace('          mkdir -p "$actionlint_dir"', f'          {forbidden}\n          mkdir -p "$actionlint_dir"', 1)
+        expect_rejected(f'forbidden validator installer: {forbidden}', fixture, 'unpinned package-manager or installer path', publisher, proof, auth_harness)
+    swapped = text.replace('      - name: Provision immutable Candidate 6 validator dependencies', '      - name: TEMPORARY', 1).replace('      - name: Validate immutable Candidate 6 workflow contract', '      - name: Provision immutable Candidate 6 validator dependencies', 1).replace('      - name: TEMPORARY', '      - name: Validate immutable Candidate 6 workflow contract', 1)
+    expect_rejected('validator before dependency provisioning', swapped, 'exact first custody steps', publisher, proof, auth_harness)
+    swapped = text.replace('      - name: Validate immutable Candidate 6 workflow contract', '      - name: TEMPORARY', 1).replace('      - name: Resolve and verify immutable Candidate 6 source tag', '      - name: Validate immutable Candidate 6 workflow contract', 1).replace('      - name: TEMPORARY', '      - name: Resolve and verify immutable Candidate 6 source tag', 1)
+    expect_rejected('source resolution before validator completion', swapped, 'exact first custody steps', publisher, proof, auth_harness)
     expect_rejected('duplicate top-level on', text.replace('on:\n', 'on:\n  workflow_dispatch:\non:\n', 1), 'duplicate key: on', publisher, proof, auth_harness)
     expect_rejected('unauthorized push', text.replace('workflow_dispatch:', 'push:\n    branches: [main]', 1), 'workflow must expose only', publisher, proof, auth_harness)
     expect_rejected('comment only command', text.replace('          scripts/provenance/verify-source.sh', '          # scripts/provenance/verify-source.sh', 1), 'missing executable', publisher, proof, auth_harness)
