@@ -61,7 +61,10 @@ jobs:
           tools="$RUNNER_TEMP/candidate-6-validator-tools"
           actionlint_dir="$tools/actionlint"
           actionlint_archive="$tools/actionlint.tar.gz"
-          pyyaml_wheel="$tools/pyyaml.whl"
+          pyyaml_wheel_filename="${PYYAML_WHEEL_URL##*/}"
+          [[ "$pyyaml_wheel_filename" == \
+            'pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl' ]]
+          pyyaml_wheel="$tools/$pyyaml_wheel_filename"
           mkdir -p "$actionlint_dir"
           curl --fail --location --silent --show-error --proto '=https' --tlsv1.2 "$ACTIONLINT_DOWNLOAD_URL" --output "$actionlint_archive"
           [[ "$(sha256sum "$actionlint_archive" | awk '{print $1}')" == "$ACTIONLINT_ARCHIVE_SHA256" ]]
