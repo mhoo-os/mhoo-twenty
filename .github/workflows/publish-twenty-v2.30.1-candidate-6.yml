@@ -27,6 +27,13 @@ env:
   COSIGN_RELEASE: v2.6.1
   COSIGN_DOWNLOAD_URL: https://github.com/sigstore/cosign/releases/download/v2.6.1/cosign-linux-amd64
   COSIGN_SHA256: 064954c5d8c7e3b28188eee5b1727b31c411550bc5fefd41aa672d3c761d103a
+  VALIDATOR_PYTHON_VERSION: '3.12.14'
+  ACTIONLINT_RELEASE: v1.7.12
+  ACTIONLINT_DOWNLOAD_URL: https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+  ACTIONLINT_ARCHIVE_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+  PYYAML_VERSION: 6.0.3
+  PYYAML_WHEEL_URL: https://files.pythonhosted.org/packages/8b/9d/b3589d3877982d4f2329302ef98a8026e7f4443c765c46cfecc8858c6b4b/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
+  PYYAML_WHEEL_SHA256: ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc
 
 jobs:
   publish:
@@ -40,6 +47,32 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.sha }}
+      - name: Set up immutable Candidate 6 validator Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+      - name: Provision immutable Candidate 6 validator dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$RUNNER_OS" == Linux ]]
+          [[ "$RUNNER_ARCH" == X64 ]]
+          [[ "$(python3 -c 'import platform, sys; print(f"{platform.python_implementation()} {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")')" == "CPython 3.12.14" ]]
+          tools="$RUNNER_TEMP/candidate-6-validator-tools"
+          actionlint_dir="$tools/actionlint"
+          actionlint_archive="$tools/actionlint.tar.gz"
+          pyyaml_wheel="$tools/pyyaml.whl"
+          mkdir -p "$actionlint_dir"
+          curl --fail --location --silent --show-error --proto '=https' --tlsv1.2 "$ACTIONLINT_DOWNLOAD_URL" --output "$actionlint_archive"
+          [[ "$(sha256sum "$actionlint_archive" | awk '{print $1}')" == "$ACTIONLINT_ARCHIVE_SHA256" ]]
+          tar -xzf "$actionlint_archive" -C "$actionlint_dir" actionlint
+          chmod 0755 "$actionlint_dir/actionlint"
+          "$actionlint_dir/actionlint" -version | grep -Fx '1.7.12'
+          curl --fail --location --silent --show-error --proto '=https' --tlsv1.2 "$PYYAML_WHEEL_URL" --output "$pyyaml_wheel"
+          [[ "$(sha256sum "$pyyaml_wheel" | awk '{print $1}')" == "$PYYAML_WHEEL_SHA256" ]]
+          python3 -m pip install --disable-pip-version-check --no-index --no-deps --no-compile "$pyyaml_wheel"
+          python3 -c 'import yaml; assert yaml.__version__ == "6.0.3", yaml.__version__'
+          echo "$actionlint_dir" >>"$GITHUB_PATH"
       - name: Validate immutable Candidate 6 workflow contract
         run: scripts/provenance/validate-candidate-6-publication-workflow.sh
       - name: Resolve and verify immutable Candidate 6 source tag
