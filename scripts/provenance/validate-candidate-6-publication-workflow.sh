@@ -70,6 +70,7 @@ EXPECTED_ENV = {
     'PYYAML_WHEEL_SHA256': 'ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc',
 }
 EXPECTED_PERMISSIONS = {'contents': 'read', 'id-token': 'write', 'packages': 'write'}
+EXPECTED_PYYAML_WHEEL_FILENAME = 'pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl'
 ORDER = [
     'Check out reviewed workflow-control commit',
     'Set up immutable Candidate 6 validator Python',
@@ -109,7 +110,7 @@ def load(text):
     return document
 
 def executable_lines(run):
-    return [line.split('#', 1)[0].rstrip() for line in run.splitlines() if line.split('#', 1)[0].strip()]
+    return [line.rstrip() for line in run.splitlines() if line.strip() and not line.lstrip().startswith('#')]
 
 def validate(text, publisher, proof, auth_harness):
     doc = load(text)
@@ -159,6 +160,10 @@ def validate(text, publisher, proof, auth_harness):
         '[[ "$RUNNER_ARCH" == X64 ]]',
         '[[ "$(python3 -c \'import platform, sys; print(f"{platform.python_implementation()} {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")\')" == "CPython 3.12.14" ]]',
         'tools="$RUNNER_TEMP/candidate-6-validator-tools"',
+        'pyyaml_wheel_filename="${PYYAML_WHEEL_URL##*/}"',
+        '[[ "$pyyaml_wheel_filename" == \\',
+        f"  '{EXPECTED_PYYAML_WHEEL_FILENAME}' ]]",
+        'pyyaml_wheel="$tools/$pyyaml_wheel_filename"',
         'curl --fail --location --silent --show-error --proto \'=https\' --tlsv1.2 "$ACTIONLINT_DOWNLOAD_URL" --output "$actionlint_archive"',
         '[[ "$(sha256sum "$actionlint_archive" | awk \'{print $1}\')" == "$ACTIONLINT_ARCHIVE_SHA256" ]]',
         'tar -xzf "$actionlint_archive" -C "$actionlint_dir" actionlint',
@@ -171,9 +176,34 @@ def validate(text, publisher, proof, auth_harness):
     ]
     if any(line not in provision_lines for line in required_provisioning):
         raise ContractError('validator dependency provisioning omits an immutable required command')
+    wheel_filename_line = 'pyyaml_wheel_filename="${PYYAML_WHEEL_URL##*/}"'
+    wheel_filename_assertion = f"  '{EXPECTED_PYYAML_WHEEL_FILENAME}' ]]"
+    wheel_path_line = 'pyyaml_wheel="$tools/$pyyaml_wheel_filename"'
+    wheel_download_line = 'curl --fail --location --silent --show-error --proto \'=https\' --tlsv1.2 "$PYYAML_WHEEL_URL" --output "$pyyaml_wheel"'
+    wheel_checksum_line = '[[ "$(sha256sum "$pyyaml_wheel" | awk \'{print $1}\')" == "$PYYAML_WHEEL_SHA256" ]]'
+    wheel_install_line = 'python3 -m pip install --disable-pip-version-check --no-index --no-deps --no-compile "$pyyaml_wheel"'
+    yaml_version_line = 'python3 -c \'import yaml; assert yaml.__version__ == "6.0.3", yaml.__version__\''
+    if provision_lines.count(wheel_filename_line) != 1 or provision_lines.count(wheel_filename_assertion) != 1:
+        raise ContractError('PyYAML wheel filename must be extracted from the fixed URL and asserted exactly once')
+    if provision_lines.count(wheel_path_line) != 1:
+        raise ContractError('PyYAML local wheel path must be constructed only from the asserted URL basename')
+    if any(line.startswith('pyyaml_wheel=') and line != wheel_path_line for line in provision_lines):
+        raise ContractError('PyYAML local wheel path must not be generic, shortened, or hardcoded')
+    if [line for line in provision_lines if 'PYYAML_WHEEL_URL' in line and line.startswith('curl ')] != [wheel_download_line]:
+        raise ContractError('PyYAML wheel must download from the fixed URL to the exact asserted local path')
+    if [line for line in provision_lines if line.startswith('python3 -m pip install')] != [wheel_install_line]:
+        raise ContractError('PyYAML must install offline with no dependencies from the exact asserted local path')
+    if provision_lines.index(wheel_filename_line) > provision_lines.index(wheel_filename_assertion):
+        raise ContractError('PyYAML URL-basename assertion must follow extraction')
+    if provision_lines.index(wheel_filename_assertion) > provision_lines.index(wheel_path_line):
+        raise ContractError('PyYAML local wheel path must follow the exact URL-basename assertion')
+    if not (provision_lines.index(wheel_filename_assertion) < provision_lines.index(wheel_download_line) < provision_lines.index(wheel_install_line)):
+        raise ContractError('PyYAML URL-basename assertion must precede download and installation')
+    if provision_lines.index(wheel_install_line) > provision_lines.index(yaml_version_line):
+        raise ContractError('PyYAML exact version verification must follow installation')
     if provision_lines.index('[[ "$(sha256sum "$actionlint_archive" | awk \'{print $1}\')" == "$ACTIONLINT_ARCHIVE_SHA256" ]]') > provision_lines.index('tar -xzf "$actionlint_archive" -C "$actionlint_dir" actionlint'):
         raise ContractError('actionlint archive checksum verification must precede extraction')
-    if provision_lines.index('[[ "$(sha256sum "$pyyaml_wheel" | awk \'{print $1}\')" == "$PYYAML_WHEEL_SHA256" ]]') > provision_lines.index('python3 -m pip install --disable-pip-version-check --no-index --no-deps --no-compile "$pyyaml_wheel"'):
+    if provision_lines.index(wheel_checksum_line) > provision_lines.index(wheel_install_line):
         raise ContractError('PyYAML wheel checksum verification must precede installation')
     if provision_lines.index('"$actionlint_dir/actionlint" -version | grep -Fx \'1.7.12\'') > provision_lines.index('echo "$actionlint_dir" >>"$GITHUB_PATH"'):
         raise ContractError('actionlint must be verified before GITHUB_PATH is updated')
@@ -341,6 +371,16 @@ if mode == '--self-test':
     expect_rejected('missing actionlint version assertion', text.replace('"$actionlint_dir/actionlint" -version | grep -Fx \'1.7.12\'', '"$actionlint_dir/actionlint" -version', 1), 'immutable required command', publisher, proof, auth_harness)
     expect_rejected('wrong PyYAML URL', text.replace('https://files.pythonhosted.org/packages/8b/9d/b3589d3877982d4f2329302ef98a8026e7f4443c765c46cfecc8858c6b4b/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl', 'https://example.invalid/pyyaml.whl', 1), 'identity environment', publisher, proof, auth_harness)
     expect_rejected('wrong PyYAML checksum', text.replace('ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc', '0000000000000000000000000000000000000000000000000000000000000000', 1), 'identity environment', publisher, proof, auth_harness)
+    expect_rejected('historical generic PyYAML wheel filename', text.replace('pyyaml_wheel="$tools/$pyyaml_wheel_filename"', 'pyyaml_wheel="$tools/pyyaml.whl"', 1), 'immutable required command', publisher, proof, auth_harness)
+    expect_rejected('shortened PyYAML wheel filename', text.replace('pyyaml_wheel="$tools/$pyyaml_wheel_filename"', 'pyyaml_wheel="$tools/pyyaml-6.0.3.whl"', 1), 'immutable required command', publisher, proof, auth_harness)
+    expect_rejected('wrong PyYAML CPython tag', text.replace("'pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl' ]]", "'pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl' ]]", 1), 'immutable required command', publisher, proof, auth_harness)
+    expect_rejected('wrong PyYAML platform tag', text.replace("'pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl' ]]", "'pyyaml-6.0.3-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl' ]]", 1), 'immutable required command', publisher, proof, auth_harness)
+    expect_rejected('PyYAML wheel destination not derived from URL basename', text.replace('pyyaml_wheel="$tools/$pyyaml_wheel_filename"', f'pyyaml_wheel="$tools/{EXPECTED_PYYAML_WHEEL_FILENAME}"', 1), 'immutable required command', publisher, proof, auth_harness)
+    basename_assertion = '          [[ "$pyyaml_wheel_filename" == \\\n            \'pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl\' ]]\n'
+    expect_rejected('missing PyYAML URL-basename assertion', text.replace(basename_assertion, '', 1), 'immutable required command', publisher, proof, auth_harness)
+    assertion_after_install = text.replace(basename_assertion, '', 1).replace('          python3 -m pip install --disable-pip-version-check --no-index --no-deps --no-compile "$pyyaml_wheel"\n', '          python3 -m pip install --disable-pip-version-check --no-index --no-deps --no-compile "$pyyaml_wheel"\n' + basename_assertion, 1)
+    expect_rejected('PyYAML URL-basename assertion after installation', assertion_after_install, 'local wheel path must follow', publisher, proof, auth_harness)
+    expect_rejected('PyYAML install from other path', text.replace('python3 -m pip install --disable-pip-version-check --no-index --no-deps --no-compile "$pyyaml_wheel"', 'python3 -m pip install --disable-pip-version-check --no-index --no-deps --no-compile "$tools/other.whl"', 1), 'immutable required command', publisher, proof, auth_harness)
     expect_rejected('pip index access allowed', text.replace(' --no-index', '', 1), 'immutable required command', publisher, proof, auth_harness)
     expect_rejected('missing pip no-deps', text.replace(' --no-deps', '', 1), 'immutable required command', publisher, proof, auth_harness)
     expect_rejected('missing PyYAML version assertion', text.replace("python3 -c 'import yaml; assert yaml.__version__ == \"6.0.3\", yaml.__version__'", "python3 -c 'import yaml'", 1), 'immutable required command', publisher, proof, auth_harness)
