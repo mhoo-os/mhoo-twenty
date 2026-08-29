@@ -2,15 +2,21 @@
 
 ## Repository role
 
-`mhoo-twenty` is the maintained Mhoo fork of Twenty. It owns the Twenty user
-experience, Workspace-facing behavior, and supported Twenty extensions. It does
-not own Mhoo Core's data plane, connector-provider authority, or infrastructure
-deployment and cutover authority.
+`mhoo-twenty` is the maintained Mhoo fork of Twenty and, under accepted
+ADR-0008, Mhoo's sole application and data framework. It owns the Twenty user
+experience, Workspace behavior, `@mhoo/core`, later Mhoo Apps, and supported
+framework extensions. It does not own provider facts, model reasoning,
+architecture governance, or infrastructure deployment and cutover authority.
 
 ## Sources of truth
 
 - `.twenty-source` and `scripts/provenance/verify-source.sh` define and verify
   the immutable upstream/source identity and expected validation inputs.
+- Before changing a Twenty App, SDK application surface, or Mhoo alternative to
+  a Twenty primitive, read the coordination repository's
+  [`mhoo-twenty-development` skill](https://github.com/mhoo-os/mhoo/blob/0e94e6b00a3033215e4df3ab197e5559652c2436/.agents/skills/mhoo-twenty-development/SKILL.md).
+  The skill owns framework workflow; this file and accepted ADRs retain
+  repository and architecture authority.
 - Current source, migrations, tests, and Mhoo CI workflows establish implemented
   fork behavior. `CI_AUDIT.md` and `MHOO_CI_CONTRACT.md` classify inherited CI
   only where the checked-in workflows corroborate them.
@@ -28,12 +34,14 @@ deployment and cutover authority.
 - Do not casually change source pins, upstream tree identity, expected migration
   counts, image digests, lockfile identity, or signed/provenance values. A
   source or artifact identity change needs matching provenance and review.
-- Keep Twenty as the human identity, authentication, membership, and Workspace
-  lifecycle authority. Do not introduce a parallel Core, connector, or app
-  identity system.
+- Keep Twenty as the sole human identity, authentication, membership, role,
+  authorization, and Workspace-lifecycle authority. Do not introduce a
+  parallel Core, connector, or App identity or data framework.
 - Prefer a Twenty App or extension over a fork change when it can satisfy the
-  requirement without altering upstream behavior. Route cross-system data-plane
-  work to Core and provider integration to connectors.
+  requirement without altering upstream behavior. `@mhoo/core` and later Mhoo
+  Apps live here. Use Twenty Connections and App-local logic by default;
+  `connectors` remains conditional for an accepted shared or
+  integration-heavy provider seam.
 
 ## CI and external effects
 
@@ -59,5 +67,5 @@ deployment and cutover authority.
   obtain green CI. Verify an exact source head when a deliberately divergent
   baseline is under test.
 - Changes to Mhoo-wide authority, tenancy, connectors, or deployment ownership
-  require an ADR in `../mhoo/ADR/`; keep repository-local UI and extension
+  require a new accepted ADR in `../mhoo/ADR/`; keep repository-local UI and App
   decisions here unless they alter those boundaries.
