@@ -21,7 +21,9 @@ concurrency:
 
 jobs:
   danger-js:
-    timeout-minutes: 5
+    # Exact governed-source upgrades can leave less than three minutes for
+    # Danger after runner cleanup and the full dependency-cache restore.
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     if: github.event.action != 'closed'
     steps:
