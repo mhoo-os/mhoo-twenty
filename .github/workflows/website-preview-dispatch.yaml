@@ -4,11 +4,9 @@ permissions:
   contents: read
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, closed, labeled]
-    paths:
-      - packages/twenty-website/**
-      - .github/workflows/website-preview-dispatch.yaml
+  # Retained for upstream synchronization; Mhoo preview infrastructure is not
+  # the TwentyHQ ci-privileged environment.
+  workflow_dispatch:
 
 concurrency:
   # Keyed on PR number so independent PRs don't cancel each other. `github.ref`
@@ -21,6 +19,8 @@ jobs:
     # Same fork PRs from outside the org don't have `secrets.*` so the dispatch
     # call would fail anyway — skip explicitly to avoid noise.
     if: |
+      github.repository == 'twentyhq/twenty' &&
+      github.event_name != 'workflow_dispatch' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.action != 'closed' && (
         (github.event.action == 'labeled' && github.event.label.name == 'preview-website') ||
@@ -64,6 +64,8 @@ jobs:
     # `maxVersionAgeDays: 14` + `maxNumberOfVersions: 50` auto-pruning in
     # open-next.config.ts, so nothing leaks even if cleanup never runs.
     if: |
+      github.repository == 'twentyhq/twenty' &&
+      github.event_name != 'workflow_dispatch' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.action == 'closed'
     runs-on: ubuntu-latest

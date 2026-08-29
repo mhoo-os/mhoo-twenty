@@ -19,20 +19,27 @@ if (packageChanged && !lockfileChanged) {
 }
 
 // Check environment configuration changes
-const envExampleChanged = danger.git.modified_files.find((x) => 
-  x.includes('.env.example')
+const envExampleChanged = danger.git.modified_files.find((x) =>
+  x.includes('.env.example'),
 );
 
 // Check if .env.example was changed
 if (envExampleChanged) {
   const message = 'Changes were made to .env.example';
-  const idea = 'Please make sure any new environment variables are properly documented with metadata in config-variables.ts';
+  const idea =
+    'Please make sure any new environment variables are properly documented with metadata in config-variables.ts';
   warn(`${message} - <i>${idea}</i>`);
 }
 
-// CLA alert if first time contributor
-if (
+// The CLA is a TwentyHQ contributor agreement, not a Mhoo repository policy.
+const isCanonicalTwentyRepository =
   danger.github &&
+  danger.github.thisPR.owner === 'twentyhq' &&
+  danger.github.thisPR.repo === 'twenty';
+
+// CLA alert if first time contributor on the canonical Twenty repository
+if (
+  isCanonicalTwentyRepository &&
   danger.github.pr &&
   (danger.github.pr.author_association === 'FIRST_TIME_CONTRIBUTOR' ||
     danger.github.pr.author_association === 'NONE')

@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:18
+        image: postgres:18@sha256:cd78ca58eb75f929698e117a589488ccb2bd45107247fe02400b50ff6c418324
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -47,11 +47,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis
+        image: redis:7@sha256:9815d9e94c50caed3d5b79ce0e4dfd916582560ec83c92d0fe3b8772579e6b86
         ports:
           - 6379:6379
       clickhouse:
-        image: clickhouse/clickhouse-server:25.8.8
+        image: clickhouse/clickhouse-server:25.8.8@sha256:894fff7d48555eeb43a6b6467a514a03d74c6865cd905119a6a44e27c3e7e456
         env:
           CLICKHOUSE_PASSWORD: clickhousePassword
           CLICKHOUSE_URL: "http://default:clickhousePassword@localhost:8123/twenty"
@@ -513,7 +513,7 @@ jobs:
           echo "=== CHECKING REST API FOR BREAKING CHANGES ==="
 
           # Use the Java-based openapi-diff via Docker
-          docker run --rm -v "$(pwd):/specs" openapitools/openapi-diff:latest \
+          docker run --rm -v "$(pwd):/specs" openapitools/openapi-diff@sha256:82291446e5554742d9c0725d7b315d18e93958c5526f9a663e8885227bdd6cb6 \
             --json /specs/rest-api-diff.json \
             /specs/main-rest-api.json /specs/current-rest-api.json || echo "OpenAPI diff completed with exit code $?"
 
@@ -570,7 +570,7 @@ jobs:
             echo "" >> rest-api-diff.md
             echo "## Error Output" >> rest-api-diff.md
             echo "\`\`\`" >> rest-api-diff.md
-            docker run --rm -v "$(pwd):/specs" openapitools/openapi-diff:latest /specs/main-rest-api.json /specs/current-rest-api.json 2>&1 >> rest-api-diff.md || echo "Could not capture error output"
+            docker run --rm -v "$(pwd):/specs" openapitools/openapi-diff@sha256:82291446e5554742d9c0725d7b315d18e93958c5526f9a663e8885227bdd6cb6 /specs/main-rest-api.json /specs/current-rest-api.json 2>&1 >> rest-api-diff.md || echo "Could not capture error output"
             echo "\`\`\`" >> rest-api-diff.md
 
             # Don't fail the workflow for tool errors
@@ -584,7 +584,7 @@ jobs:
           echo "=== CHECKING REST METADATA API FOR BREAKING CHANGES ==="
 
           # Use the Java-based openapi-diff for metadata API as well
-          docker run --rm -v "$(pwd):/specs" openapitools/openapi-diff:latest \
+          docker run --rm -v "$(pwd):/specs" openapitools/openapi-diff@sha256:82291446e5554742d9c0725d7b315d18e93958c5526f9a663e8885227bdd6cb6 \
             --json /specs/rest-metadata-api-diff.json \
             /specs/main-rest-metadata-api.json /specs/current-rest-metadata-api.json || echo "OpenAPI diff completed with exit code $?"
 
@@ -640,7 +640,7 @@ jobs:
             echo "" >> rest-metadata-api-diff.md
             echo "## Error Output" >> rest-metadata-api-diff.md
             echo "\`\`\`" >> rest-metadata-api-diff.md
-            docker run --rm -v "$(pwd):/specs" openapitools/openapi-diff:latest /specs/main-rest-metadata-api.json /specs/current-rest-metadata-api.json 2>&1 >> rest-metadata-api-diff.md || echo "Could not capture error output"
+            docker run --rm -v "$(pwd):/specs" openapitools/openapi-diff@sha256:82291446e5554742d9c0725d7b315d18e93958c5526f9a663e8885227bdd6cb6 /specs/main-rest-metadata-api.json /specs/current-rest-metadata-api.json 2>&1 >> rest-metadata-api-diff.md || echo "Could not capture error output"
             echo "\`\`\`" >> rest-metadata-api-diff.md
 
             # Don't fail the workflow for tool errors

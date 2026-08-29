@@ -1,6 +1,7 @@
 import { type CanActivate, Logger } from '@nestjs/common';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { type Repository } from 'typeorm';
 
 import { ApiKeyService } from 'src/engine/core-modules/api-key/services/api-key.service';
 import { AppTokenEntity } from 'src/engine/core-modules/app-token/app-token.entity';
@@ -33,6 +34,7 @@ import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { UserService } from 'src/engine/core-modules/user/services/user.service';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { PermissionsService } from 'src/engine/metadata-modules/permissions/permissions.service';
 
 import { AuthResolver } from './auth.resolver';
@@ -48,6 +50,9 @@ describe('AuthResolver', () => {
   let resolver: AuthResolver;
   let resetPasswordService: ResetPasswordService;
   let throttlerService: ThrottlerService;
+  let twentyConfigService: TwentyConfigService;
+  let workspaceRepository: Repository<WorkspaceEntity>;
+  let workspaceDomainsService: WorkspaceDomainsService;
   const mock_CaptchaGuard: CanActivate = { canActivate: jest.fn(() => true) };
 
   beforeEach(async () => {
@@ -67,6 +72,10 @@ describe('AuthResolver', () => {
           useValue: {},
         },
         {
+          provide: getRepositoryToken(WorkspaceEntity),
+          useValue: { findOne: jest.fn() },
+        },
+        {
           provide: AuthService,
           useValue: {},
         },
@@ -84,6 +93,7 @@ describe('AuthResolver', () => {
             buildWorkspaceURL: jest
               .fn()
               .mockResolvedValue(new URL('http://localhost:3001')),
+            getWorkspaceByOriginOrDefaultWorkspace: jest.fn(),
           },
         },
         {
@@ -182,7 +192,7 @@ describe('AuthResolver', () => {
         },
         {
           provide: TwentyConfigService,
-          useValue: {},
+          useValue: { get: jest.fn() },
         },
         {
           provide: EventLogEmitterService,
@@ -202,10 +212,43 @@ describe('AuthResolver', () => {
     resetPasswordService =
       module.get<ResetPasswordService>(ResetPasswordService);
     throttlerService = module.get<ThrottlerService>(ThrottlerService);
+    twentyConfigService = module.get<TwentyConfigService>(TwentyConfigService);
+    workspaceRepository = module.get<Repository<WorkspaceEntity>>(
+      getRepositoryToken(WorkspaceEntity),
+    );
+    workspaceDomainsService = module.get<WorkspaceDomainsService>(
+      WorkspaceDomainsService,
+    );
   });
 
   it('should be defined', () => {
     expect(resolver).toBeDefined();
+  });
+
+  describe('stable-host workspace validation', () => {
+    it('uses only the verified login-token workspace ID in Mhoo mode', async () => {
+      jest.spyOn(twentyConfigService, 'get').mockReturnValue(true);
+      jest.spyOn(workspaceRepository, 'findOne').mockResolvedValue({
+        id: 'workspace-a',
+      } as WorkspaceEntity);
+
+      await expect(
+        // Exercise the private boundary directly: the public mutation has
+        // already verified and decoded the signed Twenty login token.
+        (resolver as any).validateWorkspaceAccess(
+          'https://untrusted.example',
+          'workspace-a',
+        ),
+      ).resolves.toMatchObject({ id: 'workspace-a' });
+
+      expect(workspaceRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 'workspace-a' },
+        relations: ['workspaceSSOIdentityProviders'],
+      });
+      expect(
+        workspaceDomainsService.getWorkspaceByOriginOrDefaultWorkspace,
+      ).not.toHaveBeenCalled();
+    });
   });
 
   describe('emailPasswordResetLink', () => {

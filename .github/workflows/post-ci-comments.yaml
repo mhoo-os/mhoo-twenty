@@ -1,16 +1,19 @@
 name: Post CI Comments
 
 on:
-  workflow_run:
-    workflows: ['GraphQL and OpenAPI Breaking Changes Detection']
-    types: [completed]
+  # Retained for upstream synchronization; comments are posted by TwentyHQ's
+  # private ci-privileged repository.
+  workflow_dispatch:
 
 permissions:
   actions: read
 
 jobs:
   dispatch-breaking-changes:
-    if: github.event.workflow_run.conclusion == 'success'
+    if: >-
+      github.repository == 'twentyhq/twenty' &&
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

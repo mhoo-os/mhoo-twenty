@@ -8,6 +8,7 @@ import {
   isHostUnderPublicFunctionDomain,
 } from 'src/engine/core-modules/domain/domain-server-config/utils/public-function-domain.util';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 
 @Injectable()
 export class DomainServerConfigService {
@@ -24,6 +25,7 @@ export class DomainServerConfigService {
     const baseUrl = this.getFrontUrl();
 
     if (
+      !isMhooFoundationEnabled(this.twentyConfigService) &&
       this.twentyConfigService.get('IS_MULTIWORKSPACE_ENABLED') &&
       this.twentyConfigService.get('DEFAULT_SUBDOMAIN')
     ) {

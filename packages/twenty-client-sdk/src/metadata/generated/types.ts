@@ -3884,6 +3884,9 @@ export default {
             "isMultiWorkspaceEnabled": [
                 8
             ],
+            "isMhooFoundationEnabled": [
+                8
+            ],
             "isEmailVerificationRequired": [
                 8
             ],

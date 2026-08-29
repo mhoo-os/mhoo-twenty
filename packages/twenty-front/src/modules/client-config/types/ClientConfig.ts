@@ -34,6 +34,7 @@ export type ClientConfig = {
   isGoogleMessagingEnabled: boolean;
   isMicrosoftCalendarEnabled: boolean;
   isMicrosoftMessagingEnabled: boolean;
+  isMhooFoundationEnabled: boolean;
   isMultiWorkspaceEnabled: boolean;
   isImapSmtpCaldavEnabled: boolean;
   isEmailingDomainInDemoMode: boolean;

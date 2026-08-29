@@ -54,6 +54,7 @@ import { IsOptionalOrEmptyString } from 'src/engine/core-modules/twenty-config/d
 import { IsStrictlyLowerThan } from 'src/engine/core-modules/twenty-config/decorators/is-strictly-lower-than.decorator';
 import { IsTwentySemVer } from 'src/engine/core-modules/twenty-config/decorators/is-twenty-semver.decorator';
 import { ConfigVariableType } from 'src/engine/core-modules/twenty-config/enums/config-variable-type.enum';
+import { getMhooFoundationConfigurationErrors } from 'src/engine/core-modules/twenty-config/utils/validate-mhoo-foundation-config.util';
 import { ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
 import {
   ConfigVariableException,
@@ -1898,6 +1899,16 @@ export class ConfigVariables {
   IS_MULTIWORKSPACE_ENABLED = false;
 
   @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.SERVER_CONFIG,
+    description:
+      'Enable the Mhoo stable-host foundation contract. Requires multi-workspace mode and disables Twenty business-provider integrations and workspace domain lifecycle.',
+    isEnvOnly: true,
+    type: ConfigVariableType.BOOLEAN,
+  })
+  @IsOptional()
+  IS_MHOO_FOUNDATION_ENABLED = false;
+
+  @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.ADVANCED_SETTINGS,
     description:
       'Number of inactive days before sending a deletion warning for workspaces. Used in the workspace deletion cron job to determine when to send warning emails.',
@@ -2351,6 +2362,22 @@ export const validate = (config: Record<string, unknown>): ConfigVariables => {
       'Config variables validation failed',
       ConfigVariableExceptionCode.VALIDATION_FAILED,
     );
+  }
+
+  if (validatedConfig.IS_MHOO_FOUNDATION_ENABLED) {
+    const configurationErrors =
+      getMhooFoundationConfigurationErrors(validatedConfig);
+
+    if (configurationErrors.length > 0) {
+      Logger.error(
+        'IS_MHOO_FOUNDATION_ENABLED requires IS_MULTIWORKSPACE_ENABLED=true and all Twenty business-provider integrations disabled. Enabled prohibited flags: ' +
+          configurationErrors.join(', '),
+      );
+      throw new ConfigVariableException(
+        'Mhoo foundation configuration validation failed',
+        ConfigVariableExceptionCode.VALIDATION_FAILED,
+      );
+    }
   }
 
   return validatedConfig;

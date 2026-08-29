@@ -19,6 +19,7 @@ import { AuthRestApiExceptionFilter } from 'src/engine/core-modules/auth/filters
 import { DomainServerConfigService } from 'src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
 
@@ -75,6 +76,12 @@ export class OAuthPropagatorController {
       this.twentyConfigService.get('NODE_ENV') === NodeEnvironment.DEVELOPMENT
     ) {
       return true;
+    }
+
+    if (isMhooFoundationEnabled(this.twentyConfigService)) {
+      // OAuth state may only return to the configured stable human origin.
+      // Do not resolve tenant authority from the callback target hostname.
+      return url.origin === this.domainServerConfigService.getFrontUrl().origin;
     }
 
     const workspace =

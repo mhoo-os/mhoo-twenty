@@ -12,6 +12,7 @@ import { useSignInUp } from '@/auth/sign-in-up/hooks/useSignInUp';
 import { signInUpModeState } from '@/auth/states/signInUpModeState';
 import { workspacePublicDataState } from '@/auth/states/workspacePublicDataState';
 import { SignInUpMode } from '@/auth/types/signInUpMode';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import {
   jotaiStore,
   resetJotaiStore,
@@ -61,9 +62,13 @@ const credentials: Form = {
   captchaToken: '',
 };
 
-const renderUseSignInUp = (workspacePublicData: PublicWorkspaceData | null) => {
+const renderUseSignInUp = (
+  workspacePublicData: PublicWorkspaceData | null,
+  isMhooFoundationEnabled = false,
+) => {
   jotaiStore.set(workspacePublicDataState.atom, workspacePublicData);
   jotaiStore.set(signInUpModeState.atom, SignInUpMode.SignUp);
+  jotaiStore.set(isMhooFoundationEnabledState.atom, isMhooFoundationEnabled);
 
   return renderHook(() => useSignInUp({} as UseFormReturn<Form>), {
     wrapper: ({ children }) => (
@@ -111,6 +116,24 @@ describe('useSignInUp > submitCredentials > sign-up routing', () => {
       'captcha-token',
     );
     expect(signUpWithCredentialsMock).toHaveBeenCalledTimes(1);
+    expect(signUpWithCredentialsInWorkspaceMock).not.toHaveBeenCalled();
+  });
+
+  it('uses global signup on the stable host in Mhoo foundation mode', async () => {
+    const { result } = renderUseSignInUp(
+      {
+        id: 'workspace-id',
+      } as PublicWorkspaceData,
+      true,
+    );
+
+    await act(() => result.current.submitCredentials(credentials));
+
+    expect(signUpWithCredentialsMock).toHaveBeenCalledWith(
+      'someone@example.com',
+      'Passw0rd!',
+      'captcha-token',
+    );
     expect(signUpWithCredentialsInWorkspaceMock).not.toHaveBeenCalled();
   });
 });
