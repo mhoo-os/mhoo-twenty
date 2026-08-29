@@ -166,6 +166,21 @@ assert_equal "$(node -p "require('./packages/twenty-sdk/package.json').version")
 assert_equal "$(node -p "require('./packages/create-twenty-app/package.json').version")" \
   "$(manifest_value TWENTY_SDK_VERSION)" "create-twenty-app version"
 
+assert_equal "$(manifest_value TWENTY_APP_DEV_IMAGE)" \
+  "twentycrm/twenty-app-dev:$(manifest_value TWENTY_VERSION)" \
+  "governed app-dev image repository and tag"
+expected_app_dev_version="$(manifest_value TWENTY_VERSION)@$(manifest_value TWENTY_APP_DEV_IMAGE_INDEX_DIGEST)"
+for app_dev_action in \
+  .github/actions/spawn-twenty-app-dev-test/action.yml \
+  .github/actions/spawn-twenty-server/action.yml; do
+  actual_app_dev_version="$(
+    sed -n "s/^[[:space:]]*default: '\(v[0-9][^']*@sha256:[0-9a-f]\{64\}\)'$/\1/p" \
+      "$app_dev_action" | head -n 1
+  )"
+  assert_equal "$actual_app_dev_version" "$expected_app_dev_version" \
+    "governed app-dev image pin in ${app_dev_action}"
+done
+
 python3 "$REPOSITORY_ROOT/scripts/provenance/verify_bounded_readme_overlay.py" \
   --upstream-revision "$UPSTREAM_COMMIT"
 

@@ -18,12 +18,16 @@
 | GitHub release | `twenty/v2.37.0`, published 2026-08-28 |
 | Official image index | `twentycrm/twenty@sha256:63cafcc69ca18a7f402adbb519a0c7322ec5838866056f2c94d6ee38a06206a0` |
 | Official Linux AMD64 manifest | `sha256:247b98a5f1903dba8043faec44850b6a93a5d475c8e6cc3e4117d29a2c471af7` |
+| App-dev image index | `twentycrm/twenty-app-dev@sha256:53381e68f6fa50808f624f4c0125ce2143c6d21321ba25886e1115c73367c6e6` |
+| App-dev Linux AMD64 manifest | `sha256:12e5e0d724e0cd40e4753e676b2fa21c407e54cdae332d67c3dc97c5b100a2c6` |
 
 Both release refs are lightweight tags at the same unsigned Git commit. The
 source-trust statement is therefore limited to the two current refs in the
 official GitHub repository, the recorded commit/tree, and the bounded Mhoo
 exact-source commit. The official image identities are release-alignment
 evidence; they do not replace a Mhoo source build or authorize publication.
+The app-dev identity is used only by disposable CI compatibility checks and is
+not a Mhoo runtime candidate.
 
 The Mhoo exact-source commit has the current Mhoo `main` as its parent but the
 exact upstream v2.37.0 tree. This preserves Mhoo history without claiming that
@@ -99,6 +103,26 @@ exhaustive controlled path overlay, and hostile mutation regressions. Focused
 frontend/server tests cover the stable-host and authority seams against v2.37.
 Full candidate build, publication, deployment, migration, recovery, and
 production/cutover remain separate gates.
+
+## Baseline-import CI reconciliation
+
+The exact-tree import necessarily differs from v2.30.1 across public APIs and
+historical upstream upgrade-command directories. Those differences remain
+visible to the normal breaking-change report and migration guard; they are not
+made invisible or treated as ordinary patch behavior.
+
+- `ci:allow-v2.37-baseline-api-breaks` is accepted only when the base is
+  v2.30.1 and the checked source identities match the exact v2.37.0 import.
+- `ci:allow-previous-version-upgrade-mutation` is the inherited explicit
+  review mechanism for the upstream historical upgrade-command import.
+- app compatibility jobs use the digest-pinned v2.37.0 app-dev image. The
+  previous v2.30.1 candidate image is no longer an active v2.37 CI runtime.
+- whitespace validation compares the controlled overlay to the verified
+  exact-source commit, so untouched upstream generated whitespace is not
+  misclassified as a Mhoo patch defect.
+
+These exceptions authorize review of this source candidate only. They do not
+authorize merge, publication, deployment, migration, or cutover.
 
 ## Explicit non-actions
 

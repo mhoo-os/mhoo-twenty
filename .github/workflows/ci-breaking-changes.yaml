@@ -649,6 +649,8 @@ jobs:
 
       - name: Fail on breaking changes
         if: steps.validate-schemas.outputs.valid == 'true'
+        env:
+          ALLOW_V237_BASELINE_API_BREAKS: ${{ contains(github.event.pull_request.labels.*.name, 'ci:allow-v2.37-baseline-api-breaks') }}
         run: |
           breaking=false
 
@@ -713,6 +715,26 @@ jobs:
           if [ "$breaking" = "true" ]; then
             echo ""
             echo "This PR introduces breaking changes to the public API."
+            if [ "$ALLOW_V237_BASELINE_API_BREAKS" = "true" ]; then
+              base_version="$(git show origin/main:.twenty-source | sed -n 's/^TWENTY_VERSION=//p')"
+              current_version="$(sed -n 's/^TWENTY_VERSION=//p' .twenty-source)"
+              upstream_commit="$(sed -n 's/^TWENTY_UPSTREAM_COMMIT=//p' .twenty-source)"
+              upstream_tree="$(sed -n 's/^TWENTY_UPSTREAM_TREE=//p' .twenty-source)"
+              exact_source_commit="$(sed -n 's/^MHOO_TWENTY_EXACT_SOURCE_COMMIT=//p' .twenty-source)"
+
+              if [ "$base_version" = "v2.30.1" ] && \
+                 [ "$current_version" = "v2.37.0" ] && \
+                 [ "$upstream_commit" = "6da524b8903ec16a3eeea4b2e4a5fb63dbfc1c58" ] && \
+                 [ "$upstream_tree" = "3ce4ef3eac3604ee52b6b8ee0f1a4766d7f533ca" ] && \
+                 [ "$(git rev-parse "${exact_source_commit}^{tree}")" = "$upstream_tree" ] && \
+                 git merge-base --is-ancestor "$exact_source_commit" HEAD; then
+                echo "::warning::Accepting the reported API changes only for the reviewed v2.30.1 to exact v2.37.0 governed-source baseline import."
+                echo "The complete breaking-change report remains attached to this run."
+                exit 0
+              fi
+
+              echo "::error::The v2.37 baseline exception label is present, but exact source custody does not match the bounded upgrade."
+            fi
             echo "If intentional, deprecate the old endpoint and introduce a new one."
             echo "See the breaking changes report artifact and PR comment for details."
             exit 1

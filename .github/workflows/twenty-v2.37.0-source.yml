@@ -42,4 +42,7 @@ jobs:
         run: scripts/provenance/test-verify-source.sh
 
       - name: Check patch whitespace
-        run: git diff --check HEAD^ HEAD
+        run: |
+          exact_source_commit="$(sed -n 's/^MHOO_TWENTY_EXACT_SOURCE_COMMIT=//p' .twenty-source)"
+          test -n "$exact_source_commit"
+          git diff --check "${exact_source_commit}..HEAD"

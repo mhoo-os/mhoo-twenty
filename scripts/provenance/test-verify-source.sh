@@ -58,6 +58,16 @@ expect_verifier_failure \
 git restore --source=HEAD -- README.md
 VERIFY_UPSTREAM_REMOTE=0 scripts/provenance/verify-source.sh >/dev/null
 
+sed -i.bak \
+  's/v2\.37\.0@sha256:53381e68f6fa50808f624f4c0125ce2143c6d21321ba25886e1115c73367c6e6/v2.37.0@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/' \
+  .github/actions/spawn-twenty-app-dev-test/action.yml
+rm .github/actions/spawn-twenty-app-dev-test/action.yml.bak
+expect_verifier_failure \
+  "mutable app-dev custody mismatch" \
+  "governed app-dev image pin in .github/actions/spawn-twenty-app-dev-test/action.yml"
+git restore --source=HEAD -- .github/actions/spawn-twenty-app-dev-test/action.yml
+VERIFY_UPSTREAM_REMOTE=0 scripts/provenance/verify-source.sh >/dev/null
+
 printf '\nunauthorized protected-path mutation\n' >> LICENSE
 git add LICENSE
 git -c user.name='Mhoo provenance test' \
