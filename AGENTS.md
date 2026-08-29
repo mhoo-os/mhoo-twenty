@@ -12,6 +12,11 @@ authority.
 
 - Read the upstream engineering rules in [`CLAUDE.md`](CLAUDE.md) before
   changing inherited Twenty source.
+- Before changing a Twenty App, SDK application surface, or Mhoo alternative to
+  a Twenty primitive, read the coordination repository's
+  [`mhoo-twenty-development` skill](../mhoo/.agents/skills/mhoo-twenty-development/SKILL.md).
+  The skill owns framework workflow; this file and accepted ADRs retain
+  repository and architecture authority.
 - `.twenty-source` and `scripts/provenance/verify-source.sh` define and verify
   the immutable upstream/source identity and controlled Mhoo overlay.
 - Current source, migrations, tests, and Mhoo CI workflows establish implemented
