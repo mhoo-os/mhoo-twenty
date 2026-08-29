@@ -10,8 +10,8 @@ permissions:
   pull-requests: write
 
 on:
-  schedule:
-    - cron: '0 */2 * * *' # Every two hours.
+  # Crowdin is configured for TwentyHQ. Retain manual/call interfaces for
+  # upstream synchronization, but do not schedule it in Mhoo.
   workflow_dispatch:
   workflow_call:
     inputs:
@@ -28,6 +28,7 @@ concurrency:
 jobs:
   pull_website_translations:
     name: Pull website translations
+    if: github.repository == 'twentyhq/twenty'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:

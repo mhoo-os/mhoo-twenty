@@ -87,6 +87,8 @@ import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
 import { WorkspaceGraphqlApiExceptionFilter } from 'src/engine/core-modules/workspace/filters/workspace-graphql-api-exception.filter';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 import { AuthProvider } from 'src/engine/decorators/auth/auth-provider.decorator';
 import { AuthUser } from 'src/engine/decorators/auth/auth-user.decorator';
 import { AuthWorkspace } from 'src/engine/decorators/auth/auth-workspace.decorator';
@@ -139,6 +141,8 @@ export class AuthResolver {
     private readonly userWorkspaceRepository: Repository<UserWorkspaceEntity>,
     @InjectRepository(AppTokenEntity)
     private readonly appTokenRepository: Repository<AppTokenEntity>,
+    @InjectRepository(WorkspaceEntity)
+    private readonly workspaceRepository: Repository<WorkspaceEntity>,
     private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
     private authService: AuthService,
     private renewTokenService: RenewTokenService,
@@ -163,6 +167,7 @@ export class AuthResolver {
     private readonly fileCorePictureService: FileCorePictureService,
     private readonly userSessionService: UserSessionService,
     private readonly userSessionCookieService: UserSessionCookieService,
+    private readonly twentyConfigService: TwentyConfigService,
   ) {}
 
   @UseGuards(CaptchaGuard, PublicEndpointGuard, NoPermissionGuard)
@@ -788,10 +793,14 @@ export class AuthResolver {
     origin: string,
     tokenWorkspaceId: string,
   ): Promise<WorkspaceEntity> {
-    const workspace =
-      await this.workspaceDomainsService.getWorkspaceByOriginOrDefaultWorkspace(
-        origin,
-      );
+    const workspace = isMhooFoundationEnabled(this.twentyConfigService)
+      ? await this.workspaceRepository.findOne({
+          where: { id: tokenWorkspaceId },
+          relations: ['workspaceSSOIdentityProviders'],
+        })
+      : await this.workspaceDomainsService.getWorkspaceByOriginOrDefaultWorkspace(
+          origin,
+        );
 
     assertIsDefinedOrThrow(
       workspace,

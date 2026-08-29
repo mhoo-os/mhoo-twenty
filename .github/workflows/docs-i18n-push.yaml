@@ -4,15 +4,9 @@ permissions:
   contents: write
 
 on:
+  # Crowdin is configured for TwentyHQ; retain only upstream/manual interfaces.
   workflow_dispatch:
   workflow_call:
-  push:
-    branches: ['main']
-    paths:
-      - 'packages/twenty-docs/**/*.mdx'
-      - '!packages/twenty-docs/l/**'
-      - 'packages/twenty-docs/navigation/navigation.template.json'
-      - '.github/crowdin-docs.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -21,6 +15,7 @@ concurrency:
 jobs:
   push_docs:
     name: Push documentation to Crowdin
+    if: github.repository == 'twentyhq/twenty'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -49,4 +44,3 @@ jobs:
           # Docs translations project
           CROWDIN_PROJECT_ID: '2'
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
-

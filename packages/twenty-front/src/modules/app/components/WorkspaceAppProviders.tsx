@@ -36,11 +36,20 @@ import { PageFavicon } from '@/ui/utilities/page-favicon/components/PageFavicon'
 import { PageTitle } from '@/ui/utilities/page-title/components/PageTitle';
 import { UserContextProvider } from '@/users/components/UserContextProvider';
 import { WorkspaceProviderEffect } from '@/workspace/components/WorkspaceProviderEffect';
+import { getCustomerBrand } from '@/branding/utils/getCustomerBrand';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { getPageTitleFromPath } from '~/utils/title-utils';
 
 export const WorkspaceAppProviders = () => {
   const { pathname } = useLocation();
   const pageTitle = getPageTitleFromPath(pathname);
+  const isMhooFoundationEnabled = useAtomStateValue(
+    isMhooFoundationEnabledState,
+  );
+  const brand = getCustomerBrand(isMhooFoundationEnabled);
+  const brandedPageTitle =
+    pageTitle === 'Twenty' ? brand.name : `${pageTitle} | ${brand.name}`;
 
   return (
     <SharedAppProviders>
@@ -67,7 +76,7 @@ export const WorkspaceAppProviders = () => {
                             <PromiseRejectionEffect />
                             <EndTrialAfterPaymentMethodGater />
                             <GotoHotkeysEffectsProvider />
-                            <PageTitle title={pageTitle} />
+                            <PageTitle title={brandedPageTitle} />
                             <PageFavicon />
                             <Outlet />
                             <GlobalFilePreviewModal />

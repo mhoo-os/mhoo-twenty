@@ -202,6 +202,9 @@ export class ClientConfigService {
       isMultiWorkspaceEnabled: this.twentyConfigService.get(
         'IS_MULTIWORKSPACE_ENABLED',
       ),
+      isMhooFoundationEnabled: this.twentyConfigService.get(
+        'IS_MHOO_FOUNDATION_ENABLED',
+      ),
       isEmailVerificationRequired: this.twentyConfigService.get(
         'IS_EMAIL_VERIFICATION_REQUIRED',
       ),
