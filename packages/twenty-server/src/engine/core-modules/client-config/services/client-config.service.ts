@@ -61,9 +61,6 @@ export class ClientConfigService {
       EmailingDomainDriver.LOG;
 
     const isBillingEnabled = this.twentyConfigService.get('IS_BILLING_ENABLED');
-    const isMhooFoundationEnabled = this.twentyConfigService.get(
-      'IS_MHOO_FOUNDATION_ENABLED',
-    );
 
     const availableModels =
       this.aiModelRegistryService.getAdminFilteredModels();
@@ -205,7 +202,6 @@ export class ClientConfigService {
       isMultiWorkspaceEnabled: this.twentyConfigService.get(
         'IS_MULTIWORKSPACE_ENABLED',
       ),
-      isMhooFoundationEnabled,
       isEmailVerificationRequired: this.twentyConfigService.get(
         'IS_EMAIL_VERIFICATION_REQUIRED',
       ),
@@ -224,6 +220,9 @@ export class ClientConfigService {
         environment: this.twentyConfigService.get('SENTRY_ENVIRONMENT'),
         release: this.twentyConfigService.get('APP_VERSION'),
         dsn: this.twentyConfigService.get('SENTRY_FRONT_DSN'),
+        tracesSampleRate: this.twentyConfigService.get(
+          'SENTRY_FRONT_TRACES_SAMPLE_RATE',
+        ),
       },
       captcha: {
         provider: captchaProvider ? captchaProvider : undefined,
@@ -268,27 +267,25 @@ export class ClientConfigService {
         isBillingEnabled ||
         this.twentyConfigService.get('IS_FEATURE_FLAG_MANAGEMENT_ENABLED'),
       publicFeatureFlags: PUBLIC_FEATURE_FLAGS,
-      isCookieSessionEnabled: this.twentyConfigService.get(
-        'AUTH_COOKIE_SESSIONS_ENABLED',
+      isCookieSessionEnabled: true,
+      isMicrosoftMessagingEnabled: this.twentyConfigService.get(
+        'MESSAGING_PROVIDER_MICROSOFT_ENABLED',
       ),
-      isMicrosoftMessagingEnabled:
-        !isMhooFoundationEnabled &&
-        this.twentyConfigService.get('MESSAGING_PROVIDER_MICROSOFT_ENABLED'),
-      isMicrosoftCalendarEnabled:
-        !isMhooFoundationEnabled &&
-        this.twentyConfigService.get('CALENDAR_PROVIDER_MICROSOFT_ENABLED'),
-      isGoogleMessagingEnabled:
-        !isMhooFoundationEnabled &&
-        this.twentyConfigService.get('MESSAGING_PROVIDER_GMAIL_ENABLED'),
-      isGoogleCalendarEnabled:
-        !isMhooFoundationEnabled &&
-        this.twentyConfigService.get('CALENDAR_PROVIDER_GOOGLE_ENABLED'),
+      isMicrosoftCalendarEnabled: this.twentyConfigService.get(
+        'CALENDAR_PROVIDER_MICROSOFT_ENABLED',
+      ),
+      isGoogleMessagingEnabled: this.twentyConfigService.get(
+        'MESSAGING_PROVIDER_GMAIL_ENABLED',
+      ),
+      isGoogleCalendarEnabled: this.twentyConfigService.get(
+        'CALENDAR_PROVIDER_GOOGLE_ENABLED',
+      ),
       isConfigVariablesInDbEnabled: this.twentyConfigService.get(
         'IS_CONFIG_VARIABLES_IN_DB_ENABLED',
       ),
-      isImapSmtpCaldavEnabled:
-        !isMhooFoundationEnabled &&
-        this.twentyConfigService.get('IS_IMAP_SMTP_CALDAV_ENABLED'),
+      isImapSmtpCaldavEnabled: this.twentyConfigService.get(
+        'IS_IMAP_SMTP_CALDAV_ENABLED',
+      ),
       isEmailingDomainInDemoMode,
       allowRequestsToTwentyIcons: this.twentyConfigService.get(
         'ALLOW_REQUESTS_TO_TWENTY_ICONS',

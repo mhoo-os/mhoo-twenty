@@ -18,8 +18,6 @@ import {
   WorkspaceException,
   WorkspaceExceptionCode,
 } from 'src/engine/core-modules/workspace/workspace.exception';
-import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
-import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 
 @Injectable()
 export class CustomDomainManagerService {
@@ -33,17 +31,7 @@ export class CustomDomainManagerService {
     private readonly billingService: BillingService,
     private readonly dnsManagerService: DnsManagerService,
     private readonly eventLogEmitterService: EventLogEmitterService,
-    private readonly twentyConfigService: TwentyConfigService,
   ) {}
-
-  private assertWorkspaceDomainLifecycleEnabled(): void {
-    if (isMhooFoundationEnabled(this.twentyConfigService)) {
-      throw new WorkspaceException(
-        'Workspace custom domains are unavailable in Mhoo foundation mode',
-        WorkspaceExceptionCode.WORKSPACE_CUSTOM_DOMAIN_DISABLED,
-      );
-    }
-  }
 
   async isCustomDomainEnabled(workspaceId: string) {
     const isCustomDomainBillingEnabled =
@@ -61,7 +49,6 @@ export class CustomDomainManagerService {
   }
 
   async setCustomDomain(workspace: WorkspaceEntity, customDomain: string) {
-    this.assertWorkspaceDomainLifecycleEnabled();
     await this.isCustomDomainEnabled(workspace.id);
 
     const existingWorkspace = await this.workspaceRepository.findOne({
@@ -107,7 +94,6 @@ export class CustomDomainManagerService {
     workspace: WorkspaceEntity,
     domainValidRecord?: DomainValidRecords,
   ) {
-    this.assertWorkspaceDomainLifecycleEnabled();
     assertIsDefinedOrThrow(workspace.customDomain);
 
     const customDomainWithRecords =

@@ -2,7 +2,7 @@ name: Spawn Twenty Server
 description: >
   Provisions a running Twenty server and returns its URL + API key, from one of
   two sources:
-    - dockerhub-latest: the pinned twentycrm/twenty-app-dev image configured below
+    - dockerhub-latest: the latest published twentycrm/twenty-app-dev image
       (delegates to spawn-twenty-app-dev-test, port 2021).
     - local: a server built from the monorepo's current files (port 3000). It
       brings up its own postgres + redis via docker, so it works inside any job
@@ -16,9 +16,9 @@ inputs:
     required: false
     default: 'local'
   twenty-version:
-    description: 'Immutable Docker Hub image version, only used when source is "dockerhub-latest".'
+    description: 'Docker Hub image tag, only used when source is "dockerhub-latest".'
     required: false
-    default: 'v2.30.1@sha256:fdcbd7d90c12a66a83efcdd204d6ea20eaf6fcf0a21ddfa5f2b9fe5e12846fce'
+    default: 'latest'
   server-build-cache-key:
     description: 'Cache key used to speed up the local server build (nx cache).'
     required: false
@@ -50,9 +50,8 @@ runs:
           -e POSTGRES_USER=postgres \
           -e POSTGRES_PASSWORD=postgres \
           -p 5432:5432 \
-          postgres:18@sha256:cd78ca58eb75f929698e117a589488ccb2bd45107247fe02400b50ff6c418324
-        docker run -d --name twenty-redis -p 6379:6379 \
-          redis:7@sha256:9815d9e94c50caed3d5b79ce0e4dfd916582560ec83c92d0fe3b8772579e6b86
+          postgres:18
+        docker run -d --name twenty-redis -p 6379:6379 redis
 
         echo "Waiting for postgres…"
         for i in {1..30}; do

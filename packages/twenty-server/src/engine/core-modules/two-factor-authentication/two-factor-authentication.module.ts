@@ -8,7 +8,6 @@ import { SecretEncryptionModule } from 'src/engine/core-modules/secret-encryptio
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { UserWorkspaceModule } from 'src/engine/core-modules/user-workspace/user-workspace.module';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
-import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { UserModule } from 'src/engine/core-modules/user/user.module';
 import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
 import { TwoFactorAuthenticationResolver } from './two-factor-authentication.resolver';
@@ -25,7 +24,6 @@ import { TwoFactorAuthenticationMethodEntity } from './entities/two-factor-authe
     SecretEncryptionModule,
     TypeOrmModule.forFeature([
       UserEntity,
-      WorkspaceEntity,
       TwoFactorAuthenticationMethodEntity,
       UserWorkspaceEntity,
     ]),

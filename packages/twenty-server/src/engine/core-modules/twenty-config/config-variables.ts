@@ -11,6 +11,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  Max,
   ValidateIf,
   type ValidationError,
   validateSync,
@@ -53,7 +54,6 @@ import { IsOptionalOrEmptyString } from 'src/engine/core-modules/twenty-config/d
 import { IsStrictlyLowerThan } from 'src/engine/core-modules/twenty-config/decorators/is-strictly-lower-than.decorator';
 import { IsTwentySemVer } from 'src/engine/core-modules/twenty-config/decorators/is-twenty-semver.decorator';
 import { ConfigVariableType } from 'src/engine/core-modules/twenty-config/enums/config-variable-type.enum';
-import { getMhooFoundationConfigurationErrors } from 'src/engine/core-modules/twenty-config/utils/validate-mhoo-foundation-config.util';
 import { ConfigVariablesGroup } from 'src/engine/core-modules/twenty-config/enums/config-variables-group.enum';
 import {
   ConfigVariableException,
@@ -364,15 +364,6 @@ export class ConfigVariables {
   REFRESH_TOKEN_REUSE_GRACE_PERIOD = '1m';
 
   @ConfigVariablesMetadata({
-    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
-    description:
-      'Enable cookie-based user sessions for the web app (dual-stack with token pairs during the migration)',
-    type: ConfigVariableType.BOOLEAN,
-  })
-  @IsOptional()
-  AUTH_COOKIE_SESSIONS_ENABLED = false;
-
-  @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.TOKENS_DURATION,
     description:
       'Absolute lifetime of a cookie-based user session, set at sign-in and never extended',
@@ -548,7 +539,7 @@ export class ConfigVariables {
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.ADVANCED_SETTINGS,
     description:
-      'When enabled, only server admins can create new workspaces. Ignored during initial setup when no workspace exists.',
+      'When enabled, only server admins can create new workspaces, and signing up without a pending invitation or an approved access domain is refused. Ignored during initial setup when no workspace exists.',
     type: ConfigVariableType.BOOLEAN,
   })
   @IsOptional()
@@ -566,12 +557,13 @@ export class ConfigVariables {
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.SERVER_CONFIG,
     description:
-      'Deployment region that determines the contracting DPA Processor entity, hosting region and governing law. EU (default) = Twenty.com SAS / Frankfurt / France; US = Twenty, Inc. / United States. Must match where Customer Personal Data actually lives.',
+      'Deployment region that determines the DPA hosting location shown to customers. The Processor entity (Twenty.com PBC) and governing law (Delaware, USA) are the same for all regions. EU (default) = Frankfurt, Germany; US = United States. Must match where Customer Personal Data actually lives.',
     type: ConfigVariableType.ENUM,
     options: Object.values(DpaRegion),
     // Deployment-fixed: must mirror where data actually lives. Allowing a
-    // runtime DB/admin override could produce a legally incorrect Processor
-    // entity, so this is only configurable via environment variable.
+    // runtime DB/admin override could advertise a hosting location that does
+    // not match where data resides, so this is only configurable via
+    // environment variable.
     isEnvOnly: true,
   })
   @IsOptional()
@@ -1021,6 +1013,27 @@ export class ConfigVariables {
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.BILLING_CONFIG,
     description:
+      'Cap on the credits available in a period, as a multiple of the plan allowance. 2 means a workspace can hold at most its allowance plus one full allowance rolled over',
+    type: ConfigVariableType.NUMBER,
+  })
+  @CastToPositiveNumber()
+  @IsOptional()
+  BILLING_ROLLOVER_TOTAL_CAP_MULTIPLIER = 2;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.BILLING_CONFIG,
+    description:
+      'Largest credit amount a single admin panel grant can hand out (in microCredits)',
+    type: ConfigVariableType.NUMBER,
+  })
+  @CastToPositiveNumber()
+  @IsInt()
+  @IsOptional()
+  BILLING_MAX_ADMIN_CREDIT_GRANT_MICRO = 1_000_000_000;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.BILLING_CONFIG,
+    description:
       'Free credits granted for completing the import-contacts onboarding step (in microCredits)',
     type: ConfigVariableType.NUMBER,
   })
@@ -1186,6 +1199,39 @@ export class ConfigVariables {
   )
   @IsOptional()
   SENTRY_ENVIRONMENT: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LOGGING,
+    description:
+      'Share of front-end traces sent to Sentry, between 0 and 1. Front-end traces propagate their sampling decision to the server, so this also drives the rate for browser-originated server traces.',
+    type: ConfigVariableType.NUMBER,
+  })
+  @CastToPositiveNumber()
+  @Max(1)
+  @IsOptional()
+  SENTRY_FRONT_TRACES_SAMPLE_RATE = 0.1;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LOGGING,
+    description:
+      'Share of server traces sent to Sentry, between 0 and 1. Browser-originated traces inherit the front-end decision instead, and AI traces are always sampled at 1. Read before the config store is available, so it cannot be overridden from the database.',
+    type: ConfigVariableType.NUMBER,
+    isEnvOnly: true,
+  })
+  @CastToPositiveNumber()
+  @IsOptional()
+  SENTRY_TRACES_SAMPLE_RATE = 0.1;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LOGGING,
+    description:
+      'Share of sampled server traces that are also profiled, between 0 and 1. Read before the config store is available, so it cannot be overridden from the database.',
+    type: ConfigVariableType.NUMBER,
+    isEnvOnly: true,
+  })
+  @CastToPositiveNumber()
+  @IsOptional()
+  SENTRY_PROFILES_SAMPLE_RATE = 0.01;
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.LOGGING,
@@ -1370,7 +1416,6 @@ export class ConfigVariables {
     options: Object.values(NodeEnvironment),
     isEnvOnly: true,
   })
-  // @CastToUpperSnakeCase()
   NODE_ENV: NodeEnvironment = NodeEnvironment.PRODUCTION;
 
   @ConfigVariablesMetadata({
@@ -1417,23 +1462,6 @@ export class ConfigVariables {
   @IsUrl({ require_tld: false, require_protocol: true })
   @IsOptional()
   SERVER_URL = 'http://localhost:3000';
-
-  @ConfigVariablesMetadata({
-    group: ConfigVariablesGroup.SERVER_CONFIG,
-    description:
-      'When enabled, the served frontend resolves the API base URL from ' +
-      "the browser's current origin (window.location) instead of the " +
-      'baked-in SERVER_URL. Useful for self-hosted deployments reachable ' +
-      'from multiple hostnames (Tailscale IP, LAN DNS, SSH tunnel, public ' +
-      'DNS), where pinning a single SERVER_URL would break every other ' +
-      'host with CORS or unreachable-host errors. Read at startup by ' +
-      'generate-front-config; SERVER_URL is still used for all server-side ' +
-      'URL generation.',
-    type: ConfigVariableType.BOOLEAN,
-    isEnvOnly: true,
-  })
-  @IsOptional()
-  FRONT_AUTO_BASE_URL = false;
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.SERVER_CONFIG,
@@ -1870,16 +1898,6 @@ export class ConfigVariables {
   IS_MULTIWORKSPACE_ENABLED = false;
 
   @ConfigVariablesMetadata({
-    group: ConfigVariablesGroup.SERVER_CONFIG,
-    description:
-      'Enable the Mhoo stable-host foundation contract. Requires multi-workspace mode and disables Twenty business-provider integrations and workspace domain lifecycle.',
-    isEnvOnly: true,
-    type: ConfigVariableType.BOOLEAN,
-  })
-  @IsOptional()
-  IS_MHOO_FOUNDATION_ENABLED = false;
-
-  @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.ADVANCED_SETTINGS,
     description:
       'Number of inactive days before sending a deletion warning for workspaces. Used in the workspace deletion cron job to determine when to send warning emails.',
@@ -2103,7 +2121,7 @@ export class ConfigVariables {
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.AWS_SES_SETTINGS,
     description:
-      'Driver used for the emailing domain feature — AWS_SES for production (requires AWS credentials), LOG fakes registration/verification/sends locally',
+      'Driver used for the emailing domain feature — AWS_SES (requires AWS credentials), RESEND (requires a Resend API key), LOG fakes registration/verification/sends locally',
     type: ConfigVariableType.ENUM,
     options: Object.values(EmailingDomainDriver),
   })
@@ -2190,6 +2208,34 @@ export class ConfigVariables {
   })
   @IsOptional()
   TATAMI_SNS_TOPIC_ARN: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.RESEND_SETTINGS,
+    isSensitive: true,
+    description: 'Resend API key used when EMAILING_DOMAIN_DRIVER is RESEND',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  RESEND_API_KEY: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.RESEND_SETTINGS,
+    isSensitive: true,
+    description:
+      'Signing secret of the Resend webhook endpoint that targets /webhooks/messaging/resend (whsec_...)',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  RESEND_WEBHOOK_SIGNING_SECRET: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.RESEND_SETTINGS,
+    description:
+      'Region Resend provisions new emailing domains in (us-east-1, eu-west-1, sa-east-1 or ap-northeast-1). Leave empty for the Resend default.',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  RESEND_DOMAIN_REGION: string;
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.ADVANCED_SETTINGS,
@@ -2305,22 +2351,6 @@ export const validate = (config: Record<string, unknown>): ConfigVariables => {
       'Config variables validation failed',
       ConfigVariableExceptionCode.VALIDATION_FAILED,
     );
-  }
-
-  if (validatedConfig.IS_MHOO_FOUNDATION_ENABLED) {
-    const configurationErrors =
-      getMhooFoundationConfigurationErrors(validatedConfig);
-
-    if (configurationErrors.length > 0) {
-      Logger.error(
-        'IS_MHOO_FOUNDATION_ENABLED requires IS_MULTIWORKSPACE_ENABLED=true and all Twenty business-provider integrations disabled. Enabled prohibited flags: ' +
-          configurationErrors.join(', '),
-      );
-      throw new ConfigVariableException(
-        'Mhoo foundation configuration validation failed',
-        ConfigVariableExceptionCode.VALIDATION_FAILED,
-      );
-    }
   }
 
   return validatedConfig;

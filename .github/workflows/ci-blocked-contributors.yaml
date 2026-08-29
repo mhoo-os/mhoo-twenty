@@ -1,8 +1,14 @@
 name: Blocked Contributors Check
 
 on:
-  # TwentyHQ organizational policy; retained for upstream synchronization.
-  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  issue_comment:
+    types: [created, edited]
+  pull_request_review:
+    types: [submitted, edited]
+  pull_request_review_comment:
+    types: [created, edited]
 
 permissions:
   contents: read
@@ -13,10 +19,7 @@ jobs:
   check-blocked-contributors:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: >-
-      github.repository == 'twentyhq/twenty' &&
-      github.event_name != 'workflow_dispatch' &&
-      (github.event_name != 'issue_comment' || github.event.issue.pull_request)
+    if: ${{ github.event_name != 'issue_comment' || github.event.issue.pull_request }}
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1

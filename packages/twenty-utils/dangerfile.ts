@@ -30,15 +30,9 @@ if (envExampleChanged) {
   warn(`${message} - <i>${idea}</i>`);
 }
 
-// The CLA is a TwentyHQ contributor agreement, not a Mhoo repository policy.
-const isCanonicalTwentyRepository =
-  danger.github &&
-  danger.github.thisPR.owner === 'twentyhq' &&
-  danger.github.thisPR.repo === 'twenty';
-
-// CLA alert if first time contributor on the canonical Twenty repository
+// CLA alert if first time contributor
 if (
-  isCanonicalTwentyRepository &&
+  danger.github &&
   danger.github.pr &&
   (danger.github.pr.author_association === 'FIRST_TIME_CONTRIBUTOR' ||
     danger.github.pr.author_association === 'NONE')

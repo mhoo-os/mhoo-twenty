@@ -55,7 +55,7 @@ jobs:
       id-token: write
     services:
       postgres:
-        image: postgres:16@sha256:56f243d2355bad7d2016b1e78b80da8ac9e7967b766be2bfbff84fe85ffa30bc
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -68,7 +68,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis:7@sha256:9815d9e94c50caed3d5b79ce0e4dfd916582560ec83c92d0fe3b8772579e6b86
+        image: redis
         ports:
           - 6379:6379
     steps:
@@ -118,9 +118,7 @@ jobs:
           fi
 
   claude-cross-repo:
-    # Cross-repository response posting depends on TwentyHQ's private
-    # ci-privileged repository. The local Claude job remains independent.
-    if: github.repository == 'twentyhq/twenty' && github.event_name == 'repository_dispatch'
+    if: github.event_name == 'repository_dispatch'
     concurrency:
       group: claude-cross-repo-${{ github.event.client_payload.repo_full_name }}-${{ github.event.client_payload.issue_number }}
       cancel-in-progress: false
@@ -133,7 +131,7 @@ jobs:
       id-token: write
     services:
       postgres:
-        image: postgres:16@sha256:56f243d2355bad7d2016b1e78b80da8ac9e7967b766be2bfbff84fe85ffa30bc
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -146,7 +144,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis:7@sha256:9815d9e94c50caed3d5b79ce0e4dfd916582560ec83c92d0fe3b8772579e6b86
+        image: redis
         ports:
           - 6379:6379
     steps:
@@ -185,7 +183,7 @@ jobs:
                 "PG_DATABASE_URL": "postgres://postgres:postgres@localhost:5432/default"
               }
             }
-      - name: Mint ci-privileged dispatch token
+      - name: Mint twenty-factory dispatch token
         id: app-token
         if: always()
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
@@ -193,10 +191,10 @@ jobs:
           client-id: ${{ vars.TWENTY_WORKFLOW_DISPATCHER_CLIENT_ID }}
           private-key: ${{ secrets.TWENTY_WORKFLOW_DISPATCHER_PRIVATE_KEY }}
           owner: twentyhq
-          repositories: ci-privileged
+          repositories: twenty-factory
           permission-actions: write
 
-      - name: Dispatch response to ci-privileged
+      - name: Dispatch response to twenty-factory
         if: always()
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -204,7 +202,7 @@ jobs:
           ISSUE_NUMBER: ${{ steps.prompt.outputs.issue_number }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          gh workflow run post-claude-response.yaml --repo twentyhq/ci-privileged --ref main \
+          gh workflow run post-claude-response.yaml --repo twentyhq/twenty-factory --ref main \
             -f repo="$REPO" \
             -f issue_number="$ISSUE_NUMBER" \
             -f run_url="$RUN_URL"

@@ -35,7 +35,6 @@ import { FileUrlService } from 'src/engine/core-modules/file/file-url/file-url.s
 import { PreventNestToAutoLogGraphqlErrorsFilter } from 'src/engine/core-modules/graphql/filters/prevent-nest-to-auto-log-graphql-errors.filter';
 import { ResolverValidationPipe } from 'src/engine/core-modules/graphql/pipes/resolver-validation.pipe';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
-import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { ActivateWorkspaceInput } from 'src/engine/core-modules/workspace/dtos/activate-workspace-input';
 import {
@@ -483,13 +482,6 @@ export class WorkspaceResolver {
   async checkCustomDomainValidRecords(
     @AuthWorkspace() workspace: WorkspaceEntity,
   ): Promise<DomainValidRecords | undefined> {
-    if (isMhooFoundationEnabled(this.twentyConfigService)) {
-      throw new WorkspaceException(
-        'Workspace custom domains are unavailable in Mhoo foundation mode',
-        WorkspaceExceptionCode.WORKSPACE_CUSTOM_DOMAIN_DISABLED,
-      );
-    }
-
     assertIsDefinedOrThrow(
       workspace.customDomain,
       new WorkspaceException(

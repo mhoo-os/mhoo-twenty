@@ -7,9 +7,6 @@ import { UndecoratedLink } from 'twenty-ui/navigation';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
 import { useRedirectToDefaultDomain } from '~/modules/domain-manager/hooks/useRedirectToDefaultDomain';
-import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
-import { getCustomerBrand } from '@/branding/utils/getCustomerBrand';
-import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 type LogoProps = {
   primaryLogo?: string | null;
@@ -62,11 +59,7 @@ export const Logo = ({
   to = AppPath.SignInUp,
 }: LogoProps) => {
   const { redirectToDefaultDomain } = useRedirectToDefaultDomain();
-  const isMhooFoundationEnabled = useAtomStateValue(
-    isMhooFoundationEnabledState,
-  );
-  const brand = getCustomerBrand(isMhooFoundationEnabled);
-  const defaultPrimaryLogoUrl = `${window.location.origin}${brand.logoUrl}`;
+  const defaultPrimaryLogoUrl = `${window.location.origin}/images/icons/android/android-launchericon-192-192.png`;
 
   const primaryLogoUrl = getImageAbsoluteURI({
     imageUrl: primaryLogo ?? defaultPrimaryLogoUrl,
@@ -83,7 +76,7 @@ export const Logo = ({
   const isUsingDefaultLogo = !isDefined(primaryLogo);
 
   return (
-    <StyledContainer aria-label={brand.name} onClick={() => onClick?.()}>
+    <StyledContainer onClick={() => onClick?.()}>
       {isUsingDefaultLogo ? (
         <UndecoratedLink to={to} onClick={() => redirectToDefaultDomain()}>
           <StyledPrimaryLogo

@@ -18,7 +18,6 @@ const mockClientConfig = {
   },
   signInPrefilled: false,
   isMultiWorkspaceEnabled: true,
-  isMhooFoundationEnabled: false,
   isEmailVerificationRequired: false,
   defaultSubdomain: 'app',
   frontDomain: 'localhost',
@@ -30,6 +29,7 @@ const mockClientConfig = {
     environment: 'development',
     release: '1.0.0',
     dsn: undefined,
+    tracesSampleRate: 0.1,
   },
   captcha: {
     provider: undefined,
@@ -64,13 +64,6 @@ describe('getClientConfig', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${REACT_APP_SERVER_BASE_URL}/client-config`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      },
     );
     expect(result).toEqual(mockClientConfig);
   });

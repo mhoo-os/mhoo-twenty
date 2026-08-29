@@ -10,7 +10,6 @@ import { buildUrlWithPathnameAndSearchParams } from 'src/engine/core-modules/dom
 import { WorkspaceDomainConfig } from 'src/engine/core-modules/domain/workspace-domains/types/workspace-domain-config.type';
 import { PublicDomainEntity } from 'src/engine/core-modules/public-domain/public-domain.entity';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
-import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceNotFoundDefaultError } from 'src/engine/core-modules/workspace/workspace.exception';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
@@ -106,16 +105,6 @@ export class WorkspaceDomainsService {
     publicDomain: PublicDomainEntity | null;
     isIsolatedOrigin: boolean;
   }> {
-    if (isMhooFoundationEnabled(this.twentyConfigService)) {
-      // A stable Mhoo host never selects a Workspace. Authenticated selection is
-      // made from a signed Twenty login/access token and membership validation.
-      return {
-        workspace: undefined,
-        publicDomain: null,
-        isIsolatedOrigin: false,
-      };
-    }
-
     const { subdomain, domain, isPublicDomainOrigin } =
       this.domainServerConfigService.getSubdomainAndDomainFromUrl(origin);
 
@@ -285,13 +274,6 @@ export class WorkspaceDomainsService {
     customDomain,
     isCustomDomainEnabled,
   }: WorkspaceDomainConfig) {
-    if (isMhooFoundationEnabled(this.twentyConfigService)) {
-      return {
-        customUrl: undefined,
-        subdomainUrl: this.domainServerConfigService.getFrontUrl().toString(),
-      };
-    }
-
     return {
       customUrl:
         isCustomDomainEnabled && customDomain
