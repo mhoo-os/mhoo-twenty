@@ -191,6 +191,9 @@ export class Sentry {
 
   @Field(() => String, { nullable: true })
   dsn?: string;
+
+  @Field(() => Number, { nullable: true })
+  tracesSampleRate?: number;
 }
 
 @ObjectType()
@@ -275,9 +278,6 @@ export class ClientConfig {
   isMultiWorkspaceEnabled: boolean;
 
   @Field(() => Boolean)
-  isMhooFoundationEnabled: boolean;
-
-  @Field(() => Boolean)
   isEmailVerificationRequired: boolean;
 
   @Field(() => String, { nullable: true })
@@ -315,6 +315,8 @@ export class ClientConfig {
   @Field(() => [PublicFeatureFlag])
   publicFeatureFlags: PublicFeatureFlag[];
 
+  // Always true now that cookie sessions are the only web auth path. Kept in
+  // the schema because removing a field breaks the public API contract.
   @Field(() => Boolean)
   isCookieSessionEnabled: boolean;
 

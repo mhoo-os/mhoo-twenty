@@ -21,8 +21,6 @@ import { StyledOnboardingStepPage } from '@/onboarding/components/StyledOnboardi
 import { SignInUpWorkspaceCreationForm } from '@/auth/sign-in-up/components/internal/SignInUpWorkspaceCreationForm';
 import { SignInUpWorkspaceScopeFormEffect } from '@/auth/sign-in-up/components/internal/SignInUpWorkspaceScopeFormEffect';
 import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
-import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
-import { getCustomerBrand } from '@/branding/utils/getCustomerBrand';
 import { useGetPublicWorkspaceDataByDomain } from '@/domain-manager/hooks/useGetPublicWorkspaceDataByDomain';
 import { useIsCurrentLocationOnAWorkspace } from '@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace';
 import { useIsCurrentLocationOnDefaultDomain } from '@/domain-manager/hooks/useIsCurrentLocationOnDefaultDomain';
@@ -54,7 +52,7 @@ const StyledBackground = styled.div`
   background: ${themeCssVariables.background.secondary};
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: calc(100dvh / var(--t-zoom, 1));
   overflow-y: auto;
   width: 100%;
 `;
@@ -75,10 +73,6 @@ export const SignInUp = () => {
   const isMultiWorkspaceEnabled = useAtomStateValue(
     isMultiWorkspaceEnabledState,
   );
-  const isMhooFoundationEnabled = useAtomStateValue(
-    isMhooFoundationEnabledState,
-  );
-  const brand = getCustomerBrand(isMhooFoundationEnabled);
   const { workspaceInviteHash, workspace: workspaceFromInviteHash } =
     useWorkspaceFromInviteHash();
 
@@ -123,7 +117,7 @@ export const SignInUp = () => {
     }
 
     if (isGlobalScope) {
-      return t`Welcome to ${brand.name}`;
+      return t`Welcome to Twenty`;
     }
 
     const workspaceName = workspacePublicData?.displayName;
@@ -138,7 +132,6 @@ export const SignInUp = () => {
     signInUpStep,
     workspacePublicData?.displayName,
     isGlobalScope,
-    brand.name,
     t,
     workspaceFromInviteHash?.displayName,
   ]);

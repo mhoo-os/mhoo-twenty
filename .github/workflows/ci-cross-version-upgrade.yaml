@@ -30,8 +30,7 @@ defaults:
 
 env:
   SERVER_BUILD_CACHE_KEY: server-build
-  # Docker Hub tag plus immutable multi-architecture manifest digest.
-  OLDEST_SUPPORTED_VERSION: v1.22@sha256:63f5e89a1409816dba7fec7753747bf3d0fcfbef822f95048f029334e70f9116
+  OLDEST_SUPPORTED_VERSION: v1.22
   # Local CI containers only — not real secrets. APP_SECRET is generated fresh
   # per run (see "Compute run config") so nothing reconstructible is committed.
   OLD_PG_DATABASE_URL: postgres://postgres:postgres@postgres:5432/default
@@ -59,10 +58,6 @@ jobs:
           if [ -z "$FROM_VERSION" ]; then
             FROM_VERSION="$OLDEST_SUPPORTED_VERSION"
           fi
-          if [[ "$FROM_VERSION" != *@sha256:* ]]; then
-            echo "::error::from_version must include an immutable @sha256 digest (for example v1.22@sha256:<digest>)"
-            exit 1
-          fi
           printf 'FROM_VERSION=%s\n' "$FROM_VERSION" >> "$GITHUB_ENV"
           # Random per-run secret shared by the old container and the from-source
           # server within this job. Never committed, never reused across runs.
@@ -83,7 +78,7 @@ jobs:
             -e POSTGRES_PASSWORD=postgres \
             -e POSTGRES_DB=default \
             -p 5432:5432 \
-            postgres:16@sha256:56f243d2355bad7d2016b1e78b80da8ac9e7967b766be2bfbff84fe85ffa30bc
+            postgres:16
 
           for i in $(seq 1 30); do
             if docker exec postgres pg_isready -U postgres 2>/dev/null; then
@@ -103,7 +98,7 @@ jobs:
             --name redis \
             --network twenty-net \
             -p 6379:6379 \
-            redis:7-alpine@sha256:1db42ccef14898aa29bae778452d567534b59c107129cbc1163fb552de184d3c
+            redis:7-alpine
 
           for i in $(seq 1 10); do
             if docker exec redis redis-cli ping 2>/dev/null | grep -q PONG; then
@@ -332,7 +327,7 @@ jobs:
       - name: Upload upgrade logs
         if: always()
         id: upload-logs
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@v4
         with:
           name: cross-version-upgrade-logs
           path: upgrade-logs/

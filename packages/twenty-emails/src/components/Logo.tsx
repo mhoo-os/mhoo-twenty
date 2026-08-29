@@ -1,17 +1,14 @@
 import { Img } from 'react-email';
-import { getEmailCustomerBrand } from 'src/components/get-customer-brand';
 
 const logoStyle = {
   marginBottom: '40px',
 };
 
 export const Logo = () => {
-  const brand = getEmailCustomerBrand();
-
   return (
     <Img
-      src={brand.logoUrl}
-      alt={`${brand.name} logo`}
+      src="https://app.twenty.com/images/icons/windows11/Square150x150Logo.scale-100.png"
+      alt="Twenty logo"
       width="40"
       height="40"
       style={logoStyle}

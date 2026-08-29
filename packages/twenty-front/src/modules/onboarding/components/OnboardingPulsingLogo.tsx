@@ -1,8 +1,5 @@
 import { styled } from '@linaria/react';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
-import { getCustomerBrand } from '@/branding/utils/getCustomerBrand';
-import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
-import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 const StyledLogo = styled.img`
   animation: onboardingPulsingLogo 0.8s ease-in-out infinite alternate;
@@ -25,11 +22,6 @@ const StyledLogo = styled.img`
   }
 `;
 
-export const OnboardingPulsingLogo = () => {
-  const isMhooFoundationEnabled = useAtomStateValue(
-    isMhooFoundationEnabledState,
-  );
-  const brand = getCustomerBrand(isMhooFoundationEnabled);
-
-  return <StyledLogo src={brand.logoUrl} alt={brand.name} />;
-};
+export const OnboardingPulsingLogo = () => (
+  <StyledLogo src="/images/integrations/twenty-logo.svg" alt="" />
+);

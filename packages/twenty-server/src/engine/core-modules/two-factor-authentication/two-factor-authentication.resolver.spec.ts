@@ -1,5 +1,4 @@
 import { Test, type TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { getWorkspaceScopedRepositoryToken } from 'src/engine/twenty-orm/workspace-scoped-repository/get-workspace-scoped-repository-token.util';
 import {
   AuthException,
@@ -7,11 +6,10 @@ import {
 } from 'src/engine/core-modules/auth/auth.exception';
 import { LoginTokenService } from 'src/engine/core-modules/auth/token/services/login-token.service';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
-import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type FlatAuthContextUser } from 'src/engine/core-modules/auth/types/flat-auth-context-user.type';
 import { UserService } from 'src/engine/core-modules/user/services/user.service';
 import { type UserEntity } from 'src/engine/core-modules/user/user.entity';
-import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
 import { TwoFactorAuthenticationResolver } from './two-factor-authentication.resolver';
 import { TwoFactorAuthenticationService } from './two-factor-authentication.service';
@@ -43,14 +41,6 @@ const createMockWorkspaceDomainsService = () => ({
   getWorkspaceByOriginOrDefaultWorkspace: jest.fn(),
 });
 
-const createMockWorkspaceRepository = () => ({
-  findOneBy: jest.fn(),
-});
-
-const createMockTwentyConfigService = () => ({
-  get: jest.fn().mockReturnValue(false),
-});
-
 describe('TwoFactorAuthenticationResolver', () => {
   let resolver: TwoFactorAuthenticationResolver;
   let twoFactorAuthenticationService: ReturnType<
@@ -61,8 +51,6 @@ describe('TwoFactorAuthenticationResolver', () => {
   let workspaceDomainsService: ReturnType<
     typeof createMockWorkspaceDomainsService
   >;
-  let workspaceRepository: ReturnType<typeof createMockWorkspaceRepository>;
-  let twentyConfigService: ReturnType<typeof createMockTwentyConfigService>;
   let repository: ReturnType<typeof createMockRepository>;
 
   const MOCK_USER_ISO = '2024-01-01T00:00:00.000Z';
@@ -116,14 +104,6 @@ describe('TwoFactorAuthenticationResolver', () => {
           useFactory: createMockWorkspaceDomainsService,
         },
         {
-          provide: getRepositoryToken(WorkspaceEntity),
-          useFactory: createMockWorkspaceRepository,
-        },
-        {
-          provide: TwentyConfigService,
-          useFactory: createMockTwentyConfigService,
-        },
-        {
           provide: getWorkspaceScopedRepositoryToken(
             TwoFactorAuthenticationMethodEntity,
           ),
@@ -139,8 +119,6 @@ describe('TwoFactorAuthenticationResolver', () => {
     loginTokenService = module.get(LoginTokenService);
     userService = module.get(UserService);
     workspaceDomainsService = module.get(WorkspaceDomainsService);
-    workspaceRepository = module.get(getRepositoryToken(WorkspaceEntity));
-    twentyConfigService = module.get(TwentyConfigService);
     repository = module.get(
       getWorkspaceScopedRepositoryToken(TwoFactorAuthenticationMethodEntity),
     );
@@ -214,26 +192,6 @@ describe('TwoFactorAuthenticationResolver', () => {
           AuthExceptionCode.WORKSPACE_NOT_FOUND,
         ),
       );
-    });
-
-    it('should select the signed token workspace without hostname resolution in Mhoo mode', async () => {
-      twentyConfigService.get.mockImplementation(
-        (key: string) => key === 'IS_MHOO_FOUNDATION_ENABLED',
-      );
-      workspaceRepository.findOneBy.mockResolvedValue(mockWorkspace);
-
-      await expect(
-        resolver.initiateOTPProvisioning(mockInput, 'https://mhoo.app'),
-      ).resolves.toEqual({
-        uri: 'otpauth://totp/Twenty:test@example.com?secret=SECRETKEY&issuer=Twenty',
-      });
-
-      expect(workspaceRepository.findOneBy).toHaveBeenCalledWith({
-        id: mockWorkspace.id,
-      });
-      expect(
-        workspaceDomainsService.getWorkspaceByOriginOrDefaultWorkspace,
-      ).not.toHaveBeenCalled();
     });
 
     it('should throw FORBIDDEN_EXCEPTION when token workspace does not match', async () => {

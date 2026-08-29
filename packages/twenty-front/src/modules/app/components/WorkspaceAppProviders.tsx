@@ -31,24 +31,16 @@ import { DialogComponentInstanceContext } from '@/ui/feedback/dialog-manager/con
 import { SnackBarProvider } from '@/ui/feedback/snack-bar-manager/components/SnackBarProvider';
 import { GlobalFilePreviewModal } from '@/ui/field/display/components/GlobalFilePreviewModal';
 import { UserThemeProviderEffect } from '@/ui/theme/components/UserThemeProviderEffect';
+import { UserUiScaleProviderEffect } from '@/ui/theme/components/UserUiScaleProviderEffect';
 import { PageFavicon } from '@/ui/utilities/page-favicon/components/PageFavicon';
 import { PageTitle } from '@/ui/utilities/page-title/components/PageTitle';
 import { UserContextProvider } from '@/users/components/UserContextProvider';
 import { WorkspaceProviderEffect } from '@/workspace/components/WorkspaceProviderEffect';
-import { getCustomerBrand } from '@/branding/utils/getCustomerBrand';
-import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
-import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { getPageTitleFromPath } from '~/utils/title-utils';
 
 export const WorkspaceAppProviders = () => {
   const { pathname } = useLocation();
   const pageTitle = getPageTitleFromPath(pathname);
-  const isMhooFoundationEnabled = useAtomStateValue(
-    isMhooFoundationEnabledState,
-  );
-  const brand = getCustomerBrand(isMhooFoundationEnabled);
-  const brandedPageTitle =
-    pageTitle === 'Twenty' ? brand.name : `${pageTitle} | ${brand.name}`;
 
   return (
     <SharedAppProviders>
@@ -63,6 +55,7 @@ export const WorkspaceAppProviders = () => {
               <ApolloAdminProvider>
                 <SSEProvider>
                   <UserThemeProviderEffect />
+                  <UserUiScaleProviderEffect />
                   <SnackBarProvider>
                     <ErrorMessageEffect />
                     <AgentChatProvider>
@@ -74,7 +67,7 @@ export const WorkspaceAppProviders = () => {
                             <PromiseRejectionEffect />
                             <EndTrialAfterPaymentMethodGater />
                             <GotoHotkeysEffectsProvider />
-                            <PageTitle title={brandedPageTitle} />
+                            <PageTitle title={pageTitle} />
                             <PageFavicon />
                             <Outlet />
                             <GlobalFilePreviewModal />

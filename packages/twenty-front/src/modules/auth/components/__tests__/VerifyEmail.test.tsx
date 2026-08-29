@@ -1,5 +1,3 @@
-/** @jest-environment-options {"url":"https://app.mhoo.app/verify-email"} */
-
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 import { render, waitFor } from '@testing-library/react';
@@ -12,9 +10,6 @@ import { ThemeProvider } from 'twenty-ui/theme-constants';
 import { VerifyEmail } from '@/auth/components/VerifyEmail';
 import { tokenPairState } from '@/auth/states/tokenPairState';
 import { clientConfigApiStatusState } from '@/client-config/states/clientConfigApiStatusState';
-import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
-import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
-import { domainConfigurationState } from '@/domain-manager/states/domainConfigurationState';
 import {
   jotaiStore,
   resetJotaiStore,
@@ -29,6 +24,8 @@ const redirectToWorkspaceDomainMock = jest.fn();
 const enqueueSuccessSnackBarMock = jest.fn();
 const enqueueErrorSnackBarMock = jest.fn();
 
+let isOnAWorkspaceValue = false;
+
 jest.mock('@/auth/hooks/useAuth', () => ({
   useAuth: () => ({
     verifyEmailAndGetWorkspaceAgnosticToken:
@@ -39,6 +36,12 @@ jest.mock('@/auth/hooks/useAuth', () => ({
 
 jest.mock('@/auth/hooks/useVerifyLogin', () => ({
   useVerifyLogin: () => ({ verifyLoginToken: verifyLoginTokenMock }),
+}));
+
+jest.mock('@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace', () => ({
+  useIsCurrentLocationOnAWorkspace: () => ({
+    isOnAWorkspace: isOnAWorkspaceValue,
+  }),
 }));
 
 jest.mock('@/domain-manager/hooks/useRedirectToWorkspaceDomain', () => ({
@@ -98,31 +101,12 @@ const staleTokenPair = {
   },
 };
 
-const configureLocation = ({
-  isMhooFoundationEnabled,
-  frontDomain,
-}: {
-  isMhooFoundationEnabled: boolean;
-  frontDomain: string;
-}) => {
-  jotaiStore.set(isMhooFoundationEnabledState.atom, isMhooFoundationEnabled);
-  jotaiStore.set(isMultiWorkspaceEnabledState.atom, true);
-  jotaiStore.set(domainConfigurationState.atom, {
-    defaultSubdomain: 'app',
-    frontDomain,
-    publicFunctionDomain: undefined,
-  });
-};
-
 describe('VerifyEmail', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
     resetJotaiStore();
-    configureLocation({
-      frontDomain: 'mhoo.app',
-      isMhooFoundationEnabled: false,
-    });
+    isOnAWorkspaceValue = false;
     // The verification effect is gated on the client config having loaded.
     jotaiStore.set(clientConfigApiStatusState.atom, {
       isLoadedOnce: true,
@@ -165,11 +149,8 @@ describe('VerifyEmail', () => {
     expect(navigateMock).not.toHaveBeenCalledWith(AppPath.SignInUp);
   });
 
-  it('keeps Foundation stable-host verification on the Candidate-base workspace path', async () => {
-    configureLocation({
-      frontDomain: 'app.mhoo.app',
-      isMhooFoundationEnabled: true,
-    });
+  it('keeps the workspace-scoped verification path untouched when already on a workspace', async () => {
+    isOnAWorkspaceValue = true;
     verifyEmailAndGetLoginTokenMock.mockResolvedValue({
       loginToken: { token: 'login-token' },
       workspaceUrls: { subdomainUrl: 'https://foo.twenty.com/' },
@@ -189,10 +170,7 @@ describe('VerifyEmail', () => {
   });
 
   it('exchanges the login token without redirecting when already on the workspace origin', async () => {
-    configureLocation({
-      frontDomain: 'app.mhoo.app',
-      isMhooFoundationEnabled: true,
-    });
+    isOnAWorkspaceValue = true;
     verifyEmailAndGetLoginTokenMock.mockResolvedValue({
       loginToken: { token: 'login-token' },
       workspaceUrls: { subdomainUrl: `${window.location.origin}/` },
@@ -207,10 +185,7 @@ describe('VerifyEmail', () => {
   });
 
   it('keeps the token pair when redirecting to another workspace domain', async () => {
-    configureLocation({
-      frontDomain: 'app.mhoo.app',
-      isMhooFoundationEnabled: true,
-    });
+    isOnAWorkspaceValue = true;
     jotaiStore.set(tokenPairState.atom, staleTokenPair);
     verifyEmailAndGetLoginTokenMock.mockResolvedValue({
       loginToken: { token: 'login-token' },

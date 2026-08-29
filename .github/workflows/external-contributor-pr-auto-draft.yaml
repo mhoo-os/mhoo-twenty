@@ -1,17 +1,14 @@
 name: Auto-Draft External PRs
 
 on:
-  # Retained for upstream synchronization; draft conversion is delegated to
-  # TwentyHQ's private ci-privileged repository.
-  workflow_dispatch:
+  pull_request_target:
+    types: [opened]
 
 permissions: {}
 
 jobs:
   dispatch:
     if: |
-      github.repository == 'twentyhq/twenty' &&
-      github.event_name != 'workflow_dispatch' &&
       github.event.pull_request.draft == false &&
       github.event.pull_request.author_association != 'MEMBER' &&
       github.event.pull_request.author_association != 'OWNER' &&
@@ -19,20 +16,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Mint ci-privileged dispatch token
+      - name: Mint twenty-factory dispatch token
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           client-id: ${{ vars.TWENTY_WORKFLOW_DISPATCHER_CLIENT_ID }}
           private-key: ${{ secrets.TWENTY_WORKFLOW_DISPATCHER_PRIVATE_KEY }}
           owner: twentyhq
-          repositories: ci-privileged
+          repositories: twenty-factory
           permission-actions: write
 
-      - name: Dispatch to ci-privileged
+      - name: Dispatch to twenty-factory
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          gh workflow run convert-pr-to-draft.yaml --repo twentyhq/ci-privileged --ref main \
+          gh workflow run convert-pr-to-draft.yaml --repo twentyhq/twenty-factory --ref main \
             -f pr_number="$PR_NUMBER"

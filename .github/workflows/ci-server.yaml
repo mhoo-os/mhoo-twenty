@@ -126,7 +126,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:18@sha256:cd78ca58eb75f929698e117a589488ccb2bd45107247fe02400b50ff6c418324
+        image: postgres:18
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -138,7 +138,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis:7@sha256:9815d9e94c50caed3d5b79ce0e4dfd916582560ec83c92d0fe3b8772579e6b86
+        image: redis
         ports:
           - 6379:6379
     steps:
@@ -271,7 +271,7 @@ jobs:
         shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     services:
       postgres:
-        image: postgres:18@sha256:cd78ca58eb75f929698e117a589488ccb2bd45107247fe02400b50ff6c418324
+        image: postgres:18
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -283,11 +283,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis:7@sha256:9815d9e94c50caed3d5b79ce0e4dfd916582560ec83c92d0fe3b8772579e6b86
+        image: redis
         ports:
           - 6379:6379
       clickhouse:
-        image: clickhouse/clickhouse-server:25.8.8@sha256:894fff7d48555eeb43a6b6467a514a03d74c6865cd905119a6a44e27c3e7e456
+        image: clickhouse/clickhouse-server:25.8.8
         env:
           CLICKHOUSE_PASSWORD: clickhousePassword
           CLICKHOUSE_URL: "http://default:clickhousePassword@localhost:8123/twenty"
@@ -305,7 +305,6 @@ jobs:
       CLICKHOUSE_URL: "http://default:clickhousePassword@localhost:8123/twenty"
       CLICKHOUSE_PASSWORD: clickhousePassword
       SHARD_COUNTER: 16
-      AUTH_COOKIE_SESSIONS_ENABLED: ${{ contains(github.event.pull_request.labels.*.name, 'ci:auth-cookie-sessions') }}
     steps:
       - name: Fetch custom Github Actions and base branch history
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -316,7 +315,6 @@ jobs:
       - name: Update .env.test for integrations tests
         run: |
           echo "" >> .env.test
-          echo "AUTH_COOKIE_SESSIONS_ENABLED=$AUTH_COOKIE_SESSIONS_ENABLED" >> .env.test
           echo "IS_BILLING_ENABLED=true" >> .env.test
           echo "BILLING_STRIPE_API_KEY=test-api-key" >> .env.test
           echo "BILLING_STRIPE_BASE_PLAN_PRODUCT_ID=test-base-plan-product-id" >> .env.test
@@ -345,7 +343,7 @@ jobs:
           tag: scope:backend
           tasks: 'test:integration'
           configuration: 'with-db-reset'
-          args: --shard=${{ matrix.shard }}/${{ env.SHARD_COUNTER }}
+          args: ${{ format('--shard={0}/{1}', matrix.shard, env.SHARD_COUNTER) }}
       # The secure-deployment suite boots the app as a production https
       # deployment (SERVER_URL is env-only, forced by its jest config), so it
       # cannot ride the main run. One shard is enough.

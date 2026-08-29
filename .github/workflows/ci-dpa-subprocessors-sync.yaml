@@ -1,9 +1,9 @@
 name: DPA Sub-Processor Sync
 
 on:
-  # TwentyHQ Trust Center automation is not an Mhoo-owned source.
-  # Retain the file for upstream synchronization, but do not schedule it here.
-  workflow_dispatch: # Upstream-only manual trigger
+  schedule:
+    - cron: '0 6 * * 1' # Weekly, Monday at 6 AM UTC
+  workflow_dispatch: # Allow manual trigger
 
 permissions:
   contents: write
@@ -11,7 +11,6 @@ permissions:
 
 jobs:
   sync-subprocessors:
-    if: github.repository == 'twentyhq/twenty'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:

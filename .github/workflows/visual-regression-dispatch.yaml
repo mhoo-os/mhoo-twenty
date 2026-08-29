@@ -1,15 +1,17 @@
 name: Visual Regression Dispatch
 
-# Dispatches visual regression processing to ci-privileged after CI completes.
+# Dispatches visual regression processing to twenty-factory after CI completes.
 # Runs in the context of the base repo (not the fork) so it has access to secrets,
 # making it work for external contributor PRs.
 #
-# The screenshot artifacts remain produced by CI UI/CI Front. The downstream
-# Argos/comment dispatch is TwentyHQ-owned and is retained only for upstream
-# synchronization.
+# All paths trigger the same twenty-factory workflow (post-visual-regression-comment.yaml)
+# via workflow_dispatch, passing the project as an input. twenty-factory routes to the
+# correct Argos project based on it.
 
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ['CI UI', 'CI Front']
+    types: [completed]
 
 permissions:
   actions: read
@@ -18,7 +20,7 @@ permissions:
 
 jobs:
   resolve-context:
-    if: github.repository == 'twentyhq/twenty' && github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -156,21 +158,21 @@ jobs:
   # ── Dispatch: pixel diff for the triggering workflow's project (PRs + main) ──
   dispatch-pixel-diff:
     needs: resolve-context
-    if: github.repository == 'twentyhq/twenty' && needs.resolve-context.outputs.has_artifact == 'true'
+    if: needs.resolve-context.outputs.has_artifact == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Mint ci-privileged dispatch token
+      - name: Mint twenty-factory dispatch token
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           client-id: ${{ vars.TWENTY_WORKFLOW_DISPATCHER_CLIENT_ID }}
           private-key: ${{ secrets.TWENTY_WORKFLOW_DISPATCHER_PRIVATE_KEY }}
           owner: twentyhq
-          repositories: ci-privileged
+          repositories: twenty-factory
           permission-actions: write
 
-      - name: Dispatch to ci-privileged
+      - name: Dispatch to twenty-factory
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           PROJECT: ${{ needs.resolve-context.outputs.project }}
@@ -202,4 +204,4 @@ jobs:
             ARGS+=(-f parent_commits="$PARENT_COMMITS")
           fi
 
-          gh workflow run post-visual-regression-comment.yaml --repo twentyhq/ci-privileged --ref main "${ARGS[@]}"
+          gh workflow run post-visual-regression-comment.yaml --repo twentyhq/twenty-factory --ref main "${ARGS[@]}"
