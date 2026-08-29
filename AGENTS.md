@@ -48,6 +48,10 @@ deployment and cutover authority.
 
 ## Validation and architecture changes
 
+- Do not manually edit a generated Mhoo context block. Run the central checker
+  for context changes. The upstream README body outside the bounded notice
+  remains upstream-owned, and local status prose must follow source/provenance
+  evidence.
 - Use the changed package's existing Nx/Yarn task and its focused tests. For
   source/provenance work, run `scripts/provenance/verify-source.sh` and the
   applicable checked-in provenance validation.
