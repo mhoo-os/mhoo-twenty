@@ -97,8 +97,8 @@ BOUNDED_OVERLAY_PATH="README.md"
 python3 "$REPOSITORY_ROOT/scripts/provenance/verify_bounded_readme_overlay.py" \
   --upstream-revision "$UPSTREAM_COMMIT"
 
-# Mhoo CI contract overlay. These paths are intentionally reviewed separately
-# from the exact upstream source tree and are not application-source edits.
+# Mhoo CI and narrowly-reviewed framework-correction overlay. These paths are
+# intentionally reviewed separately from the exact upstream source tree.
 # Phase 3 Mhoo foundation fork deltas are explicitly enumerated below so this
 # check still fails closed for every other upstream source path.
 CHANGED_PATHS_OUTSIDE_FULL_OVERLAY="$(
@@ -149,6 +149,7 @@ CHANGED_PATHS_OUTSIDE_FULL_OVERLAY="$(
     ':(exclude).github/workflows/stage-twenty-v2.30.1-candidate-4-rehearsal.yml' \
     ':(exclude).github/workflows/twenty-v2.30.1-provenance.yml' \
     ':(exclude)docs/provenance/**' \
+    ':(exclude)packages/twenty-front-component-renderer/project.json' \
     ':(exclude)packages/twenty-emails/src/components/BaseHead.tsx' \
     ':(exclude)packages/twenty-emails/src/components/Footer.tsx' \
     ':(exclude)packages/twenty-emails/src/components/Logo.tsx' \
