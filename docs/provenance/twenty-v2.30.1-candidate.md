@@ -28,7 +28,7 @@ There is no upstream GitHub Release object or `sdk/v2.30.1` tag. The official `t
 
 ## Controlled overlay
 
-The candidate source revision may differ from the upstream tree only at:
+Fully Mhoo-owned overlay paths may differ from the upstream tree only at:
 
 - `.twenty-source`
 - `.github/workflows/publish-twenty-v2.30.1-candidate.yml`
@@ -38,7 +38,17 @@ The candidate source revision may differ from the upstream tree only at:
 - `docs/provenance/`
 - `scripts/provenance/`
 
-The verification gate fails on any other difference, including a Twenty core modification.
+`README.md` remains upstream-owned. It has one separately verified bounded text
+overlay: the exact Mhoo context block must occur once at byte zero between the
+exact `<!-- mhoo-os-context:start -->` and
+`<!-- mhoo-os-context:end -->` markers. Removing that block and its exact
+two-LF separator must reproduce the pinned upstream README byte for byte. The
+file is not generally ignored or allowlisted; any other README difference
+fails verification.
+
+The verification gate fails on any other difference, including a Twenty core
+modification. A bounded text overlay preserves custody of every upstream byte
+rather than converting the containing file into a fully Mhoo-owned path.
 
 Build inputs pinned by `.twenty-source` include the Dockerfile, Docker ignore file, Yarn lockfile, root package metadata, Yarn configuration, source and image Node versions, base image digest, target, platform, entrypoint, and disposable validation service image digests. The upstream Dockerfile resolves bounded Alpine packages from the repositories embedded in its pinned base image; those package repositories are not snapshot URLs, so the build is provenance-reproducible but is not claimed to be bit-for-bit reproducible indefinitely.
 

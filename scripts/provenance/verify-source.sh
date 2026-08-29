@@ -89,11 +89,19 @@ assert_equal "$(cat .nvmrc)" "$(manifest_value TWENTY_SOURCE_NODE_VERSION)" \
 assert_equal "$(node -p "require('./package.json').packageManager")" \
   "yarn@$(manifest_value TWENTY_YARN_VERSION)" "Yarn package manager pin"
 
+# README.md remains upstream-owned. The dedicated verifier permits either the
+# exact upstream blob or one exact top-of-file Mhoo context block whose removal
+# reproduces that blob byte for byte. README.md is filtered from the generic
+# changed-path result only after this stronger bounded verification passes.
+BOUNDED_OVERLAY_PATH="README.md"
+python3 "$REPOSITORY_ROOT/scripts/provenance/verify_bounded_readme_overlay.py" \
+  --upstream-revision "$UPSTREAM_COMMIT"
+
 # Mhoo CI contract overlay. These paths are intentionally reviewed separately
 # from the exact upstream source tree and are not application-source edits.
 # Phase 3 Mhoo foundation fork deltas are explicitly enumerated below so this
 # check still fails closed for every other upstream source path.
-UNEXPECTED_PATHS="$(
+CHANGED_PATHS_OUTSIDE_FULL_OVERLAY="$(
   git diff --name-only "$UPSTREAM_COMMIT" HEAD -- . \
     ':(exclude).twenty-source' \
     ':(exclude)AGENTS.md' \
@@ -204,6 +212,14 @@ UNEXPECTED_PATHS="$(
     ':(exclude)packages/twenty-client-sdk/src/metadata/generated/types.ts' \
     ':(exclude)packages/twenty-utils/dangerfile.ts' \
     ':(exclude)scripts/provenance/**'
+)"
+
+UNEXPECTED_PATHS="$(
+  while IFS= read -r changed_path; do
+    if [[ -n "$changed_path" && "$changed_path" != "$BOUNDED_OVERLAY_PATH" ]]; then
+      printf '%s\n' "$changed_path"
+    fi
+  done <<< "$CHANGED_PATHS_OUTSIDE_FULL_OVERLAY"
 )"
 
 [[ -z "$UNEXPECTED_PATHS" ]] || {
