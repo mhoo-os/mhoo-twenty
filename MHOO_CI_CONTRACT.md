@@ -169,12 +169,24 @@ databases, legacy data, credentials, and cutover remain outside this contract.
 4. optionally verify the upstream remote tag;
 5. hash-check the source package, lockfile, runtime pins, Dockerfile, and
    entrypoint;
-6. reject differences from upstream outside an explicit overlay allowlist.
+6. byte-verify the bounded Mhoo context block, when present at the exact start
+   of upstream-owned `README.md`; and
+7. reject differences from upstream outside an explicit full-path overlay
+   allowlist.
 
-This PR adds only the CI-contract documentation, the listed Mhoo CI workflow
-gates/pins, and the listed composite-action input protections to that
-allowlist. The allowlist is deliberately path-specific; it is not a blanket
-permission to alter application source or bypass provenance.
+Fully Mhoo-owned overlay paths, such as Mhoo provenance controls and the listed
+CI workflow adaptations, use the deliberately path-specific allowlist. It is
+not a blanket permission to alter application source or bypass provenance.
+
+`README.md` is a different class: it remains upstream-owned and is not a full
+path overlay. The verifier accepts the exact upstream blob or exactly one block
+delimited by `<!-- mhoo-os-context:start -->` and
+`<!-- mhoo-os-context:end -->` at byte zero, followed by exactly two LF bytes.
+After removing only that prefix, the remaining bytes must exactly equal the
+pinned upstream README. Duplicate, nested, missing, renamed, or relocated
+markers and every extra, deleted, reordered, or modified upstream byte fail
+closed. This bounded text overlay preserves upstream custody; it does not
+exempt `README.md` from source verification.
 
 The verifier protects the Twenty source/runtime boundary; it deliberately does
 not attest the reviewed CI-overlay contents that its allowlist excludes. Those
