@@ -18,7 +18,7 @@ inputs:
   twenty-version:
     description: 'Immutable Docker Hub image version, only used when source is "dockerhub-latest".'
     required: false
-    default: 'v2.30.1@sha256:fdcbd7d90c12a66a83efcdd204d6ea20eaf6fcf0a21ddfa5f2b9fe5e12846fce'
+    default: 'v2.37.0@sha256:53381e68f6fa50808f624f4c0125ce2143c6d21321ba25886e1115c73367c6e6'
   server-build-cache-key:
     description: 'Cache key used to speed up the local server build (nx cache).'
     required: false

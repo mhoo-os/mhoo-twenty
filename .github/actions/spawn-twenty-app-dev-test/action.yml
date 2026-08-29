@@ -1,14 +1,14 @@
 name: Spawn Twenty App Dev Test
 description: >
   Starts a Twenty all-in-one test instance (server, worker, database, redis)
-  using the immutable v2.30.1 twentycrm/twenty-app-dev Docker image on port 2021.
+  using the immutable governed twentycrm/twenty-app-dev Docker image on port 2021.
   The server is available at http://localhost:2021 with seeded demo data.
 
 inputs:
   twenty-version:
-    description: 'Immutable Twenty Docker image version (e.g., "v2.30.1@sha256:<digest>").'
+    description: 'Immutable Twenty Docker image version (e.g., "v2.37.0@sha256:<digest>").'
     required: false
-    default: 'v2.30.1@sha256:fdcbd7d90c12a66a83efcdd204d6ea20eaf6fcf0a21ddfa5f2b9fe5e12846fce'
+    default: 'v2.37.0@sha256:53381e68f6fa50808f624f4c0125ce2143c6d21321ba25886e1115c73367c6e6'
 
 outputs:
   server-url:
