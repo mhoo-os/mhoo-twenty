@@ -68,6 +68,23 @@ expect_verifier_failure \
 git restore --source=HEAD -- .github/actions/spawn-twenty-app-dev-test/action.yml
 VERIFY_UPSTREAM_REMOTE=0 scripts/provenance/verify-source.sh >/dev/null
 
+printf '\n// unauthorized editor backport mutation\n' >> \
+  packages/twenty-front/src/modules/advanced-text-editor/utils/hasEditorExtension.ts
+git add packages/twenty-front/src/modules/advanced-text-editor/utils/hasEditorExtension.ts
+git -c user.name='Mhoo provenance test' \
+  -c user.email='provenance-test@mhoo.invalid' \
+  commit -m 'test: mutate allowed editor backport path' >/dev/null
+expect_verifier_failure \
+  "mutated editor backport path" \
+  "official editor destroy-race backport patch hash"
+git restore --source=HEAD^ -- \
+  packages/twenty-front/src/modules/advanced-text-editor/utils/hasEditorExtension.ts
+git add packages/twenty-front/src/modules/advanced-text-editor/utils/hasEditorExtension.ts
+git -c user.name='Mhoo provenance test' \
+  -c user.email='provenance-test@mhoo.invalid' \
+  commit -m 'test: restore governed editor backport' >/dev/null
+VERIFY_UPSTREAM_REMOTE=0 scripts/provenance/verify-source.sh >/dev/null
+
 printf '\nunauthorized protected-path mutation\n' >> LICENSE
 git add LICENSE
 git -c user.name='Mhoo provenance test' \
