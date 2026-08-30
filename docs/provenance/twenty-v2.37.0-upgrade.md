@@ -88,10 +88,11 @@ files, generated APIs, and the Workspace-authenticated MCP transport. This
 upgrade introduces no parallel Mhoo auth, CRUD/API framework, OAuth platform,
 MCP server, queue, file service, or generic admin framework.
 
-Using Twenty Connections as Mhoo's default simple OAuth authority, changing the
-canonical MCP transport, or moving Core state ownership into a Twenty App are
-cross-system changes proposed by ADR-0007. They are not silently implemented by
-this source upgrade while ADR-0001 through ADR-0006 remain accepted.
+ADR-0008 accepts Twenty Connections as Mhoo's default app-local OAuth authority,
+Twenty's built-in MCP as the canonical Mhoo MCP surface, and `@mhoo/core` as a
+deterministic Twenty App. This source upgrade establishes the governed v2.37
+foundation only; it does not implement `@mhoo/core`, select Nango for any
+provider, publish an image, deploy a runtime, or authorize cutover.
 
 ## Validation boundary
 
