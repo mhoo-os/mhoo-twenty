@@ -68,7 +68,7 @@ is_allowed_overlay_path() {
     docs/provenance/PHASE_2_FOUNDATION_INVENTORY.md|docs/provenance/PHASE_3_FOUNDATION_IMPLEMENTATION.md|docs/provenance/twenty-v2.30.1-candidate.md|docs/provenance/twenty-v2.30.1-published-candidate.md|docs/provenance/twenty-v2.37.0-delta-disposition.tsv|docs/provenance/twenty-v2.37.0-upgrade.md)
       return 0
       ;;
-    scripts/provenance/publish-oci-layout.sh|scripts/provenance/test-candidate-6-oci-auth-harness.py|scripts/provenance/test-candidate-6-oci-publication.sh|scripts/provenance/test-verify-source.sh|scripts/provenance/test_verify_bounded_readme_overlay.py|scripts/provenance/verify-source.sh|scripts/provenance/verify_bounded_readme_overlay.py)
+    scripts/ci/classify_front_change.py|scripts/ci/test_classify_front_change.py|scripts/ci/verified_front_backports.json|scripts/provenance/publish-oci-layout.sh|scripts/provenance/test-candidate-6-oci-auth-harness.py|scripts/provenance/test-candidate-6-oci-publication.sh|scripts/provenance/test-verify-source.sh|scripts/provenance/test_verify_bounded_readme_overlay.py|scripts/provenance/verify-source.sh|scripts/provenance/verify_bounded_readme_overlay.py)
       return 0
       ;;
     packages/twenty-client-sdk/src/metadata/generated/schema.graphql|packages/twenty-client-sdk/src/metadata/generated/schema.ts|packages/twenty-client-sdk/src/metadata/generated/types.ts)
