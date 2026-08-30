@@ -30,6 +30,7 @@ export default defineConfig(({ mode }) => {
     SSL_KEY_PATH,
     REACT_APP_PORT,
     REACT_APP_SERVER_BASE_URL,
+    TAILSCALE_SERVE_HOSTNAME,
     IS_DEBUG_MODE,
   } = env;
 
@@ -40,6 +41,10 @@ export default defineConfig(({ mode }) => {
   const apiProxyTarget = isNonEmptyString(REACT_APP_SERVER_BASE_URL)
     ? REACT_APP_SERVER_BASE_URL
     : 'http://localhost:3000';
+
+  const allowedHost = isNonEmptyString(TAILSCALE_SERVE_HOSTNAME)
+    ? TAILSCALE_SERVE_HOSTNAME
+    : undefined;
 
   const apiProxy = Object.fromEntries(
     API_PROXY_PATHS.map((apiPath) => [
@@ -68,6 +73,7 @@ export default defineConfig(({ mode }) => {
       port: port,
       proxy: apiProxy,
       ...(VITE_HOST ? { host: VITE_HOST } : {}),
+      ...(allowedHost ? { allowedHosts: [allowedHost] } : {}),
       ...(SSL_KEY_PATH && SSL_CERT_PATH
         ? {
             protocol: 'https',
