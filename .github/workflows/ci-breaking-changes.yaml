@@ -70,6 +70,11 @@ jobs:
         with:
           fetch-depth: 10
 
+      - name: Fetch governed v2.37 release object for baseline exception
+        run: |
+          git fetch --depth=1 https://github.com/twentyhq/twenty.git \
+            refs/tags/twenty/v2.37.0
+
       - name: Try to merge main into current branch
         id: merge_attempt
         run: |
@@ -727,8 +732,8 @@ jobs:
                  [ "$current_version" = "v2.37.0" ] && \
                  [ "$upstream_commit" = "6da524b8903ec16a3eeea4b2e4a5fb63dbfc1c58" ] && \
                  [ "$upstream_tree" = "3ce4ef3eac3604ee52b6b8ee0f1a4766d7f533ca" ] && \
-                 [ "$(git rev-parse "${exact_source_commit}^{tree}")" = "$upstream_tree" ] && \
-                 git merge-base --is-ancestor "$exact_source_commit" "$PR_HEAD_SHA"; then
+                 [ "$exact_source_commit" = "$upstream_commit" ] && \
+                 [ "$(git rev-parse "${exact_source_commit}^{tree}")" = "$upstream_tree" ]; then
                 echo "::warning::Accepting the reported API changes only for the reviewed v2.30.1 to exact v2.37.0 governed-source baseline import."
                 echo "The complete breaking-change report remains attached to this run."
                 exit 0

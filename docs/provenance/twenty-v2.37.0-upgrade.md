@@ -14,7 +14,7 @@
 | SDK ref | `refs/tags/sdk/v2.37.0` |
 | Upstream commit | `6da524b8903ec16a3eeea4b2e4a5fb63dbfc1c58` |
 | Upstream tree | `3ce4ef3eac3604ee52b6b8ee0f1a4766d7f533ca` |
-| Mhoo exact-source commit | `6d0e9d0a14cf0ae68db3c7ae92b56798f1628050` |
+| Exact source baseline commit | `6da524b8903ec16a3eeea4b2e4a5fb63dbfc1c58` |
 | GitHub release | `twenty/v2.37.0`, published 2026-08-28 |
 | Official image index | `twentycrm/twenty@sha256:63cafcc69ca18a7f402adbb519a0c7322ec5838866056f2c94d6ee38a06206a0` |
 | Official Linux AMD64 manifest | `sha256:247b98a5f1903dba8043faec44850b6a93a5d475c8e6cc3e4117d29a2c471af7` |
@@ -24,14 +24,12 @@
 Both release refs are lightweight tags at the same unsigned Git commit. The
 source-trust statement is therefore limited to the two current refs in the
 official GitHub repository, the recorded commit/tree, and the bounded Mhoo
-exact-source commit. The official image identities are release-alignment
-evidence; they do not replace a Mhoo source build or authorize publication.
-The app-dev identity is used only by disposable CI compatibility checks and is
-not a Mhoo runtime candidate.
-
-The Mhoo exact-source commit has the current Mhoo `main` as its parent but the
-exact upstream v2.37.0 tree. This preserves Mhoo history without claiming that
-the two repositories share the same commit identity.
+overlay. The verifier uses the publicly fetchable upstream commit itself as the
+exact source baseline, so a local-only fork snapshot cannot be mistaken for
+remote custody evidence after a squash merge. The official image identities
+are release-alignment evidence; they do not replace a Mhoo source build or
+authorize publication. The app-dev identity is used only by disposable CI
+compatibility checks and is not a Mhoo runtime candidate.
 
 ## Release relationship
 
@@ -118,7 +116,7 @@ made invisible or treated as ordinary patch behavior.
 - app compatibility jobs use the digest-pinned v2.37.0 app-dev image. The
   previous v2.30.1 candidate image is no longer an active v2.37 CI runtime.
 - whitespace validation compares the controlled overlay to the verified
-  exact-source commit, so untouched upstream generated whitespace is not
+  upstream source baseline, so untouched upstream generated whitespace is not
   misclassified as a Mhoo patch defect.
 
 These exceptions authorize review of this source candidate only. They do not
