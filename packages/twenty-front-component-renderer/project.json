@@ -53,7 +53,7 @@
       "dependsOn": [
         "generate-remote-dom-elements",
         {
-          "target": "build:sdk",
+          "target": "build",
           "projects": "twenty-sdk"
         },
         {
@@ -88,7 +88,7 @@
         "generate-remote-dom-elements",
         "sandbox:prebuild",
         {
-          "target": "build:sdk",
+          "target": "build",
           "projects": "twenty-sdk"
         },
         {
