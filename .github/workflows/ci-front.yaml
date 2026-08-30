@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-mhoo-standard-runner-v1-${{ github.ref }}${{ github.ref == 'refs/heads/main' && format('-{0}', github.sha) || '' }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  group: ${{ github.workflow }}-mhoo-risk-gate-v2-${{ github.event.pull_request.number || github.ref }}${{ github.ref == 'refs/heads/main' && format('-{0}', github.sha) || '' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   # restore-cache action adds 'v4-' prefix and '-<branch>-<sha>' suffix to the key
@@ -19,25 +19,49 @@ env:
   STORYBOOK_BUILD_CACHE_KEY_FOR_SAVE_ACTION: v4-storybook-build-ubuntu-latest-runner-${{ github.ref_name }}-${{ github.sha }}
 
 jobs:
-  changed-files-check:
-    if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/changed-files.yaml
-    with:
-      files: |
-        package.json
-        yarn.lock
-        packages/twenty-front/**
-        packages/twenty-front-component-renderer/**
-        packages/twenty-ui/**
-        packages/twenty-shared/**
-        packages/twenty-sdk/**
-        !packages/twenty-sdk/package.json
+  classify-front-change:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    outputs:
+      run_front: ${{ steps.classify.outputs.run_front }}
+      deep_required: ${{ steps.classify.outputs.deep_required }}
+      verified_backport: ${{ steps.classify.outputs.verified_backport }}
+      backport_id: ${{ steps.classify.outputs.backport_id }}
+      reason: ${{ steps.classify.outputs.reason }}
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 2
+      - name: Classify frontend validation depth
+        id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          args=(
+            --repository-root .
+            --head "$HEAD_SHA"
+            --github-output "$GITHUB_OUTPUT"
+          )
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            test -n "$BASE_SHA"
+            git fetch --no-tags --depth=1 origin "$BASE_SHA"
+            args+=(--base "$BASE_SHA" --fetch-missing)
+          else
+            args+=(--force-deep)
+          fi
+          python3 scripts/ci/classify_front_change.py "${args[@]}"
   front-sb-build:
-    needs: changed-files-check
+    needs: classify-front-change
     if: >-
       always() &&
-      (github.event_name == 'push' ||
-      needs.changed-files-check.outputs.any_changed == 'true')
+      needs.classify-front-change.result == 'success' &&
+      needs.classify-front-change.outputs.run_front == 'true' &&
+      needs.classify-front-change.outputs.deep_required == 'true'
     timeout-minutes: 30
     runs-on: ubuntu-latest
     env:
@@ -46,6 +70,7 @@ jobs:
       - name: Fetch local actions
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 10
       - name: Install dependencies
         uses: ./.github/actions/yarn-install
@@ -83,6 +108,7 @@ jobs:
       - name: Fetch local actions
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 10
       - name: Install dependencies
         uses: ./.github/actions/yarn-install
@@ -195,8 +221,10 @@ jobs:
           retention-days: 1
           overwrite: true
   front-task:
-    needs: changed-files-check
-    if: needs.changed-files-check.outputs.any_changed == 'true'
+    needs: classify-front-change
+    if: >-
+      needs.classify-front-change.result == 'success' &&
+      needs.classify-front-change.outputs.run_front == 'true'
     timeout-minutes: 30
     runs-on: ubuntu-latest
     env:
@@ -209,6 +237,7 @@ jobs:
       - name: Fetch custom Github Actions and base branch history
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 10
       - name: Install dependencies
         uses: ./.github/actions/yarn-install
@@ -233,17 +262,20 @@ jobs:
         with:
           key: ${{ steps.restore-task-cache.outputs.cache-primary-key }}
   front-build:
-    needs: changed-files-check
-    if: needs.changed-files-check.outputs.any_changed == 'true'
+    needs: classify-front-change
+    if: >-
+      needs.classify-front-change.result == 'success' &&
+      needs.classify-front-change.outputs.run_front == 'true'
     timeout-minutes: 30
     runs-on: ubuntu-latest
     env:
       NODE_OPTIONS: "--max-old-space-size=10240"
-      ANALYZE: "true"
+      ANALYZE: "false"
     steps:
       - name: Fetch custom Github Actions and base branch history
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 10
       - name: Install dependencies
         uses: ./.github/actions/yarn-install
@@ -251,27 +283,86 @@ jobs:
         run: npx nx reset:env twenty-front
       - name: Build frontend
         run: npx nx build twenty-front
-      # - name: Upload frontend build artifact
-      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-      #   with:
-      #     name: frontend-build
-      #     path: packages/twenty-front/build
-      #     retention-days: 1
+      - name: Create deterministic frontend artifact
+        env:
+          EXACT_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXACT_HEAD_SHA"
+          mkdir -p ci-artifacts
+          tar \
+            --sort=name \
+            --mtime='UTC 1970-01-01' \
+            --owner=0 \
+            --group=0 \
+            --numeric-owner \
+            -czf ci-artifacts/twenty-front-build.tgz \
+            -C packages/twenty-front/build .
+          archive_sha256="$(sha256sum ci-artifacts/twenty-front-build.tgz | awk '{print $1}')"
+          {
+            echo "head_sha=$EXACT_HEAD_SHA"
+            echo "tree=$(git rev-parse 'HEAD^{tree}')"
+            echo "node=$(node --version)"
+            echo "yarn=$(yarn --version)"
+            echo "archive_sha256=$archive_sha256"
+          } > ci-artifacts/twenty-front-build.receipt
+          printf '%s  %s\n' \
+            "$archive_sha256" \
+            ci-artifacts/twenty-front-build.tgz | sha256sum -c -
+      - name: Upload exact frontend build artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: twenty-front-build-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ci-artifacts
+          if-no-files-found: error
+          retention-days: 7
+  ci-front-fast-status-check:
+    if: always() && !cancelled()
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    needs: [classify-front-change, front-task, front-build]
+    steps:
+      - name: Require exact-head fast validation
+        env:
+          CLASSIFY_RESULT: ${{ needs.classify-front-change.result }}
+          FRONT_BUILD_RESULT: ${{ needs.front-build.result }}
+          FRONT_TASK_RESULT: ${{ needs.front-task.result }}
+          RUN_FRONT: ${{ needs.classify-front-change.outputs.run_front }}
+        run: |
+          set -euo pipefail
+          test "$CLASSIFY_RESULT" = "success"
+          if [[ "$RUN_FRONT" == "true" ]]; then
+            test "$FRONT_TASK_RESULT" = "success"
+            test "$FRONT_BUILD_RESULT" = "success"
+          fi
   ci-front-status-check:
     if: always() && !cancelled()
     timeout-minutes: 5
     runs-on: ubuntu-latest
     needs:
       [
-        changed-files-check,
-        front-task,
-        front-build,
+        classify-front-change,
+        ci-front-fast-status-check,
         # merge-reports-and-check-coverage,
         front-sb-test,
         front-sb-build,
         front-sb-screenshots,
       ]
     steps:
-      - name: Fail job if any needs failed
-        if: contains(needs.*.result, 'failure')
-        run: exit 1
+      - name: Enforce the policy-selected frontend gate
+        env:
+          CLASSIFY_RESULT: ${{ needs.classify-front-change.result }}
+          DEEP_REQUIRED: ${{ needs.classify-front-change.outputs.deep_required }}
+          FAST_RESULT: ${{ needs.ci-front-fast-status-check.result }}
+          SCREENSHOTS_RESULT: ${{ needs.front-sb-screenshots.result }}
+          STORYBOOK_BUILD_RESULT: ${{ needs.front-sb-build.result }}
+          STORYBOOK_TEST_RESULT: ${{ needs.front-sb-test.result }}
+        run: |
+          set -euo pipefail
+          test "$CLASSIFY_RESULT" = "success"
+          test "$FAST_RESULT" = "success"
+          if [[ "$DEEP_REQUIRED" == "true" ]]; then
+            test "$STORYBOOK_BUILD_RESULT" = "success"
+            test "$STORYBOOK_TEST_RESULT" = "success"
+            test "$SCREENSHOTS_RESULT" = "success"
+          fi

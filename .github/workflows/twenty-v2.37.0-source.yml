@@ -32,8 +32,13 @@ jobs:
           bash -n scripts/provenance/verify-source.sh
           bash -n scripts/provenance/test-verify-source.sh
           python3 -m py_compile \
+            scripts/ci/classify_front_change.py \
+            scripts/ci/test_classify_front_change.py \
             scripts/provenance/verify_bounded_readme_overlay.py \
             scripts/provenance/test_verify_bounded_readme_overlay.py
+
+      - name: Validate fail-closed frontend classification
+        run: python3 scripts/ci/test_classify_front_change.py
 
       - name: Verify exact source and controlled overlay
         run: scripts/provenance/verify-source.sh
