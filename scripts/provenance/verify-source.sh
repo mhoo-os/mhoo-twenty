@@ -104,6 +104,9 @@ is_allowed_overlay_path() {
     packages/twenty-client-sdk/src/metadata/generated/schema.graphql|packages/twenty-client-sdk/src/metadata/generated/schema.ts|packages/twenty-client-sdk/src/metadata/generated/types.ts)
       return 0
       ;;
+    packages/twenty-apps/internal/mhoo-codex-lb/*)
+      return 0
+      ;;
     packages/twenty-emails/src/components/BaseHead.tsx|packages/twenty-emails/src/components/Footer.tsx|packages/twenty-emails/src/components/Logo.tsx|packages/twenty-emails/src/components/get-customer-brand.ts)
       return 0
       ;;

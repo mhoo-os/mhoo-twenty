@@ -103,6 +103,13 @@ frontend/server tests cover the stable-host and authority seams against v2.37.
 Full candidate build, publication, deployment, migration, recovery, and
 production/cutover remain separate gates.
 
+The Mhoo-owned `packages/twenty-apps/internal/mhoo-codex-lb/` package is one
+exact controlled App overlay. The verifier permits only that directory for the
+App and retains upstream custody over neighboring internal Apps; its hostile
+regression mutates both sides of that boundary. Adding another Mhoo App requires
+another explicit path, provenance review, and focused proof rather than a broad
+internal-Apps exemption.
+
 ## Baseline-import CI reconciliation
 
 The exact-tree import necessarily differs from v2.30.1 across public APIs and

@@ -85,6 +85,39 @@ git -c user.name='Mhoo provenance test' \
   commit -m 'test: restore governed editor backport' >/dev/null
 VERIFY_UPSTREAM_REMOTE=0 scripts/provenance/verify-source.sh >/dev/null
 
+printf '\nMhoo-owned App overlay mutation\n' >> \
+  packages/twenty-apps/internal/mhoo-codex-lb/README.md
+git add packages/twenty-apps/internal/mhoo-codex-lb/README.md
+git -c user.name='Mhoo provenance test' \
+  -c user.email='provenance-test@mhoo.invalid' \
+  commit -m 'test: mutate exact Mhoo App overlay' >/dev/null
+VERIFY_UPSTREAM_REMOTE=0 scripts/provenance/verify-source.sh >/dev/null
+git restore --source=HEAD^ -- \
+  packages/twenty-apps/internal/mhoo-codex-lb/README.md
+git add packages/twenty-apps/internal/mhoo-codex-lb/README.md
+git -c user.name='Mhoo provenance test' \
+  -c user.email='provenance-test@mhoo.invalid' \
+  commit -m 'test: restore exact Mhoo App overlay' >/dev/null
+VERIFY_UPSTREAM_REMOTE=0 scripts/provenance/verify-source.sh >/dev/null
+
+printf '\nunauthorized neighboring App mutation\n' >> \
+  packages/twenty-apps/internal/twenty-partners/README.md
+git add packages/twenty-apps/internal/twenty-partners/README.md
+git -c user.name='Mhoo provenance test' \
+  -c user.email='provenance-test@mhoo.invalid' \
+  commit -m 'test: mutate protected neighboring App' >/dev/null
+expect_verifier_failure \
+  "neighboring upstream App mutation" \
+  "Twenty source differs from upstream outside the provenance overlay" \
+  "packages/twenty-apps/internal/twenty-partners/README.md"
+git restore --source=HEAD^ -- \
+  packages/twenty-apps/internal/twenty-partners/README.md
+git add packages/twenty-apps/internal/twenty-partners/README.md
+git -c user.name='Mhoo provenance test' \
+  -c user.email='provenance-test@mhoo.invalid' \
+  commit -m 'test: restore protected neighboring App' >/dev/null
+VERIFY_UPSTREAM_REMOTE=0 scripts/provenance/verify-source.sh >/dev/null
+
 printf '\nunauthorized protected-path mutation\n' >> LICENSE
 git add LICENSE
 git -c user.name='Mhoo provenance test' \
