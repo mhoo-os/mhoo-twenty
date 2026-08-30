@@ -1,0 +1,48 @@
+name: Twenty v2.37.0 Source Custody
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-custody:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+
+      - name: Fetch the governed upstream release object
+        run: |
+          git fetch --depth=1 https://github.com/twentyhq/twenty.git \
+            refs/tags/twenty/v2.37.0
+
+      - name: Validate provenance scripts
+        run: |
+          bash -n scripts/provenance/verify-source.sh
+          bash -n scripts/provenance/test-verify-source.sh
+          python3 -m py_compile \
+            scripts/provenance/verify_bounded_readme_overlay.py \
+            scripts/provenance/test_verify_bounded_readme_overlay.py
+
+      - name: Verify exact source and controlled overlay
+        run: scripts/provenance/verify-source.sh
+
+      - name: Run hostile provenance regression tests
+        run: scripts/provenance/test-verify-source.sh
+
+      - name: Check patch whitespace
+        run: |
+          exact_source_commit="$(sed -n 's/^MHOO_TWENTY_EXACT_SOURCE_COMMIT=//p' .twenty-source)"
+          test -n "$exact_source_commit"
+          git diff --check "${exact_source_commit}..HEAD"

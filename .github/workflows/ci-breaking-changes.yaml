@@ -70,6 +70,11 @@ jobs:
         with:
           fetch-depth: 10
 
+      - name: Fetch governed v2.37 release object for baseline exception
+        run: |
+          git fetch --depth=1 https://github.com/twentyhq/twenty.git \
+            refs/tags/twenty/v2.37.0
+
       - name: Try to merge main into current branch
         id: merge_attempt
         run: |
@@ -544,10 +549,10 @@ jobs:
                   "## 🚨 Removed Endpoints (" + (.missingEndpoints | length | tostring) + ")\n" +
                   (.missingEndpoints | map("- **" + .method + " " + .pathUrl + "**: " + (.summary // "")) | join("\n"))
                 else "" end,
-                if (.changedOperations | length) > 0 then
-                  "\n## ⚠️ Changed Operations (" + (.changedOperations | length | tostring) + ")\n" +
-                  (.changedOperations | map("- **" + .method + " " + .pathUrl + "**: " + (.summary // "Modified operation")) | join("\n"))
-                else "" end,
+                ([(.changedOperations // [])[] | select(.incompatible)] | if length > 0 then
+                  "\n## ⚠️ Incompatible Operations (" + (length | tostring) + ")\n" +
+                  (map("- **" + .httpMethod + " " + .pathUrl + "**: " + (.summary // "Modified operation")) | join("\n"))
+                else "" end),
                 if (.newEndpoints | length) > 0 then
                   "\n## ✅ New Endpoints (" + (.newEndpoints | length | tostring) + ")\n" +
                   (.newEndpoints | map("- " + .method + " " + .pathUrl + ": " + (.summary // "")) | join("\n"))
@@ -615,10 +620,10 @@ jobs:
                   "## 🚨 Removed Endpoints (" + (.missingEndpoints | length | tostring) + ")\n" +
                   (.missingEndpoints | map("- **" + .method + " " + .pathUrl + "**: " + (.summary // "")) | join("\n"))
                 else "" end,
-                if (.changedOperations | length) > 0 then
-                  "\n## ⚠️ Changed Operations (" + (.changedOperations | length | tostring) + ")\n" +
-                  (.changedOperations | map("- **" + .method + " " + .pathUrl + "**: " + (.summary // "Modified operation")) | join("\n"))
-                else "" end,
+                ([(.changedOperations // [])[] | select(.incompatible)] | if length > 0 then
+                  "\n## ⚠️ Incompatible Operations (" + (length | tostring) + ")\n" +
+                  (map("- **" + .httpMethod + " " + .pathUrl + "**: " + (.summary // "Modified operation")) | join("\n"))
+                else "" end),
                 if (.newEndpoints | length) > 0 then
                   "\n## ✅ New Endpoints (" + (.newEndpoints | length | tostring) + ")\n" +
                   (.newEndpoints | map("- " + .method + " " + .pathUrl + ": " + (.summary // "")) | join("\n"))
@@ -649,6 +654,9 @@ jobs:
 
       - name: Fail on breaking changes
         if: steps.validate-schemas.outputs.valid == 'true'
+        env:
+          ALLOW_V237_BASELINE_API_BREAKS: ${{ contains(github.event.pull_request.labels.*.name, 'ci:allow-v2.37-baseline-api-breaks') }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           breaking=false
 
@@ -682,9 +690,9 @@ jobs:
                   "  Removed endpoints:\n" +
                   (.missingEndpoints | map("    - " + (.method // "?") + " " + (.pathUrl // "?")) | join("\n"))
                 else "" end),
-                (if (.changedOperations | length) > 0 then
-                  "  Changed operations:\n" +
-                  (.changedOperations | map("    - " + (.method // "?") + " " + (.pathUrl // "?")) | join("\n"))
+                ([(.changedOperations // [])[] | select(.incompatible)] | if length > 0 then
+                  "  Incompatible operations:\n" +
+                  (map("    - " + (.httpMethod // "?") + " " + (.pathUrl // "?")) | join("\n"))
                 else "" end)
               ' rest-api-diff.json | sed '/^$/d'
               echo ""
@@ -701,9 +709,9 @@ jobs:
                   "  Removed endpoints:\n" +
                   (.missingEndpoints | map("    - " + (.method // "?") + " " + (.pathUrl // "?")) | join("\n"))
                 else "" end),
-                (if (.changedOperations | length) > 0 then
-                  "  Changed operations:\n" +
-                  (.changedOperations | map("    - " + (.method // "?") + " " + (.pathUrl // "?")) | join("\n"))
+                ([(.changedOperations // [])[] | select(.incompatible)] | if length > 0 then
+                  "  Incompatible operations:\n" +
+                  (map("    - " + (.httpMethod // "?") + " " + (.pathUrl // "?")) | join("\n"))
                 else "" end)
               ' rest-metadata-api-diff.json | sed '/^$/d'
               echo ""
@@ -713,6 +721,26 @@ jobs:
           if [ "$breaking" = "true" ]; then
             echo ""
             echo "This PR introduces breaking changes to the public API."
+            if [ "$ALLOW_V237_BASELINE_API_BREAKS" = "true" ]; then
+              base_version="$(git show origin/main:.twenty-source | sed -n 's/^TWENTY_VERSION=//p')"
+              current_version="$(git show "${PR_HEAD_SHA}:.twenty-source" | sed -n 's/^TWENTY_VERSION=//p')"
+              upstream_commit="$(git show "${PR_HEAD_SHA}:.twenty-source" | sed -n 's/^TWENTY_UPSTREAM_COMMIT=//p')"
+              upstream_tree="$(git show "${PR_HEAD_SHA}:.twenty-source" | sed -n 's/^TWENTY_UPSTREAM_TREE=//p')"
+              exact_source_commit="$(git show "${PR_HEAD_SHA}:.twenty-source" | sed -n 's/^MHOO_TWENTY_EXACT_SOURCE_COMMIT=//p')"
+
+              if [ "$base_version" = "v2.30.1" ] && \
+                 [ "$current_version" = "v2.37.0" ] && \
+                 [ "$upstream_commit" = "6da524b8903ec16a3eeea4b2e4a5fb63dbfc1c58" ] && \
+                 [ "$upstream_tree" = "3ce4ef3eac3604ee52b6b8ee0f1a4766d7f533ca" ] && \
+                 [ "$exact_source_commit" = "$upstream_commit" ] && \
+                 [ "$(git rev-parse "${exact_source_commit}^{tree}")" = "$upstream_tree" ]; then
+                echo "::warning::Accepting the reported API changes only for the reviewed v2.30.1 to exact v2.37.0 governed-source baseline import."
+                echo "The complete breaking-change report remains attached to this run."
+                exit 0
+              fi
+
+              echo "::error::The v2.37 baseline exception label is present, but exact source custody does not match the bounded upgrade."
+            fi
             echo "If intentional, deprecate the old endpoint and introduce a new one."
             echo "See the breaking changes report artifact and PR comment for details."
             exit 1

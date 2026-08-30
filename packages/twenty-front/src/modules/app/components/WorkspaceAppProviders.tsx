@@ -31,6 +31,7 @@ import { DialogComponentInstanceContext } from '@/ui/feedback/dialog-manager/con
 import { SnackBarProvider } from '@/ui/feedback/snack-bar-manager/components/SnackBarProvider';
 import { GlobalFilePreviewModal } from '@/ui/field/display/components/GlobalFilePreviewModal';
 import { UserThemeProviderEffect } from '@/ui/theme/components/UserThemeProviderEffect';
+import { UserUiScaleProviderEffect } from '@/ui/theme/components/UserUiScaleProviderEffect';
 import { PageFavicon } from '@/ui/utilities/page-favicon/components/PageFavicon';
 import { PageTitle } from '@/ui/utilities/page-title/components/PageTitle';
 import { UserContextProvider } from '@/users/components/UserContextProvider';
@@ -63,6 +64,7 @@ export const WorkspaceAppProviders = () => {
               <ApolloAdminProvider>
                 <SSEProvider>
                   <UserThemeProviderEffect />
+                  <UserUiScaleProviderEffect />
                   <SnackBarProvider>
                     <ErrorMessageEffect />
                     <AgentChatProvider>

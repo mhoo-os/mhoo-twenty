@@ -5,6 +5,7 @@ import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { type Form } from '@/auth/sign-in-up/hooks/useSignInUpForm';
 import { lastAuthenticatedMethodState } from '@/auth/states/lastAuthenticatedMethodState';
 import { signInUpModeState } from '@/auth/states/signInUpModeState';
+import { workspacePublicDataState } from '@/auth/states/workspacePublicDataState';
 import {
   SignInUpStep,
   signInUpStepState,
@@ -14,7 +15,6 @@ import { SignInUpMode } from '@/auth/types/signInUpMode';
 import { useReadCaptchaToken } from '@/captcha/hooks/useReadCaptchaToken';
 import { useCaptcha } from '@/client-config/hooks/useCaptcha';
 import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
-import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
 import { useBuildSearchParamsFromUrlSyncedStates } from '@/domain-manager/hooks/useBuildSearchParamsFromUrlSyncedStates';
 import { useIsCurrentLocationOnAWorkspace } from '@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
@@ -36,9 +36,7 @@ export const useSignInUp = (form: UseFormReturn<Form>) => {
   const [signInUpStep, setSignInUpStep] = useAtomState(signInUpStepState);
   const [signInUpMode, setSignInUpMode] = useAtomState(signInUpModeState);
   const { isOnAWorkspace } = useIsCurrentLocationOnAWorkspace();
-  const isMultiWorkspaceEnabled = useAtomStateValue(
-    isMultiWorkspaceEnabledState,
-  );
+  const workspacePublicData = useAtomStateValue(workspacePublicDataState);
   const isMhooFoundationEnabled = useAtomStateValue(
     isMhooFoundationEnabledState,
   );
@@ -166,7 +164,7 @@ export const useSignInUp = (form: UseFormReturn<Form>) => {
           !isInviteMode &&
           signInUpMode === SignInUpMode.SignUp &&
           (!isOnAWorkspace ||
-            !isMultiWorkspaceEnabled ||
+            !isDefined(workspacePublicData) ||
             isMhooFoundationEnabled)
         ) {
           return await signUpWithCredentials(
@@ -209,7 +207,7 @@ export const useSignInUp = (form: UseFormReturn<Form>) => {
       enqueueErrorSnackBar,
       buildSearchParamsFromUrlSyncedStates,
       isOnAWorkspace,
-      isMultiWorkspaceEnabled,
+      workspacePublicData,
       isMhooFoundationEnabled,
       setLastAuthenticatedMethod,
       t,

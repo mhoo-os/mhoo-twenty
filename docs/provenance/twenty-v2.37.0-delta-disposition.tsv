@@ -1,0 +1,123 @@
+status	path	disposition	reason
+M	.github/actions/spawn-twenty-app-dev-test/action.yml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/actions/spawn-twenty-docker-image/action.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/actions/spawn-twenty-server/action.yml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/app-prod-parity-e2e-dispatch.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/cd-deploy-main.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/cd-deploy-tag.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-ai-catalog-sync.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-app-docs-drift.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-blocked-contributors.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-breaking-changes.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-create-app-e2e-minimal.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-cross-version-upgrade.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-dpa-subprocessors-sync.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-e2e-main.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-example-app-hello-world.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-example-app-postcard.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-front.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-sdk.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-server.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-utils.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/ci-zapier.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/claude.yml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/docs-i18n-pull.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/docs-i18n-push.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/external-contributor-pr-auto-draft.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/i18n-pull.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/i18n-push.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/post-ci-comments.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/pr-review-dispatch.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/preview-env-dispatch.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+A	.github/workflows/publish-twenty-v2.30.1-candidate-6.yml	REMOVE	Frozen v2.30.1 candidate workflow; immutable receipts remain in GitHub and historical docs
+A	.github/workflows/publish-twenty-v2.30.1-candidate.yml	REMOVE	Frozen v2.30.1 candidate workflow; immutable receipts remain in GitHub and historical docs
+A	.github/workflows/sign-twenty-v2.30.1-candidate-4.yml	REMOVE	Frozen v2.30.1 candidate workflow; immutable receipts remain in GitHub and historical docs
+A	.github/workflows/stage-twenty-v2.30.1-candidate-4-rehearsal.yml	REMOVE	Frozen v2.30.1 candidate workflow; immutable receipts remain in GitHub and historical docs
+A	.github/workflows/twenty-v2.30.1-provenance.yml	REMOVE	Frozen v2.30.1 candidate workflow; immutable receipts remain in GitHub and historical docs
+M	.github/workflows/visual-regression-dispatch.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/website-i18n-pull.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/website-i18n-push.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+M	.github/workflows/website-preview-dispatch.yaml	REIMPLEMENT AGAINST v2.37	Preserve Mhoo CI safety while retaining the current upstream workflow shape
+A	.twenty-source	REIMPLEMENT AGAINST v2.37	Source custody or bounded upstream overlay must bind the exact v2.37 tree
+A	AGENTS.md	KEEP	Mhoo-owned repository governance and CI contract
+A	CI_AUDIT.md	KEEP	Mhoo-owned repository governance and CI contract
+A	CI_GOVERNANCE_VALIDATION.md	KEEP	Mhoo-owned repository governance and CI contract
+A	CI_VALIDATION.md	KEEP	Mhoo-owned repository governance and CI contract
+A	MHOO_CI_CONTRACT.md	KEEP	Mhoo-owned repository governance and CI contract
+M	README.md	REIMPLEMENT AGAINST v2.37	Source custody or bounded upstream overlay must bind the exact v2.37 tree
+A	docs/provenance/PHASE_2_FOUNDATION_INVENTORY.md	KEEP	Historical source and candidate evidence; retained without rewriting past verdicts
+A	docs/provenance/PHASE_3_FOUNDATION_IMPLEMENTATION.md	KEEP	Historical source and candidate evidence; retained without rewriting past verdicts
+A	docs/provenance/twenty-v2.30.1-candidate.md	KEEP	Historical source and candidate evidence; retained without rewriting past verdicts
+A	docs/provenance/twenty-v2.30.1-published-candidate.md	KEEP	Historical source and candidate evidence; retained without rewriting past verdicts
+M	packages/twenty-client-sdk/src/metadata/generated/schema.graphql	REIMPLEMENT AGAINST v2.37	Regenerate from the v2.37 schema after the retained Foundation field is applied
+M	packages/twenty-client-sdk/src/metadata/generated/schema.ts	REIMPLEMENT AGAINST v2.37	Regenerate from the v2.37 schema after the retained Foundation field is applied
+M	packages/twenty-client-sdk/src/metadata/generated/types.ts	REIMPLEMENT AGAINST v2.37	Regenerate from the v2.37 schema after the retained Foundation field is applied
+M	packages/twenty-emails/src/components/BaseHead.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-emails/src/components/Footer.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-emails/src/components/Logo.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	packages/twenty-emails/src/components/get-customer-brand.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/generated-metadata/graphql.ts	REIMPLEMENT AGAINST v2.37	Regenerate from the v2.37 schema after the retained Foundation field is applied
+A	packages/twenty-front/src/hooks/__tests__/usePageChangeEffectNavigateLocationFoundation.test.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/app/components/RootAppProviders.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/app/components/WorkspaceAppProviders.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/auth/components/Logo.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/auth/components/__tests__/VerifyEmail.test.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/auth/sign-in-up/components/FooterNote.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	packages/twenty-front/src/modules/auth/sign-in-up/hooks/__tests__/useSignInUp.test.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/auth/sign-in-up/hooks/useSignInUp.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	packages/twenty-front/src/modules/branding/utils/__tests__/getCustomerBrand.test.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	packages/twenty-front/src/modules/branding/utils/getCustomerBrand.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/client-config/hooks/useClientConfig.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	packages/twenty-front/src/modules/client-config/states/isMhooFoundationEnabledState.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/client-config/types/ClientConfig.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/client-config/utils/__tests__/clientConfigUtils.test.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/domain-manager/hooks/useGetPublicWorkspaceDataByDomain.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/domain-manager/hooks/useIsCurrentLocationOnDefaultDomain.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/onboarding/components/OnboardingHeader.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/onboarding/components/OnboardingPulsingLogo.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/ui/utilities/page-favicon/components/PageFavicon.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/modules/workspace/components/WorkspaceProviderEffect.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/pages/auth/SignInUp.tsx	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-front/src/testing/mock-data/config.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/auth/auth.resolver.spec.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/auth/auth.resolver.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	packages/twenty-server/src/engine/core-modules/auth/controllers/oauth-propagator.controller.spec.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/auth/controllers/oauth-propagator.controller.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/auth/guards/google-apis-oauth-exchange-code-for-token.guard.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/auth/guards/google-apis-oauth-request-code.guard.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/auth/guards/microsoft-apis-oauth-exchange-code-for-token.guard.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/auth/guards/microsoft-apis-oauth-request-code.guard.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/client-config/client-config.controller.spec.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/client-config/client-config.entity.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/client-config/services/client-config.service.spec.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/client-config/services/client-config.service.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	packages/twenty-server/src/engine/core-modules/domain/custom-domain-manager/services/custom-domain-manager.service.spec.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/domain/custom-domain-manager/services/custom-domain-manager.service.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/domain/domain-server-config/services/__test__/domain-server-config.service.spec.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/domain/workspace-domains/services/__test__/workspace-domains.service.spec.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/twenty-config/config-variables.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/twenty-config/twenty-config.service.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	packages/twenty-server/src/engine/core-modules/twenty-config/utils/__tests__/validate-mhoo-foundation-config.util.spec.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	packages/twenty-server/src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	packages/twenty-server/src/engine/core-modules/twenty-config/utils/validate-mhoo-foundation-config.util.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.module.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.resolver.spec.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.resolver.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/workspace/crons/jobs/check-custom-domain-valid-records.cron.job.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/workspace/services/__tests__/workspace.service.spec.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/workspace/services/workspace.service.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/engine/core-modules/workspace/workspace.resolver.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-server/src/modules/connected-account/channel-sync/services/channel-sync.service.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+M	packages/twenty-utils/dangerfile.ts	REIMPLEMENT AGAINST v2.37	Accepted stable-host authority or global Mhoo branding seam remains absent upstream
+A	scripts/provenance/build-candidate.sh	REMOVE	Candidate-specific active tool requires a separately authorized v2.37 publication design
+A	scripts/provenance/publish-oci-layout.sh	KEEP	Generic fail-closed OCI publication primitive and regression coverage
+A	scripts/provenance/test-candidate-6-oci-auth-harness.py	KEEP	Generic fail-closed OCI publication primitive and regression coverage
+A	scripts/provenance/test-candidate-6-oci-publication.sh	KEEP	Generic fail-closed OCI publication primitive and regression coverage
+A	scripts/provenance/test-verify-source.sh	REIMPLEMENT AGAINST v2.37	Source custody or bounded upstream overlay must bind the exact v2.37 tree
+A	scripts/provenance/test_verify_bounded_readme_overlay.py	REIMPLEMENT AGAINST v2.37	Source custody or bounded upstream overlay must bind the exact v2.37 tree
+A	scripts/provenance/validate-candidate-6-publication-workflow.sh	REMOVE	Candidate-specific active tool requires a separately authorized v2.37 publication design
+A	scripts/provenance/validate-candidate.sh	REMOVE	Candidate-specific active tool requires a separately authorized v2.37 publication design
+A	scripts/provenance/verify-source.sh	REIMPLEMENT AGAINST v2.37	Source custody or bounded upstream overlay must bind the exact v2.37 tree
+A	scripts/provenance/verify_bounded_readme_overlay.py	REIMPLEMENT AGAINST v2.37	Source custody or bounded upstream overlay must bind the exact v2.37 tree
