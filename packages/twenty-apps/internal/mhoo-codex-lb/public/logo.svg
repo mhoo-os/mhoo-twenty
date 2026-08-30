@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Mhoo Codex LB">
+  <rect width="64" height="64" rx="14" fill="#202124"/>
+  <path d="M14 39V25l9-7 9 7 9-7 9 7v14l-9 7-9-7-9 7-9-7Z" fill="#fff" opacity=".94"/>
+  <circle cx="27" cy="33" r="3" fill="#202124"/>
+  <circle cx="37" cy="33" r="3" fill="#202124"/>
+</svg>
