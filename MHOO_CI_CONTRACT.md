@@ -1,38 +1,65 @@
-# MHOO CI CONTRACT v1
+# MHOO CI CONTRACT v2
 
 ## Scope and authority
 
-`mhoo-os/mhoo-twenty` is the Mhoo source foundation built on Twenty v2.30.1.
+`mhoo-os/mhoo-twenty` is the Mhoo source foundation governed at Twenty v2.37.0.
 This contract governs source validation, development checks, candidate custody,
 and future deployment readiness. It does not transfer production authority,
 import legacy data, or recreate the TwentyHQ operating environment.
 
-The frozen source identity remains:
+The governed source identity is:
 
-- upstream commit: `064bdd795a0bd78c65f024350cefed2c8f38a661`
-- upstream tree: `7ebc5efa7f5f1bfdf9d238a88e3455decaa4f313`
-- Mhoo exact-source commit: `5271f821d2adf6aa31c74b93d8166becc426fe0a`
-- version: `v2.30.1`
+- upstream commit: `6da524b8903ec16a3eeea4b2e4a5fb63dbfc1c58`
+- upstream tree: `3ce4ef3eac3604ee52b6b8ee0f1a4766d7f533ca`
+- Mhoo exact-source commit: `6da524b8903ec16a3eeea4b2e4a5fb63dbfc1c58`
+- version: `v2.37.0`
 
-The current signed candidate remains
+The historical signed v2.30.1 candidate remains
 `ghcr.io/mhoo-os/mhoo-twenty@sha256:c0f7f17aadec0ba66e6fbd94e4733ec33116ba64c5c4c23b1a666e48867cd2f5`.
-This CI cleanup must not rebuild, retag as authoritative, or replace that
-candidate.
+This CI change must not rebuild, retag as authoritative, or replace that
+historical candidate.
 
 ## Fast PR CI
 
 Ordinary pull requests receive deterministic, path-aware feedback from the
-existing upstream-derived checks:
+existing upstream-derived checks. `CI Front` first classifies the exact pull
+request head against its base:
+
+- no frontend boundary change emits a real successful aggregate check without
+  allocating the frontend build or test matrix;
+- ordinary frontend, dependency, shared-package, CI-control, main, and merge
+  queue changes require both fast and deep frontend validation;
+- exactly one newly registered official Twenty frontend backport may use the
+  fast pull-request gate when the complete changed package path set and every
+  head Git blob match the registered upstream commit and content manifest;
+- malformed registries, unavailable upstream commits, extra paths, deletions,
+  renames, copies, blob mismatches, or classifier uncertainty fail closed into
+  deep validation.
+
+The fast frontend gate includes:
 
 - lockfile/dependency installation through the repository Yarn action;
-- formatting, lint, typecheck, build, and package tests;
+- affected formatting, lint, typecheck, package tests, and translation checks;
+- a production frontend build with bundle analysis disabled;
+- a deterministic exact-head frontend archive, SHA-256, tree identity, Node
+  version, and Yarn version uploaded as a seven-day CI artifact;
 - server, frontend, UI, SDK, shared, email, website, Zapier, create-app, and
   example-app checks where changed-file gates select them;
 - source-boundary/provenance validation for the proposed branch;
 - Codex plugin and other cheap static checks.
 
-The `changed-files.yaml` reusable workflow may skip unrelated expensive jobs.
-The path lists are safety decisions, not a replacement for validation:
+The frontend backport registry is
+`scripts/ci/verified_front_backports.json`. A new entry binds one lowercase ID,
+the fixed `https://github.com/twentyhq/twenty.git` upstream repository, one
+40-character upstream commit, a sorted unique set of `packages/twenty-front/`
+paths, a provenance receipt, and the SHA-256 of the ordered path-and-upstream-
+blob manifest. The classifier fetches only the declared official commit when
+it is absent locally and independently compares every head blob. A label, PR
+title, author, branch name, or prose-only receipt cannot select the fast path.
+
+Other reusable changed-file workflows may skip unrelated expensive jobs. Path
+lists and the backport registry are safety decisions, not replacements for
+validation:
 database, migration, upgrade-command, generated-contract, and runtime changes
 must select more validation. A documentation-only change does not need the
 complete server integration matrix when no executable or runtime input is
@@ -61,6 +88,15 @@ Expensive checks remain available and are not weakened:
 - GraphQL, REST, metadata, and OpenAPI breaking-change checks;
 - frontend screenshot artifact generation.
 
+For ordinary frontend and CI-control pull requests, `CI Front` continues to
+require the Storybook build, all module/page/performance shards, and merged
+screenshot artifact before its stable `ci-front-status-check` succeeds. A
+machine-verified upstream frontend backport skips those deep jobs only on its
+pull-request run; every main and merge-queue run is force-classified as deep,
+so the complete suite still executes after merge and against merge candidates.
+The separate `ci-front-fast-status-check` exposes early exact-head feedback,
+while `ci-front-status-check` remains the single policy-selected frontend gate.
+
 The cross-version workflow now requires an old image reference containing an
 immutable digest. The default is the v1.22 multi-architecture manifest digest
 recorded in the workflow; a manual override without `@sha256:` fails before
@@ -84,7 +120,8 @@ exact source
   -> candidate custody/rehearsal staging
 ~~~
 
-The source and candidate workflows are:
+Current source custody uses `twenty-v2.37.0-source.yml`. The retained historical
+v2.30.1 candidate workflows are:
 
 - `twenty-v2.30.1-provenance.yml`;
 - `publish-twenty-v2.30.1-candidate.yml`;
@@ -200,7 +237,7 @@ strategy.
 
 ## Migration and upgrade rules
 
-- Twenty remains frozen at v2.30.1 for this task.
+- This CI change does not alter the governed Twenty v2.37.0 source identity.
 - The upgrade mutation guard remains required.
 - Cross-version upgrade uses a digest-addressed old image and a fresh per-run
   secret; it does not use production credentials or data.
@@ -218,7 +255,7 @@ reference. The current verified inputs are:
 
 | Input | Reference |
 |---|---|
-| Twenty app-dev compatibility image | `twentycrm/twenty-app-dev:v2.30.1@sha256:fdcbd7d90c12a66a83efcdd204d6ea20eaf6fcf0a21ddfa5f2b9fe5e12846fce` |
+| Twenty app-dev compatibility image | `twentycrm/twenty-app-dev:v2.37.0@sha256:53381e68f6fa50808f624f4c0125ce2143c6d21321ba25886e1115c73367c6e6` |
 | Postgres 18 service | `postgres:18@sha256:cd78ca58eb75f929698e117a589488ccb2bd45107247fe02400b50ff6c418324` |
 | Postgres 16 upgrade/Claude service | `postgres:16@sha256:56f243d2355bad7d2016b1e78b80da8ac9e7967b766be2bfbff84fe85ffa30bc` |
 | Redis 7 service | `redis:7@sha256:9815d9e94c50caed3d5b79ce0e4dfd916582560ec83c92d0fe3b8772579e6b86` |
@@ -236,9 +273,10 @@ GitHub Actions are pinned to commit SHAs in the active workflows. The runner
 label `ubuntu-latest` is a GitHub-managed execution environment rather than a
 container input. The public Mhoo fork's standard-runner capacity review records
 4 CPU, 16 GB RAM, and 14 GB storage. `front-build` retains its existing 10 GB
-Node heap. No frontend test, build, artifact, screenshot, or aggregate-status
-gate is removed by this runner adaptation; actual CI execution is the
-compatibility proof. If an actual standard-runner `front-build` or
+Node heap. The risk gate removes no frontend test or screenshot capability:
+deep validation remains mandatory for ordinary/control PRs and every
+main/merge-queue run. Actual CI execution is the compatibility proof. If an
+actual standard-runner `front-build` or
 `front-sb-build` failure is solely disk exhaustion or the existing 30-minute
 timeout, one CI-only remediation may clean unused preinstalled runner
 toolchains before dependency installation (with disk usage before/after), or
@@ -248,7 +286,7 @@ remain failures.
 The reusable Docker action rejects the moving `latest` tag and moving `main`
 source checkout. The existing `dockerhub-latest` source name in
 `spawn-twenty-server` is retained only as an upstream compatibility name; its
-Mhoo default is the immutable v2.30.1 app-dev reference.
+Mhoo default is the immutable v2.37.0 app-dev reference.
 
 The semver tag and digest are both required syntactically, but the reusable
 Docker action does not yet independently prove that the supplied tag resolves
@@ -260,6 +298,9 @@ claim.
 
 - Obsolete PR runs should be cancelled where the workflow has no release or
   recovery evidence to preserve.
+- `CI Front` groups pull-request work by PR number under the stable
+  `mhoo-risk-gate-v2` generation, checks out the exact PR head, and cancels an
+  obsolete run when that PR receives a newer head.
 - Main, merge-queue, candidate publication, signing, and rehearsal work should
   not be cancelled in ways that leave ambiguous custody or incomplete evidence.
 - Path filters may reduce cost only when the affected source boundary is
