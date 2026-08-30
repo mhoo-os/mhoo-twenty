@@ -122,7 +122,10 @@ jobs:
         run: |
           npx http-server packages/twenty-front/storybook-static --port 6006 --silent &
           timeout 30 bash -c 'until curl -sf http://localhost:6006 > /dev/null 2>&1; do sleep 1; done'
-          npx nx storybook:test twenty-front --configuration=${{ matrix.storybook_scope }} --shard=${{ matrix.shard }}/${{ env.SHARD_COUNTER }}
+          # Each matrix shard already supplies parallelism. Keep files within a
+          # shard serial so concurrent browser iframes cannot reload one another
+          # while Vite is still collecting and transforming complex stories.
+          npx nx storybook:test twenty-front --configuration=${{ matrix.storybook_scope }} --command='vitest run --coverage --no-file-parallelism' --shard=${{ matrix.shard }}/${{ env.SHARD_COUNTER }}
       - name: Upload screenshots for visual regression
         if: always() && !cancelled() && matrix.storybook_scope != 'performance'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
