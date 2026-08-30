@@ -76,7 +76,7 @@ git -c user.name='Mhoo provenance test' \
   commit -m 'test: mutate allowed editor backport path' >/dev/null
 expect_verifier_failure \
   "mutated editor backport path" \
-  "official editor destroy-race backport patch hash"
+  "official editor destroy-race backport content manifest hash"
 git restore --source=HEAD^ -- \
   packages/twenty-front/src/modules/advanced-text-editor/utils/hasEditorExtension.ts
 git add packages/twenty-front/src/modules/advanced-text-editor/utils/hasEditorExtension.ts
