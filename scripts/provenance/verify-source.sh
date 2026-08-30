@@ -52,6 +52,31 @@ assert_source_file_hash() {
     "working tree ${file_path} hash"
 }
 
+assert_editor_destroy_race_backport() {
+  local expected_patch_hash="75af933a1dee2ea8bd9c38ddaf625afac196407c60c59379649b94bf099abae7"
+  local actual_patch_hash
+
+  actual_patch_hash="$({
+    git diff --no-ext-diff --binary "$UPSTREAM_COMMIT" "$VERIFY_REVISION" -- \
+      packages/twenty-front/src/modules/activities/emails/editor/components/EmailEditorCanvas.tsx \
+      packages/twenty-front/src/modules/activities/emails/hooks/useCampaignCanvasWidth.ts \
+      packages/twenty-front/src/modules/advanced-text-editor/components/ImageBubbleMenu.tsx \
+      packages/twenty-front/src/modules/advanced-text-editor/components/LinkBubbleMenu.tsx \
+      packages/twenty-front/src/modules/advanced-text-editor/components/__tests__/FormAdvancedTextFieldInput.test.tsx \
+      packages/twenty-front/src/modules/advanced-text-editor/hooks/__tests__/useLiveEditorState.test.tsx \
+      packages/twenty-front/src/modules/advanced-text-editor/hooks/useLiveEditorState.ts \
+      packages/twenty-front/src/modules/advanced-text-editor/hooks/useTextBubbleState.ts \
+      packages/twenty-front/src/modules/advanced-text-editor/hooks/useTurnIntoBlockOptions.ts \
+      packages/twenty-front/src/modules/advanced-text-editor/utils/__tests__/hasEditorExtension.test.ts \
+      packages/twenty-front/src/modules/advanced-text-editor/utils/hasEditorExtension.ts \
+      packages/twenty-front/src/modules/side-panel/pages/email-block-settings/components/EmailPageStyleSection.tsx \
+      packages/twenty-front/src/modules/side-panel/pages/email-block-settings/components/SidePanelEmailBlockSettingsPage.tsx
+  } | shasum -a 256 | awk '{print $1}')"
+
+  assert_equal "$actual_patch_hash" "$expected_patch_hash" \
+    "official editor destroy-race backport patch hash"
+}
+
 is_allowed_overlay_path() {
   local changed_path="$1"
 
@@ -65,7 +90,7 @@ is_allowed_overlay_path() {
     .github/workflows/app-prod-parity-e2e-dispatch.yaml|.github/workflows/cd-deploy-main.yaml|.github/workflows/cd-deploy-tag.yaml|.github/workflows/ci-ai-catalog-sync.yaml|.github/workflows/ci-app-docs-drift.yaml|.github/workflows/ci-blocked-contributors.yaml|.github/workflows/ci-breaking-changes.yaml|.github/workflows/ci-create-app-e2e-minimal.yaml|.github/workflows/ci-cross-version-upgrade.yaml|.github/workflows/ci-dpa-subprocessors-sync.yaml|.github/workflows/ci-e2e-main.yaml|.github/workflows/ci-example-app-hello-world.yaml|.github/workflows/ci-example-app-postcard.yaml|.github/workflows/ci-front.yaml|.github/workflows/ci-sdk.yaml|.github/workflows/ci-server.yaml|.github/workflows/ci-utils.yaml|.github/workflows/ci-zapier.yaml|.github/workflows/claude.yml|.github/workflows/docs-i18n-pull.yaml|.github/workflows/docs-i18n-push.yaml|.github/workflows/external-contributor-pr-auto-draft.yaml|.github/workflows/i18n-pull.yaml|.github/workflows/i18n-push.yaml|.github/workflows/post-ci-comments.yaml|.github/workflows/pr-review-dispatch.yaml|.github/workflows/preview-env-dispatch.yaml|.github/workflows/twenty-v2.37.0-source.yml|.github/workflows/visual-regression-dispatch.yaml|.github/workflows/website-i18n-pull.yaml|.github/workflows/website-i18n-push.yaml|.github/workflows/website-preview-dispatch.yaml)
       return 0
       ;;
-    docs/provenance/PHASE_2_FOUNDATION_INVENTORY.md|docs/provenance/PHASE_3_FOUNDATION_IMPLEMENTATION.md|docs/provenance/twenty-v2.30.1-candidate.md|docs/provenance/twenty-v2.30.1-published-candidate.md|docs/provenance/twenty-v2.37.0-delta-disposition.tsv|docs/provenance/twenty-v2.37.0-upgrade.md)
+    docs/provenance/PHASE_2_FOUNDATION_INVENTORY.md|docs/provenance/PHASE_3_FOUNDATION_IMPLEMENTATION.md|docs/provenance/twenty-v2.30.1-candidate.md|docs/provenance/twenty-v2.30.1-published-candidate.md|docs/provenance/twenty-v2.37.0-delta-disposition.tsv|docs/provenance/twenty-v2.37.0-editor-destroy-race-backport.md|docs/provenance/twenty-v2.37.0-upgrade.md)
       return 0
       ;;
     scripts/provenance/publish-oci-layout.sh|scripts/provenance/test-candidate-6-oci-auth-harness.py|scripts/provenance/test-candidate-6-oci-publication.sh|scripts/provenance/test-verify-source.sh|scripts/provenance/test_verify_bounded_readme_overlay.py|scripts/provenance/verify-source.sh|scripts/provenance/verify_bounded_readme_overlay.py)
@@ -93,6 +118,21 @@ is_allowed_overlay_path() {
       return 0
       ;;
     packages/twenty-front/src/modules/domain-manager/hooks/useGetPublicWorkspaceDataByDomain.ts|packages/twenty-front/src/modules/domain-manager/hooks/useIsCurrentLocationOnDefaultDomain.ts)
+      return 0
+      ;;
+    packages/twenty-front/src/modules/activities/emails/editor/components/EmailEditorCanvas.tsx|packages/twenty-front/src/modules/activities/emails/hooks/useCampaignCanvasWidth.ts)
+      return 0
+      ;;
+    packages/twenty-front/src/modules/advanced-text-editor/components/ImageBubbleMenu.tsx|packages/twenty-front/src/modules/advanced-text-editor/components/LinkBubbleMenu.tsx|packages/twenty-front/src/modules/advanced-text-editor/components/__tests__/FormAdvancedTextFieldInput.test.tsx)
+      return 0
+      ;;
+    packages/twenty-front/src/modules/advanced-text-editor/hooks/__tests__/useLiveEditorState.test.tsx|packages/twenty-front/src/modules/advanced-text-editor/hooks/useLiveEditorState.ts|packages/twenty-front/src/modules/advanced-text-editor/hooks/useTextBubbleState.ts|packages/twenty-front/src/modules/advanced-text-editor/hooks/useTurnIntoBlockOptions.ts)
+      return 0
+      ;;
+    packages/twenty-front/src/modules/advanced-text-editor/utils/__tests__/hasEditorExtension.test.ts|packages/twenty-front/src/modules/advanced-text-editor/utils/hasEditorExtension.ts)
+      return 0
+      ;;
+    packages/twenty-front/src/modules/side-panel/pages/email-block-settings/components/EmailPageStyleSection.tsx|packages/twenty-front/src/modules/side-panel/pages/email-block-settings/components/SidePanelEmailBlockSettingsPage.tsx)
       return 0
       ;;
     packages/twenty-front/src/modules/onboarding/components/OnboardingHeader.tsx|packages/twenty-front/src/modules/onboarding/components/OnboardingPulsingLogo.tsx|packages/twenty-front/src/modules/ui/utilities/page-favicon/components/PageFavicon.tsx|packages/twenty-front/src/modules/workspace/components/WorkspaceProviderEffect.tsx|packages/twenty-front/src/pages/auth/SignInUp.tsx|packages/twenty-front/src/testing/mock-data/config.ts)
@@ -183,6 +223,8 @@ done
 
 python3 "$REPOSITORY_ROOT/scripts/provenance/verify_bounded_readme_overlay.py" \
   --upstream-revision "$UPSTREAM_COMMIT"
+
+assert_editor_destroy_race_backport
 
 unexpected_paths="$({
   while IFS= read -r changed_path; do
