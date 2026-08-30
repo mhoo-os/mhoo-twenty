@@ -122,6 +122,9 @@ is_allowed_overlay_path() {
     packages/twenty-front/src/modules/branding/utils/getCustomerBrand.ts|packages/twenty-front/src/modules/branding/utils/__tests__/getCustomerBrand.test.ts)
       return 0
       ;;
+    packages/twenty-front/public/images/mhoo/PROVENANCE.md|packages/twenty-front/public/images/mhoo/mhoo-snout-transparent-1024.png|packages/twenty-front/public/images/mhoo/mhoo-snout-white-1024.png)
+      return 0
+      ;;
     packages/twenty-front/src/modules/client-config/hooks/useClientConfig.ts|packages/twenty-front/src/modules/client-config/states/isMhooFoundationEnabledState.ts|packages/twenty-front/src/modules/client-config/types/ClientConfig.ts|packages/twenty-front/src/modules/client-config/utils/__tests__/clientConfigUtils.test.ts)
       return 0
       ;;
