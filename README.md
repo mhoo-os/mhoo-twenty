@@ -1,11 +1,11 @@
 <!-- mhoo-os-context:start -->
 ### Mhoo-Twenty: Mhoo OS context
 
-This repository is the maintained Twenty-based human application and Workspace layer.
+This repository is the governed Twenty distribution and sole Mhoo application and data framework.
 
-- **Owns:** the Mhoo human application; Twenty authentication, sessions, memberships, human authorization, and Workspace lifecycle; Workspace UX and supported Twenty extensions.
-- **Does not own:** Core's data plane; provider connectors; model or agent reasoning; deployment and cutover authority.
-- **Architecture authority:** [accepted Mhoo OS blueprint](https://github.com/mhoo-os/mhoo/blob/1374bbbe2a059320c29c8268ff971efbd9dfa256/docs/architecture/SYSTEM_BLUEPRINT.md) and [ADR-0006](https://github.com/mhoo-os/mhoo/blob/1374bbbe2a059320c29c8268ff971efbd9dfa256/ADR/0006-mhoo-os-system-architecture-blueprint.md).
+- **Owns:** Twenty authentication, sessions, memberships, roles, authorization, and Workspace lifecycle; Mhoo Twenty Apps including @mhoo/core; Workspace objects, permissions, generated APIs, files, MCP, Connections, jobs, and native UI.
+- **Does not own:** external provider facts; model or agent reasoning; architecture governance; deployment and cutover authority.
+- **Architecture authority:** [accepted Mhoo OS blueprint](https://github.com/mhoo-os/mhoo/blob/0e94e6b00a3033215e4df3ab197e5559652c2436/docs/architecture/SYSTEM_BLUEPRINT.md) and [ADR-0008](https://github.com/mhoo-os/mhoo/blob/0e94e6b00a3033215e4df3ab197e5559652c2436/ADR/0008-twenty-framework-platform.md).
 - **Current implementation evidence:** [repository-owned source and records](https://github.com/mhoo-os/mhoo-twenty/blob/main/.twenty-source).
 - **Deployment and production evidence:** owned separately by [Mhoo OS Infrastructure](https://github.com/mhoo-os/infrastructure/tree/main/docs); source, CI, publication, and rehearsal are not deployment or cutover proof.
 - **Upstream context:** Maintained Mhoo fork of Twenty; the upstream README below the notice is upstream product documentation, not the Mhoo architecture or status contract.
