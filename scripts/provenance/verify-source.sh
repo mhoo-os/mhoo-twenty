@@ -53,11 +53,12 @@ assert_source_file_hash() {
 }
 
 assert_editor_destroy_race_backport() {
-  local expected_patch_hash="75af933a1dee2ea8bd9c38ddaf625afac196407c60c59379649b94bf099abae7"
-  local actual_patch_hash
+  local expected_content_manifest_hash="8de536b7849e4be1cb5c64881e8a6711423bf12138ca30be95b99e7e50f62125"
+  local actual_content_manifest_hash
+  local file_path
 
-  actual_patch_hash="$({
-    git diff --no-ext-diff --binary "$UPSTREAM_COMMIT" "$VERIFY_REVISION" -- \
+  actual_content_manifest_hash="$({
+    for file_path in \
       packages/twenty-front/src/modules/activities/emails/editor/components/EmailEditorCanvas.tsx \
       packages/twenty-front/src/modules/activities/emails/hooks/useCampaignCanvasWidth.ts \
       packages/twenty-front/src/modules/advanced-text-editor/components/ImageBubbleMenu.tsx \
@@ -70,11 +71,15 @@ assert_editor_destroy_race_backport() {
       packages/twenty-front/src/modules/advanced-text-editor/utils/__tests__/hasEditorExtension.test.ts \
       packages/twenty-front/src/modules/advanced-text-editor/utils/hasEditorExtension.ts \
       packages/twenty-front/src/modules/side-panel/pages/email-block-settings/components/EmailPageStyleSection.tsx \
-      packages/twenty-front/src/modules/side-panel/pages/email-block-settings/components/SidePanelEmailBlockSettingsPage.tsx
+      packages/twenty-front/src/modules/side-panel/pages/email-block-settings/components/SidePanelEmailBlockSettingsPage.tsx; do
+      printf '%s\t%s\n' "$file_path" \
+        "$(git rev-parse "${VERIFY_REVISION}:${file_path}")"
+    done
   } | shasum -a 256 | awk '{print $1}')"
 
-  assert_equal "$actual_patch_hash" "$expected_patch_hash" \
-    "official editor destroy-race backport patch hash"
+  assert_equal "$actual_content_manifest_hash" \
+    "$expected_content_manifest_hash" \
+    "official editor destroy-race backport content manifest hash"
 }
 
 is_allowed_overlay_path() {
