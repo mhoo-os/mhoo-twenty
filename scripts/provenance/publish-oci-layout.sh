@@ -5,7 +5,7 @@
 set -euo pipefail
 
 fail() {
-  echo "Candidate 6 OCI publication failed: $*" >&2
+  echo "digest-only OCI publication failed: $*" >&2
   exit 1
 }
 
@@ -48,8 +48,8 @@ if [[ "${OCI_PUBLICATION_TEST_MODE:-}" == 1 ]]; then
   [[ "$TOKEN_SERVICE" == "${REGISTRY_ORIGIN#http://}" ]] || fail "test token service is not exact"
   [[ "$TOKEN_SCOPE" == "repository:${REGISTRY_PATH}:pull,push" ]] || fail "test token scope is not exact"
 else
-  [[ "$REGISTRY_API" == 'https://ghcr.io/v2/mhoo-os/mhoo-twenty' ]] || fail "registry API is not the fixed Candidate 6 destination"
-  [[ "$IMAGE_REPOSITORY" == 'ghcr.io/mhoo-os/mhoo-twenty' ]] || fail "image repository is not the fixed Candidate 6 destination"
+  [[ "$REGISTRY_API" == 'https://ghcr.io/v2/mhoo-os/mhoo-twenty' ]] || fail "registry API is not the fixed Mhoo Twenty destination"
+  [[ "$IMAGE_REPOSITORY" == 'ghcr.io/mhoo-os/mhoo-twenty' ]] || fail "image repository is not the fixed Mhoo Twenty destination"
   [[ -z "${OCI_PUBLICATION_TEST_OMIT_MANIFEST_DIGEST:-}" ]] || fail "test-only omission hook is forbidden outside disposable proof"
   [[ -z "${REGISTRY_TOKEN_ENDPOINT:-}${REGISTRY_TOKEN_SERVICE:-}${REGISTRY_TOKEN_SCOPE:-}" ]] || fail "test-only token overrides are forbidden outside disposable proof"
   TOKEN_ENDPOINT="$GHCR_TOKEN_ENDPOINT"
@@ -71,7 +71,7 @@ ROOT_BODY="$OCI_LAYOUT/blobs/sha256/${ROOT_DIGEST#sha256:}"
 [[ -f "$ROOT_BODY" ]] || fail "OCI root manifest body is missing"
 [[ "sha256:$(sha256sum "$ROOT_BODY" | awk '{print $1}')" == "$ROOT_DIGEST" && "$ROOT_DIGEST" == "$BUILD_CLAIMED_DIGEST" ]] || fail "Buildx claimed digest does not match OCI manifest bytes"
 
-EVIDENCE_DIRECTORY="${OCI_PUBLICATION_EVIDENCE_DIRECTORY:-${RUNNER_TEMP:-/tmp}/candidate-6-raw-evidence}"
+EVIDENCE_DIRECTORY="${OCI_PUBLICATION_EVIDENCE_DIRECTORY:-${RUNNER_TEMP:-/tmp}/oci-publication-raw-evidence}"
 mkdir -p "$EVIDENCE_DIRECTORY"
 REGISTRY_ORIGIN="${REGISTRY_API%%/v2/*}"
 ACCEPT_MANIFESTS='application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.artifact.manifest.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json'

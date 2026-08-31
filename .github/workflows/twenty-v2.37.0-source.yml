@@ -29,13 +29,40 @@ jobs:
 
       - name: Validate provenance scripts
         run: |
+          bash -n scripts/provenance/build-v2.37.0-candidate.sh
+          bash -n scripts/provenance/publish-oci-layout.sh
+          bash -n scripts/provenance/test-candidate-6-oci-publication.sh
           bash -n scripts/provenance/verify-source.sh
           bash -n scripts/provenance/test-verify-source.sh
+          bash -n scripts/provenance/validate-v2.37.0-candidate.sh
+          bash -n scripts/provenance/validate-v2.37.0-publication-workflow.sh
           python3 -m py_compile \
             scripts/ci/classify_front_change.py \
             scripts/ci/test_classify_front_change.py \
             scripts/provenance/verify_bounded_readme_overlay.py \
             scripts/provenance/test_verify_bounded_readme_overlay.py
+
+      - name: Provision pinned actionlint
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/actionlint.tar.gz"
+          tools="$RUNNER_TEMP/actionlint"
+          mkdir -p "$tools"
+          curl --fail --location --silent --show-error --proto '=https' --tlsv1.2 \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            --output "$archive"
+          test "$(sha256sum "$archive" | awk '{print $1}')" = \
+            8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+          tar -xzf "$archive" -C "$tools" actionlint
+          chmod 0755 "$tools/actionlint"
+          "$tools/actionlint" -version | grep -Fx '1.7.12'
+          echo "$tools" >>"$GITHUB_PATH"
+
+      - name: Validate publication workflow contract
+        run: scripts/provenance/validate-v2.37.0-publication-workflow.sh
+
+      - name: Run digest-only OCI publication regression proof
+        run: scripts/provenance/test-candidate-6-oci-publication.sh
 
       - name: Validate fail-closed frontend classification
         run: python3 scripts/ci/test_classify_front_change.py
