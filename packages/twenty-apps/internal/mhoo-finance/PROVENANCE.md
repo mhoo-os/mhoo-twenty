@@ -8,6 +8,7 @@ ARCHITECTURE IMPACT: CROSS-SYSTEM
 - Destination path: `packages/twenty-apps/internal/mhoo-finance`
 - Package: `@mhoo/finance`
 - Destination base commit: `da3a0b6c06f8db0862a19cc9f0b990bbff703fbe`
+- Review pull request: `https://github.com/mhoo-os/mhoo-twenty/pull/35`
 - Twenty version: `v2.37.0`
 - `twenty-sdk`: `2.37.0`
 - `twenty-client-sdk`: `2.37.0`
@@ -62,6 +63,3 @@ verified through GitHub before extraction. Local lint, typecheck, unit, SDK
 manifest build, source-integrity, and diff checks are recorded with the pull
 request. Runtime Connection, merchant, install, MCP, and provider proof remain
 blocked as documented in `COMPATIBILITY.md`.
-
-The reviewed destination pull-request URL will be added in a follow-up without
-rewriting this extraction commit.
