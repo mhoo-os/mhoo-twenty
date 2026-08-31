@@ -6,4 +6,7 @@ import { type InputJsonSchema } from '@/logic-function/input-json-schema.type';
 // builder fills it in by inferring from the handler source code when omitted.
 export type ToolTriggerSettings = {
   inputSchema?: InputJsonSchema;
+  // When set, a tool is discoverable only to callers holding at least one of
+  // these Workspace role universal identifiers. An empty list is fail-closed.
+  allowedRoleUniversalIdentifiers?: string[];
 };

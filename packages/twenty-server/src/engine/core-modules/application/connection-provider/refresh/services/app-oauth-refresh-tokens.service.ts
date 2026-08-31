@@ -43,11 +43,17 @@ export class AppOAuthRefreshAccessTokenService {
     try {
       const tokenResponse = await exchangeRefreshTokenForToken({
         fetchFn: this.secureHttpClientService.createSsrfSafeFetch(),
-        tokenEndpoint: provider.oauthConfig.tokenEndpoint,
+        tokenEndpoint:
+          provider.oauthConfig.refreshTokenRequest?.endpoint ??
+          provider.oauthConfig.tokenEndpoint,
         clientId,
         clientSecret,
         refreshToken,
         contentType: provider.oauthConfig.tokenRequestContentType,
+        includeClientSecret:
+          provider.oauthConfig.refreshTokenRequest?.includeClientSecret ?? true,
+        includeGrantType:
+          provider.oauthConfig.refreshTokenRequest?.includeGrantType ?? true,
       });
 
       return {

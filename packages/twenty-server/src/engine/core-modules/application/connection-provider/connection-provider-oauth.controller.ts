@@ -161,6 +161,7 @@ export class ConnectionProviderOAuthController {
     @Query('state') state: string,
     @Query('error') errorParam: string | undefined,
     @Query('error_description') errorDescription: string | undefined,
+    @Query() callbackQuery: Record<string, string | string[] | undefined>,
     @Res() res: Response,
   ) {
     let workspace: WorkspaceEntity | null = null;
@@ -190,6 +191,7 @@ export class ConnectionProviderOAuthController {
         await this.oauthProviderFlowService.completeAuthorizationFlow({
           code,
           state,
+          callbackQuery,
         });
 
       workspace = await this.workspaceRepository.findOneBy({

@@ -13,4 +13,10 @@ export type StoredOAuthConnectionProviderConfig = {
   authorizationParams: Record<string, string> | null;
   tokenRequestContentType: OAuthProviderTokenRequestContentType;
   usePkce: boolean;
+  callbackHandleQueryParam: string | null;
+  refreshTokenRequest: {
+    endpoint: string | null;
+    includeClientSecret: boolean;
+    includeGrantType: boolean;
+  };
 };

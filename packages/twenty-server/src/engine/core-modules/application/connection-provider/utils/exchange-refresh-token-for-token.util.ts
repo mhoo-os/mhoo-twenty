@@ -12,15 +12,26 @@ export const exchangeRefreshTokenForToken = (args: {
   clientId: string;
   clientSecret: string;
   refreshToken: string;
-}): Promise<TokenExchangeResponse> =>
-  postOAuthTokenRequest({
+  includeClientSecret?: boolean;
+  includeGrantType?: boolean;
+}): Promise<TokenExchangeResponse> => {
+  const params: Record<string, string> = {
+    refresh_token: args.refreshToken,
+    client_id: args.clientId,
+  };
+
+  if (args.includeGrantType ?? true) {
+    params.grant_type = 'refresh_token';
+  }
+
+  if (args.includeClientSecret ?? true) {
+    params.client_secret = args.clientSecret;
+  }
+
+  return postOAuthTokenRequest({
     fetchFn: args.fetchFn,
     tokenEndpoint: args.tokenEndpoint,
     contentType: args.contentType,
-    params: {
-      grant_type: 'refresh_token',
-      refresh_token: args.refreshToken,
-      client_id: args.clientId,
-      client_secret: args.clientSecret,
-    },
+    params,
   });
+};

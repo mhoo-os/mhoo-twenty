@@ -166,4 +166,30 @@ describe('exchangeRefreshTokenForToken', () => {
 
     expect(result.refreshToken).toBeNull();
   });
+
+  it('supports the bounded refresh form that omits standard OAuth fields', async () => {
+    const fetchFn = jest.fn(async () =>
+      buildResponse({
+        access_token: 'new_access',
+        refresh_token: 'new_refresh',
+      }),
+    );
+
+    await exchangeRefreshTokenForToken({
+      ...baseRefreshArgs,
+      contentType: 'json',
+      includeClientSecret: false,
+      includeGrantType: false,
+      fetchFn: fetchFn as unknown as typeof globalThis.fetch,
+    });
+
+    const init = (
+      fetchFn.mock.calls[0] as unknown as [string, { body: string }]
+    )[1];
+
+    expect(JSON.parse(init.body)).toEqual({
+      client_id: 'cid',
+      refresh_token: 'old_refresh',
+    });
+  });
 });

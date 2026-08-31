@@ -19,6 +19,7 @@ import {
 import { buildAppOAuthCallbackUrl } from 'src/engine/core-modules/application/connection-provider/utils/build-callback-url.util';
 import { computePkceChallenge } from 'src/engine/core-modules/application/connection-provider/utils/compute-pkce-challenge.util';
 import { exchangeCodeForToken } from 'src/engine/core-modules/application/connection-provider/utils/exchange-code-for-token.util';
+import { extractOAuthCallbackHandle } from 'src/engine/core-modules/application/connection-provider/utils/extract-oauth-callback-handle.util';
 import { extractEmailFromIdTokenClaims } from 'src/engine/core-modules/application/connection-provider/utils/extract-email-from-id-token-claims.util';
 import { generatePkceVerifier } from 'src/engine/core-modules/application/connection-provider/utils/generate-pkce-verifier.util';
 import { type AppOAuthStateJwtPayload } from 'src/engine/core-modules/auth/types/app-oauth-state-jwt-payload.type';
@@ -45,6 +46,7 @@ type AuthorizeArgs = {
 type CallbackArgs = {
   code: string;
   state: string;
+  callbackQuery: Record<string, string | string[] | undefined>;
 };
 
 type CallbackResult = {
@@ -153,6 +155,13 @@ export class ConnectionProviderOAuthFlowService {
 
     assertOAuthProvider(provider);
 
+    // Validate a provider-declared identity before exchanging the code so an
+    // incomplete callback cannot produce a usable credential pair.
+    const callbackHandle = extractOAuthCallbackHandle({
+      callbackQuery: args.callbackQuery,
+      callbackHandleQueryParam: provider.oauthConfig.callbackHandleQueryParam,
+    });
+
     const { clientId, clientSecret } =
       await this.oauthProviderService.getClientCredentials(provider);
 
@@ -185,6 +194,7 @@ export class ConnectionProviderOAuthFlowService {
     const connectedAccount = await this.persistConnectedAccount({
       provider,
       tokenResponse,
+      callbackHandle,
       workspaceId: statePayload.workspaceId,
       userId: statePayload.userId,
       userWorkspaceId: statePayload.userWorkspaceId,
@@ -243,10 +253,16 @@ export class ConnectionProviderOAuthFlowService {
   private async resolveConnectedAccountHandle({
     tokenResponse,
     userId,
+    callbackHandle,
   }: {
     tokenResponse: TokenExchangeResponse;
     userId: string;
+    callbackHandle: string | null;
   }): Promise<string> {
+    if (isDefined(callbackHandle)) {
+      return callbackHandle;
+    }
+
     const idTokenEmail = isDefined(tokenResponse.idToken)
       ? extractEmailFromIdTokenClaims(tokenResponse.idToken)
       : null;
@@ -270,6 +286,7 @@ export class ConnectionProviderOAuthFlowService {
   private async persistConnectedAccount({
     provider,
     tokenResponse,
+    callbackHandle,
     workspaceId,
     userId,
     userWorkspaceId,
@@ -278,6 +295,7 @@ export class ConnectionProviderOAuthFlowService {
   }: {
     provider: OAuthConnectionProvider;
     tokenResponse: TokenExchangeResponse;
+    callbackHandle: string | null;
     workspaceId: string;
     userId: string;
     userWorkspaceId: string;
@@ -296,6 +314,7 @@ export class ConnectionProviderOAuthFlowService {
     const handle = await this.resolveConnectedAccountHandle({
       tokenResponse,
       userId,
+      callbackHandle,
     });
 
     const sharedFields = {
