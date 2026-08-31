@@ -59,6 +59,9 @@ is_allowed_overlay_path() {
     .twenty-source|AGENTS.md|CI_AUDIT.md|CI_GOVERNANCE_VALIDATION.md|CI_VALIDATION.md|MHOO_CI_CONTRACT.md|README.md)
       return 0
       ;;
+    .agents/trajectory-review.json|.agents/trajectory-review-rubric.md)
+      return 0
+      ;;
     .github/actions/spawn-twenty-app-dev-test/action.yml|.github/actions/spawn-twenty-docker-image/action.yaml|.github/actions/spawn-twenty-server/action.yml)
       return 0
       ;;
