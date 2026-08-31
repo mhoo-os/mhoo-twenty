@@ -32,16 +32,18 @@ describe('getMhooFoundationConfigurationErrors', () => {
   });
 
   it('allows Twenty Connections selected by their normal provider flags', () => {
+    const connectionEnabledConfig = {
+      ...mhooConfig,
+      IS_IMAP_SMTP_CALDAV_ENABLED: true,
+      CALENDAR_PROVIDER_GOOGLE_ENABLED: true,
+      MESSAGING_PROVIDER_GMAIL_ENABLED: true,
+      CALENDAR_PROVIDER_MICROSOFT_ENABLED: true,
+      MESSAGING_PROVIDER_MICROSOFT_ENABLED: true,
+      IS_CONNECTED_ACCOUNT_WEBHOOK_SUBSCRIPTION_ENABLED: true,
+    };
+
     expect(
-      getMhooFoundationConfigurationErrors({
-        ...mhooConfig,
-        IS_IMAP_SMTP_CALDAV_ENABLED: true,
-        CALENDAR_PROVIDER_GOOGLE_ENABLED: true,
-        MESSAGING_PROVIDER_GMAIL_ENABLED: true,
-        CALENDAR_PROVIDER_MICROSOFT_ENABLED: true,
-        MESSAGING_PROVIDER_MICROSOFT_ENABLED: true,
-        IS_CONNECTED_ACCOUNT_WEBHOOK_SUBSCRIPTION_ENABLED: true,
-      }),
+      getMhooFoundationConfigurationErrors(connectionEnabledConfig),
     ).toEqual([]);
   });
 
