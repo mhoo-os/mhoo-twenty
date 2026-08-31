@@ -1901,7 +1901,7 @@ export class ConfigVariables {
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.SERVER_CONFIG,
     description:
-      'Enable the Mhoo stable-host foundation contract. Requires multi-workspace mode and disables Twenty business-provider integrations and workspace domain lifecycle.',
+      'Enable the Mhoo stable-host foundation contract. Requires multi-workspace mode and disables workspace domain lifecycle.',
     isEnvOnly: true,
     type: ConfigVariableType.BOOLEAN,
   })
@@ -2370,7 +2370,7 @@ export const validate = (config: Record<string, unknown>): ConfigVariables => {
 
     if (configurationErrors.length > 0) {
       Logger.error(
-        'IS_MHOO_FOUNDATION_ENABLED requires IS_MULTIWORKSPACE_ENABLED=true and all Twenty business-provider integrations disabled. Enabled prohibited flags: ' +
+        'IS_MHOO_FOUNDATION_ENABLED requires IS_MULTIWORKSPACE_ENABLED=true. Invalid settings: ' +
           configurationErrors.join(', '),
       );
       throw new ConfigVariableException(
