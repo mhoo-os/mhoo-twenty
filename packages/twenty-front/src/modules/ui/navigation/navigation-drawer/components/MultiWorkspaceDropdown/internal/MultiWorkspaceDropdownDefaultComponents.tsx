@@ -1,10 +1,11 @@
-import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
+import { getDefaultWorkspaceLogo } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
 
 import { useAuth } from '@/auth/hooks/useAuth';
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { countAvailableWorkspaces } from '@/auth/utils/availableWorkspacesUtils';
 import { supportChatState } from '@/client-config/states/supportChatState';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
 import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUrl';
 import { useRedirectToDefaultDomain } from '@/domain-manager/hooks/useRedirectToDefaultDomain';
@@ -58,6 +59,9 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
   const isMultiWorkspaceEnabled = useAtomStateValue(
     isMultiWorkspaceEnabledState,
   );
+  const isMhooFoundationEnabled = useAtomStateValue(
+    isMhooFoundationEnabledState,
+  );
   const { t } = useLingui();
   const { redirectToWorkspaceDomain } = useRedirectToWorkspaceDomain();
   const availableWorkspaces = useAtomStateValue(availableWorkspacesState);
@@ -106,7 +110,8 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
               <Avatar
                 placeholder={currentWorkspace?.displayName || ''}
                 avatarUrl={getAbsoluteImageUrl(
-                  currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
+                  currentWorkspace?.logo ??
+                    getDefaultWorkspaceLogo(isMhooFoundationEnabled),
                 )}
               />
             }
@@ -171,7 +176,8 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
                       <Avatar
                         placeholder={availableWorkspace.displayName || ''}
                         avatarUrl={getAbsoluteImageUrl(
-                          availableWorkspace.logo ?? DEFAULT_WORKSPACE_LOGO,
+                          availableWorkspace.logo ??
+                            getDefaultWorkspaceLogo(isMhooFoundationEnabled),
                         )}
                       />
                     }

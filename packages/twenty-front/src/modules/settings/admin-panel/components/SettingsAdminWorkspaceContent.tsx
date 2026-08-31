@@ -1,9 +1,10 @@
 import { useNumberFormat } from '@/localization/hooks/useNumberFormat';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import { type WorkspaceInfo } from '@/settings/admin-panel/types/WorkspaceInfo';
 import { getUpgradeHealthStatusBadge } from '@/settings/admin-panel/utils/getUpgradeHealthStatusBadge';
 import { getWorkspaceSchemaName } from '@/settings/admin-panel/utils/getWorkspaceSchemaName';
 import { SettingsTableCard } from '@/settings/components/SettingsTableCard';
-import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
+import { getDefaultWorkspaceLogo } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { UserContext } from '@/users/contexts/UserContext';
 import { styled } from '@linaria/react';
@@ -54,6 +55,9 @@ export const SettingsAdminWorkspaceContent = ({
   const { formatNumber } = useNumberFormat();
   const { dateFormat, timeFormat, timeZone } = useContext(UserContext);
   const { localeCatalog } = useAtomStateValue(dateLocaleState);
+  const isMhooFoundationEnabled = useAtomStateValue(
+    isMhooFoundationEnabledState,
+  );
 
   const formattedLastUpdated = formatDateTimeString({
     value: workspaceUpgradeStatus?.latestCommand?.createdAt,
@@ -87,7 +91,7 @@ export const SettingsAdminWorkspaceContent = ({
               avatarUrl={getAbsoluteImageUrl(
                 isNonEmptyString(activeWorkspace?.logo)
                   ? activeWorkspace?.logo
-                  : DEFAULT_WORKSPACE_LOGO,
+                  : getDefaultWorkspaceLogo(isMhooFoundationEnabled),
               )}
             />
           }

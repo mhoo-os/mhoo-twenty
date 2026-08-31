@@ -99,7 +99,11 @@ const bootstrap = async () => {
     }),
   );
 
-  generateFrontConfig();
+  generateFrontConfig({
+    isMhooFoundationEnabled: twentyConfigService.get(
+      'IS_MHOO_FOUNDATION_ENABLED',
+    ),
+  });
 
   const keepAliveTimeout = twentyConfigService.get(
     'SERVER_KEEP_ALIVE_TIMEOUT_MS',

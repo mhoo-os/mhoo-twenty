@@ -119,9 +119,14 @@ export class ApprovedAccessDomainService {
     const text = await renderEmail(emailTemplate, {
       plainText: true,
     });
+    const customerBrandName = this.twentyConfigService.get(
+      'IS_MHOO_FOUNDATION_ENABLED',
+    )
+      ? 'Mhoo'
+      : 'Twenty';
 
     await this.emailService.send({
-      from: `${sender.name.firstName} ${sender.name.lastName} (via Twenty) <${this.twentyConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+      from: `${sender.name.firstName} ${sender.name.lastName} (via ${customerBrandName}) <${this.twentyConfigService.get('EMAIL_FROM_ADDRESS')}>`,
       to,
       subject: 'Approve your access domain',
       text,

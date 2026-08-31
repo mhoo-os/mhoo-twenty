@@ -66,9 +66,18 @@ export class DpaService {
     return this.twentyConfigService.get('IS_MULTIWORKSPACE_ENABLED') !== true;
   }
 
+  private assertDpaIsAvailableForCurrentBrand(): void {
+    if (this.twentyConfigService.get('IS_MHOO_FOUNDATION_ENABLED')) {
+      throw new BadRequestException(
+        'A Mhoo Data Processing Agreement has not been configured. Contact MHOO Co., Ltd. for the agreement that applies to your service.',
+      );
+    }
+  }
+
   getPreviewForWorkspace(
     workspace: Pick<WorkspaceEntity, 'id'>,
   ): DpaDocumentDTO {
+    this.assertDpaIsAvailableForCurrentBrand();
     const region = this.dpaRegionService.getRegionForWorkspace(workspace);
 
     return toDocumentDto(
@@ -81,6 +90,7 @@ export class DpaService {
   }
 
   async listAgreements(workspaceId: string): Promise<DpaAgreementEntity[]> {
+    this.assertDpaIsAvailableForCurrentBrand();
     return this.dpaAgreementRepository.find({
       where: { workspaceId },
       order: { createdAt: 'DESC' },
@@ -91,6 +101,7 @@ export class DpaService {
     agreement: Pick<DpaAgreementEntity, 'signedFileId'>,
     workspaceId: string,
   ): Promise<string | null> {
+    this.assertDpaIsAvailableForCurrentBrand();
     if (!isDefined(agreement.signedFileId)) {
       return null;
     }
@@ -113,6 +124,7 @@ export class DpaService {
     userEmail: string;
     input: GenerateSignedDpaInput;
   }): Promise<GenerateSignedDpaResult> {
+    this.assertDpaIsAvailableForCurrentBrand();
     if (this.isSelfHosted()) {
       throw new BadRequestException(
         'DPA signing is not available for self-hosted deployments: Twenty does not host or process Customer Personal Data and is not the Processor.',

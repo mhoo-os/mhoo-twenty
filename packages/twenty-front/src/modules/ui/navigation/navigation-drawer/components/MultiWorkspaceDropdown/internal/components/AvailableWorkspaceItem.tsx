@@ -1,6 +1,8 @@
 import { Avatar } from 'twenty-ui/data-display';
 import { MenuItemSelectAvatar, UndecoratedLink } from 'twenty-ui/navigation';
-import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
+import { getDefaultWorkspaceLogo } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { type AvailableWorkspace } from '~/generated-metadata/graphql';
 import { useRedirectToWorkspaceDomain } from '@/domain-manager/hooks/useRedirectToWorkspaceDomain';
 import { getWorkspaceUrl } from '~/utils/getWorkspaceUrl';
@@ -18,6 +20,9 @@ export const AvailableWorkspaceItem = ({
   isSelected: boolean;
 }) => {
   const { buildWorkspaceUrl } = useBuildWorkspaceUrl();
+  const isMhooFoundationEnabled = useAtomStateValue(
+    isMhooFoundationEnabledState,
+  );
 
   const { redirectToWorkspaceDomain } = useRedirectToWorkspaceDomain();
 
@@ -51,7 +56,8 @@ export const AvailableWorkspaceItem = ({
           <Avatar
             placeholder={availableWorkspace.displayName || ''}
             avatarUrl={getAbsoluteImageUrl(
-              availableWorkspace.logo ?? DEFAULT_WORKSPACE_LOGO,
+              availableWorkspace.logo ??
+                getDefaultWorkspaceLogo(isMhooFoundationEnabled),
             )}
           />
         }

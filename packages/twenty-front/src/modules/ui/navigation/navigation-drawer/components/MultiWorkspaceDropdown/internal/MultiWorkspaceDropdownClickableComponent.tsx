@@ -1,4 +1,5 @@
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import {
   StyledContainer,
   StyledIconChevronDown,
@@ -6,7 +7,7 @@ import {
   StyledLabelWrapper,
 } from '@/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspacesDropdownStyles';
 import { NavigationDrawerAnimatedCollapseWrapper } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerAnimatedCollapseWrapper';
-import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
+import { getDefaultWorkspaceLogo } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
 import { useIsNavigationDrawerContentExpanded } from '@/navigation/hooks/useIsNavigationDrawerContentExpanded';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
@@ -25,6 +26,9 @@ export const MultiWorkspaceDropdownClickableComponent = ({
 }: MultiWorkspaceDropdownClickableComponentProps) => {
   const { theme } = useContext(ThemeContext);
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
+  const isMhooFoundationEnabled = useAtomStateValue(
+    isMhooFoundationEnabledState,
+  );
 
   const isNavigationDrawerExpanded = useIsNavigationDrawerContentExpanded();
   return (
@@ -36,7 +40,8 @@ export const MultiWorkspaceDropdownClickableComponent = ({
       <Avatar
         placeholder={currentWorkspace?.displayName || ''}
         avatarUrl={getAbsoluteImageUrl(
-          currentWorkspace?.logo ?? DEFAULT_WORKSPACE_LOGO,
+          currentWorkspace?.logo ??
+            getDefaultWorkspaceLogo(isMhooFoundationEnabled),
         )}
       />
       {!shouldHideLabel && (

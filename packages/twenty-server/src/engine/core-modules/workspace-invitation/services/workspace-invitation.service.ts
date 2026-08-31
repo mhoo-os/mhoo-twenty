@@ -403,12 +403,20 @@ export class WorkspaceInvitationService {
           plainText: true,
         });
 
-        const joinTeamMsg = msg`Join your team on Twenty`;
+        const customerBrandName = this.twentyConfigService.get(
+          'IS_MHOO_FOUNDATION_ENABLED',
+        )
+          ? 'Mhoo'
+          : 'Twenty';
+        const joinTeamMsg =
+          customerBrandName === 'Mhoo'
+            ? msg`Join your team on Mhoo`
+            : msg`Join your team on Twenty`;
         const i18n = this.i18nService.getI18nInstance(sender.locale);
         const subject = i18n._(joinTeamMsg);
 
         await this.emailService.send({
-          from: `${sender.name.firstName} ${sender.name.lastName} (via Twenty) <${this.twentyConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+          from: `${sender.name.firstName} ${sender.name.lastName} (via ${customerBrandName}) <${this.twentyConfigService.get('EMAIL_FROM_ADDRESS')}>`,
           to: invitation.value.email,
           subject,
           text,
