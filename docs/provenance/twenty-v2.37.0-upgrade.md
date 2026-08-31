@@ -94,6 +94,26 @@ deterministic Twenty App. This source upgrade establishes the governed v2.37
 foundation only; it does not implement `@mhoo/core`, select Nango for any
 provider, publish an image, deploy a runtime, or authorize cutover.
 
+## Candidate publication boundary
+
+The repository now contains a new v2.37-only, manually dispatched publication
+contract. It accepts a positive candidate number and requires the corresponding
+annotated `mhoo/candidate/v2.37.0-N` tag to peel to the same reviewed `main`
+commit that contains the workflow. It builds Linux/AMD64 once with BuildKit
+provenance and SBOM attachments, publishes the closed OCI graph by digest,
+reads the graph back, runs a disposable server/worker/database health check,
+signs the digest with GitHub OIDC, and uploads raw evidence plus a final custody
+receipt. It never creates a mutable registry tag.
+
+The publication receipt deliberately records application-file persistence as
+`not evaluated; separate gate`, and records deployment and cutover as not
+authorized. Before infrastructure may consume a candidate, a separate
+disposable proof must install the governed applications, fetch every declared
+public asset and built front-component/shared-dependency/logic-function file,
+restart server and worker against the same persistent storage, and fetch them
+again. Publication is therefore candidate custody, not runtime or cutover
+acceptance.
+
 ## Validation boundary
 
 The source-custody workflow verifies both upstream release refs, exact commit
@@ -129,4 +149,6 @@ authorize merge, publication, deployment, migration, or cutover.
 - No image is built, published, signed, or promoted by this source change.
 - No provider credential, OAuth grant, customer data, database, DNS, runtime,
   deployment, traffic, or production system is touched.
+- No candidate tag is created and the publication workflow is not dispatched by
+  this source change.
 - Candidate/Gate/Phase work is not rerun.
