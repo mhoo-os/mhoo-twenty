@@ -64,6 +64,12 @@ jobs:
       - name: Run digest-only OCI publication regression proof
         run: scripts/provenance/test-candidate-6-oci-publication.sh
 
+      - name: Validate candidate image-label templates with Docker
+        run: |
+          docker image inspect registry:2 --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' >/dev/null
+          docker image inspect registry:2 --format '{{index .Config.Labels "org.opencontainers.image.version"}}' >/dev/null
+          docker image inspect registry:2 --format '{{index .Config.Labels "io.mhoo.build.id"}}' >/dev/null
+
       - name: Validate fail-closed frontend classification
         run: python3 scripts/ci/test_classify_front_change.py
 
