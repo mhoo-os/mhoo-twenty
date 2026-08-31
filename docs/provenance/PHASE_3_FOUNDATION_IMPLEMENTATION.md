@@ -1,6 +1,10 @@
 # Mhoo-Twenty Foundation Phase 3: implementation record
 
 - Status: implementation complete; review required before deployment or cutover.
+- Historical scope note: its ADR-0005 provider prohibition was superseded by
+  ADR-0008. Current source keeps the stable-host and Workspace-authority
+  boundary while allowing Twenty Connections under their normal provider
+  flags.
 - Starting `origin/main`: `8c5d88da49f01a182e9aeeb165f0a3615740a050`.
 - Branch: `codex/mhoo-twenty-foundation-phase-3`.
 - Source identity preserved: Twenty `v2.30.1`, upstream commit
@@ -34,12 +38,12 @@ or Twenty version change is included.
 - Provenance: this record and an explicit Phase 3 path allowlist in
   `scripts/provenance/verify-source.sh`.
 
-| Phase 2 requirement | Phase 3 implementation | Change class |
-| --- | --- | --- |
-| Stable-host multi-Workspace | `IS_MHOO_FOUNDATION_ENABLED` makes the configured `FRONTEND_URL` the URL for every Workspace; verified Twenty login-token Workspace IDs select the existing Workspace record and existing membership validation remains mandatory. | Narrow fork delta |
-| No Workspace DNS/custom domain lifecycle | Custom-domain mutation, validation, resolver refresh, deletion, and custom-domain cron activity reject or no-op before a DNS provider call in Mhoo mode. | Narrow fork delta |
-| Customer brand seam | Client and email brand helpers drive authentication/onboarding logos, auth title/footer links, and email title/logo/footer while technical Twenty identifiers remain unchanged. | Narrow fork delta |
-| Provider-authority boundary | Startup validation and outbound provider OAuth guards close Twenty-owned IMAP/SMTP/CalDAV, Gmail/Calendar, Microsoft messaging/calendar, and connected-account webhook paths in Mhoo mode. Human Google/Microsoft/SAML/OIDC authentication is not gated. | Configuration plus narrow guard |
+| Phase 2 requirement                      | Phase 3 implementation                                                                                                                                                                                                                                   | Change class                    |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Stable-host multi-Workspace              | `IS_MHOO_FOUNDATION_ENABLED` makes the configured `FRONTEND_URL` the URL for every Workspace; verified Twenty login-token Workspace IDs select the existing Workspace record and existing membership validation remains mandatory.                       | Narrow fork delta               |
+| No Workspace DNS/custom domain lifecycle | Custom-domain mutation, validation, resolver refresh, deletion, and custom-domain cron activity reject or no-op before a DNS provider call in Mhoo mode.                                                                                                 | Narrow fork delta               |
+| Customer brand seam                      | Client and email brand helpers drive authentication/onboarding logos, auth title/footer links, and email title/logo/footer while technical Twenty identifiers remain unchanged.                                                                          | Narrow fork delta               |
+| Provider-authority boundary              | Startup validation and outbound provider OAuth guards close Twenty-owned IMAP/SMTP/CalDAV, Gmail/Calendar, Microsoft messaging/calendar, and connected-account webhook paths in Mhoo mode. Human Google/Microsoft/SAML/OIDC authentication is not gated. | Configuration plus narrow guard |
 
 ## Configuration
 

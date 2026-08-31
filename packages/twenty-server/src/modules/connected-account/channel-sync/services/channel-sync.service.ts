@@ -14,7 +14,6 @@ import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decora
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
-import { isMhooFoundationEnabled } from 'src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util';
 import { CalendarChannelEntity } from 'src/engine/metadata-modules/calendar-channel/entities/calendar-channel.entity';
 import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
 import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
@@ -96,7 +95,6 @@ export class ChannelSyncService {
         );
 
         if (
-          isMhooFoundationEnabled(this.twentyConfigService) ||
           !this.twentyConfigService.get(
             'IS_CONNECTED_ACCOUNT_WEBHOOK_SUBSCRIPTION_ENABLED',
           )
@@ -157,7 +155,6 @@ export class ChannelSyncService {
         );
 
         if (
-          isMhooFoundationEnabled(this.twentyConfigService) ||
           !this.twentyConfigService.get(
             'IS_CONNECTED_ACCOUNT_WEBHOOK_SUBSCRIPTION_ENABLED',
           )
