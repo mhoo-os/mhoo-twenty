@@ -13,6 +13,9 @@ import { updateWorkflowVersionTrigger } from 'test/integration/graphql/suites/wo
 
 const client = request(`http://localhost:${APP_PORT}`);
 
+const WORKFLOW_STATUS_POLL_ATTEMPTS = 20;
+const WORKFLOW_STATUS_POLL_INTERVAL_MS = 250;
+
 describe('If/Else Workflow (e2e)', () => {
   let createdWorkflowId: string | null = null;
   let createdWorkflowVersionId: string | null = null;
@@ -21,6 +24,41 @@ describe('If/Else Workflow (e2e)', () => {
   let elseBranchEmptyNodeId: string | null = null;
   let elseIfBranchEmptyNodeId: string | null = null;
   let elseIfBranchId: string | null = null;
+
+  const getWorkflow = () =>
+    client
+      .post('/graphql')
+      .set('Authorization', `Bearer ${APPLE_JANE_ADMIN_ACCESS_TOKEN}`)
+      .send({
+        query: `
+          query FindWorkflow($id: UUID!) {
+            workflow(filter: { id: { eq: $id } }) {
+              id
+              name
+              lastPublishedVersionId
+              statuses
+            }
+          }
+        `,
+        variables: { id: createdWorkflowId },
+      });
+
+  const waitForWorkflowStatus = async (status: string) => {
+    let response = await getWorkflow();
+
+    for (let attempt = 0; attempt < WORKFLOW_STATUS_POLL_ATTEMPTS; attempt++) {
+      if (response.body.data?.workflow?.statuses.includes(status)) {
+        return response;
+      }
+
+      await new Promise((resolve) =>
+        setTimeout(resolve, WORKFLOW_STATUS_POLL_INTERVAL_MS),
+      );
+      response = await getWorkflow();
+    }
+
+    return response;
+  };
 
   beforeAll(async () => {
     const createWorkflowResponse = await client
@@ -408,22 +446,7 @@ describe('If/Else Workflow (e2e)', () => {
 
   describe('Workflow structure', () => {
     it('should verify If/Else workflow exists and is active', async () => {
-      const response = await client
-        .post('/graphql')
-        .set('Authorization', `Bearer ${APPLE_JANE_ADMIN_ACCESS_TOKEN}`)
-        .send({
-          query: `
-            query FindWorkflow($id: UUID!) {
-              workflow(filter: { id: { eq: $id } }) {
-                id
-                name
-                lastPublishedVersionId
-                statuses
-              }
-            }
-          `,
-          variables: { id: createdWorkflowId },
-        });
+      const response = await waitForWorkflowStatus('ACTIVE');
 
       expect(response.body.errors).toBeUndefined();
       expect(response.body.data.workflow.id).toBe(createdWorkflowId);
