@@ -34,10 +34,14 @@ export const Default: Story = {
     const searchInput = await canvas.findByPlaceholderText('Search a type');
 
     await userEvent.type(searchInput, 'Rela');
-    await expect(await canvas.findByText('Relation')).toBeVisible();
+    await expect(
+      await canvas.findByRole('link', { name: 'Relation' }),
+    ).toBeVisible();
 
     await userEvent.clear(searchInput);
     await userEvent.type(searchInput, 'Num');
-    await expect(await canvas.findByText('Number')).toBeVisible();
+    await expect(
+      await canvas.findByRole('link', { name: 'Number' }),
+    ).toBeVisible();
   },
 };
