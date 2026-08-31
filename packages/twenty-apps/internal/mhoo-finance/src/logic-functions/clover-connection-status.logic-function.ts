@@ -1,10 +1,10 @@
 import { defineLogicFunction } from 'twenty-sdk/define';
-import {
-  type AppConnection,
-  listConnections,
-} from 'twenty-sdk/logic-function';
+import { type AppConnection, listConnections } from 'twenty-sdk/logic-function';
 
-import { CLOVER_CONNECTION_STATUS_LOGIC_FUNCTION_UNIVERSAL_IDENTIFIER } from 'src/constants/universal-identifiers';
+import {
+  CLOVER_CONNECTION_STATUS_LOGIC_FUNCTION_UNIVERSAL_IDENTIFIER,
+  CLOVER_READER_ROLE_UNIVERSAL_IDENTIFIER,
+} from 'src/constants/universal-identifiers';
 
 const CLOVER_MERCHANT_ID_PATTERN = /^[A-Z0-9]{13}$/;
 
@@ -76,17 +76,31 @@ const unavailable = (
   errorCode,
 });
 
-export const handleCloverConnectionStatus = async (): Promise<CloverConnectionStatus> => {
-  try {
-    const connections = await listConnections({ providerName: 'clover' });
+export const handleCloverConnectionStatus =
+  async (): Promise<CloverConnectionStatus> => {
+    try {
+      const connections = await listConnections({ providerName: 'clover' });
 
-    return resolveCloverConnectionStatus(connections);
-  } catch {
-    return unavailable('clover_connection_unavailable');
-  }
+      return resolveCloverConnectionStatus(connections);
+    } catch {
+      return unavailable('clover_connection_unavailable');
+    }
+  };
+
+// The published v2.37.0 SDK types predate the role allowlist added by this
+// source tree. This retains a narrow, checked declaration while allowing the
+// App to typecheck against the exact published SDK package.
+type LogicFunctionConfig = Parameters<typeof defineLogicFunction>[0];
+
+type RoleScopedLogicFunctionConfig = LogicFunctionConfig & {
+  toolTriggerSettings: NonNullable<
+    LogicFunctionConfig['toolTriggerSettings']
+  > & {
+    allowedRoleUniversalIdentifiers: string[];
+  };
 };
 
-export default defineLogicFunction({
+const cloverConnectionStatusLogicFunction = {
   universalIdentifier:
     CLOVER_CONNECTION_STATUS_LOGIC_FUNCTION_UNIVERSAL_IDENTIFIER,
   name: 'clover-connection-status',
@@ -95,10 +109,13 @@ export default defineLogicFunction({
   timeoutSeconds: 10,
   handler: handleCloverConnectionStatus,
   toolTriggerSettings: {
+    allowedRoleUniversalIdentifiers: [CLOVER_READER_ROLE_UNIVERSAL_IDENTIFIER],
     inputSchema: {
       type: 'object',
       properties: {},
       additionalProperties: false,
     },
   },
-});
+} satisfies RoleScopedLogicFunctionConfig;
+
+export default defineLogicFunction(cloverConnectionStatusLogicFunction);

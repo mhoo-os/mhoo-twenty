@@ -104,6 +104,9 @@ is_allowed_overlay_path() {
     packages/twenty-apps/internal/mhoo-finance/*)
       return 0
       ;;
+    packages/twenty-server/src/engine/core-modules/application/application-manifest/converters/__tests__/from-connection-provider-manifest-to-universal-flat-connection-provider.util.spec.ts|packages/twenty-server/src/engine/core-modules/application/application-manifest/converters/from-connection-provider-manifest-to-universal-flat-connection-provider.util.ts|packages/twenty-server/src/engine/core-modules/application/connection-provider/connection-provider-oauth-flow.service.ts|packages/twenty-server/src/engine/core-modules/application/connection-provider/connection-provider-oauth.controller.ts|packages/twenty-server/src/engine/core-modules/application/connection-provider/refresh/services/app-oauth-refresh-tokens.service.ts|packages/twenty-server/src/engine/core-modules/application/connection-provider/utils/__tests__/exchange-code-for-token.util.spec.ts|packages/twenty-server/src/engine/core-modules/application/connection-provider/utils/__tests__/extract-oauth-callback-handle.util.spec.ts|packages/twenty-server/src/engine/core-modules/application/connection-provider/utils/exchange-refresh-token-for-token.util.ts|packages/twenty-server/src/engine/core-modules/application/connection-provider/utils/extract-oauth-callback-handle.util.ts)
+      return 0
+      ;;
     packages/twenty-server/src/engine/core-modules/auth/auth.resolver.spec.ts|packages/twenty-server/src/engine/core-modules/auth/auth.resolver.ts|packages/twenty-server/src/engine/core-modules/auth/controllers/oauth-propagator.controller.spec.ts|packages/twenty-server/src/engine/core-modules/auth/controllers/oauth-propagator.controller.ts|packages/twenty-server/src/engine/core-modules/auth/guards/google-apis-oauth-exchange-code-for-token.guard.ts|packages/twenty-server/src/engine/core-modules/auth/guards/google-apis-oauth-request-code.guard.ts|packages/twenty-server/src/engine/core-modules/auth/guards/microsoft-apis-oauth-exchange-code-for-token.guard.ts|packages/twenty-server/src/engine/core-modules/auth/guards/microsoft-apis-oauth-request-code.guard.ts)
       return 0
       ;;
@@ -120,6 +123,9 @@ is_allowed_overlay_path() {
       return 0
       ;;
     packages/twenty-server/src/modules/connected-account/channel-sync/services/channel-sync.service.ts|packages/twenty-utils/dangerfile.ts)
+      return 0
+      ;;
+    packages/twenty-server/src/engine/core-modules/tool-provider/providers/logic-function-tool.provider.ts|packages/twenty-server/src/engine/core-modules/tool-provider/utils/__tests__/can-access-logic-function-tool.util.spec.ts|packages/twenty-server/src/engine/core-modules/tool-provider/utils/can-access-logic-function-tool.util.ts|packages/twenty-server/src/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/services/flat-connection-provider-validator.service.ts|packages/twenty-shared/src/application/oauthConnectionProviderConfigType.ts|packages/twenty-shared/src/application/storedOAuthConnectionProviderConfigType.ts|packages/twenty-shared/src/application/toolTriggerSettingsType.ts)
       return 0
       ;;
     *)

@@ -76,6 +76,19 @@ export class FlatConnectionProviderValidatorService {
             });
           }
         }
+
+        if (
+          isDefined(oauthConfig.callbackHandleQueryParam) &&
+          !/^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(
+            oauthConfig.callbackHandleQueryParam,
+          )
+        ) {
+          validationResult.errors.push({
+            code: ConnectionProviderExceptionCode.INVALID_CONNECTION_PROVIDER_INPUT,
+            message: t`Connection provider callbackHandleQueryParam must be a simple query parameter name`,
+            userFriendlyMessage: msg`OAuth callback handle parameter is invalid`,
+          });
+        }
       }
     }
 

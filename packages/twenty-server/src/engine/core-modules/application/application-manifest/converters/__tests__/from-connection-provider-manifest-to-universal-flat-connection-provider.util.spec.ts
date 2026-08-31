@@ -49,6 +49,12 @@ describe('fromConnectionProviderManifestToUniversalFlatConnectionProvider', () =
         authorizationParams: null,
         tokenRequestContentType: 'json',
         usePkce: true,
+        callbackHandleQueryParam: null,
+        refreshTokenRequest: {
+          endpoint: null,
+          includeClientSecret: true,
+          includeGrantType: true,
+        },
       },
       onConnectLogicFunctionUniversalIdentifier: null,
       onDisconnectLogicFunctionUniversalIdentifier: null,
@@ -111,6 +117,12 @@ describe('fromConnectionProviderManifestToUniversalFlatConnectionProvider', () =
             authorizationParams: { prompt: 'consent' },
             tokenRequestContentType: 'form-urlencoded',
             usePkce: false,
+            callbackHandleQueryParam: 'merchant_id',
+            refreshTokenRequest: {
+              endpoint: 'https://api.example.com/oauth/refresh',
+              includeClientSecret: false,
+              includeGrantType: false,
+            },
           },
         }),
         applicationUniversalIdentifier: APP_UID,
@@ -122,6 +134,12 @@ describe('fromConnectionProviderManifestToUniversalFlatConnectionProvider', () =
       authorizationParams: { prompt: 'consent' },
       tokenRequestContentType: 'form-urlencoded',
       usePkce: false,
+      callbackHandleQueryParam: 'merchant_id',
+      refreshTokenRequest: {
+        endpoint: 'https://api.example.com/oauth/refresh',
+        includeClientSecret: false,
+        includeGrantType: false,
+      },
     });
   });
 

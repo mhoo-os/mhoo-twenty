@@ -8,6 +8,8 @@ import {
 import cloverConnectionProvider from 'src/connection-providers/clover.connection-provider';
 import cloverConnectionStatus from 'src/logic-functions/clover-connection-status.logic-function';
 import defaultFunctionRole from 'src/roles/default-function.role';
+import cloverReaderRole from 'src/roles/clover-reader.role';
+import { CLOVER_READER_ROLE_UNIVERSAL_IDENTIFIER } from 'src/constants/universal-identifiers';
 
 describe('@mhoo/finance manifest contracts', () => {
   it('pins a secret-custodied Clover OAuth provider without OAuth scopes', () => {
@@ -23,6 +25,12 @@ describe('@mhoo/finance manifest contracts', () => {
         clientSecretVariable: 'CLOVER_CLIENT_SECRET',
         tokenRequestContentType: 'json',
         usePkce: false,
+        callbackHandleQueryParam: 'merchant_id',
+        refreshTokenRequest: {
+          endpoint: 'https://api.clover.com/oauth/v2/refresh',
+          includeClientSecret: false,
+          includeGrantType: false,
+        },
       },
     });
     expect(application.config?.serverVariables).toMatchObject({
@@ -46,11 +54,27 @@ describe('@mhoo/finance manifest contracts', () => {
     });
   });
 
+  it('uses a separately assignable zero-authority role for native MCP discovery', () => {
+    expect(cloverReaderRole.success).toBe(true);
+    expect(cloverReaderRole.config).toMatchObject({
+      canAccessAllTools: false,
+      canReadAllObjectRecords: false,
+      canUpdateAllObjectRecords: false,
+      canUpdateAllSettings: false,
+      canBeAssignedToAgents: true,
+      canBeAssignedToUsers: true,
+      canBeAssignedToApiKeys: true,
+    });
+  });
+
   it('exposes only a no-input native tool in this scaffold slice', () => {
     expect(cloverConnectionStatus.success).toBe(true);
     expect(cloverConnectionStatus.config).toMatchObject({
       name: 'clover-connection-status',
       toolTriggerSettings: {
+        allowedRoleUniversalIdentifiers: [
+          CLOVER_READER_ROLE_UNIVERSAL_IDENTIFIER,
+        ],
         inputSchema: {
           type: 'object',
           properties: {},

@@ -33,6 +33,19 @@ export const fromConnectionProviderManifestToUniversalFlatConnectionProvider =
               connectionProviderManifest.oauth.tokenRequestContentType ??
               'json',
             usePkce: connectionProviderManifest.oauth.usePkce ?? true,
+            callbackHandleQueryParam:
+              connectionProviderManifest.oauth.callbackHandleQueryParam ?? null,
+            refreshTokenRequest: {
+              endpoint:
+                connectionProviderManifest.oauth.refreshTokenRequest
+                  ?.endpoint ?? null,
+              includeClientSecret:
+                connectionProviderManifest.oauth.refreshTokenRequest
+                  ?.includeClientSecret ?? true,
+              includeGrantType:
+                connectionProviderManifest.oauth.refreshTokenRequest
+                  ?.includeGrantType ?? true,
+            },
           }
         : null;
 

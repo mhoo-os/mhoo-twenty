@@ -13,6 +13,7 @@ import { type ToolProviderContext } from 'src/engine/core-modules/tool-provider/
 import { ToolCategory } from 'twenty-shared/ai';
 import { type ToolDescriptor } from 'src/engine/core-modules/tool-provider/types/tool-descriptor.type';
 import { type ToolIndexEntry } from 'src/engine/core-modules/tool-provider/types/tool-index-entry.type';
+import { canAccessLogicFunctionTool } from 'src/engine/core-modules/tool-provider/utils/can-access-logic-function-tool.util';
 import { type ToolOutput } from 'src/engine/core-modules/tool/types/tool-output.type';
 import { WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { type FlatLogicFunction } from 'src/engine/metadata-modules/logic-function/types/flat-logic-function.type';
@@ -49,11 +50,15 @@ export class LogicFunctionToolProvider implements ToolProvider {
   ): Promise<(ToolIndexEntry | ToolDescriptor)[]> {
     const includeSchemas = options?.includeSchemas ?? true;
 
-    const { flatLogicFunctionMaps, flatObjectMetadataMaps } =
+    const { flatLogicFunctionMaps, flatObjectMetadataMaps, flatRoleMaps } =
       await this.flatEntityMapsCacheService.getOrRecomputeManyOrAllFlatEntityMaps(
         {
           workspaceId: context.workspaceId,
-          flatMapsKeys: ['flatLogicFunctionMaps', 'flatObjectMetadataMaps'],
+          flatMapsKeys: [
+            'flatLogicFunctionMaps',
+            'flatObjectMetadataMaps',
+            'flatRoleMaps',
+          ],
         },
       );
 
@@ -67,7 +72,13 @@ export class LogicFunctionToolProvider implements ToolProvider {
       (fn): fn is FlatLogicFunction =>
         isDefined(fn) &&
         isDefined(fn.toolTriggerSettings) &&
-        fn.deletedAt === null,
+        fn.deletedAt === null &&
+        canAccessLogicFunctionTool({
+          allowedRoleUniversalIdentifiers:
+            fn.toolTriggerSettings.allowedRoleUniversalIdentifiers,
+          rolePermissionConfig: context.rolePermissionConfig,
+          roleUniversalIdentifierById: flatRoleMaps.universalIdentifierById,
+        }),
     );
 
     const descriptors: (ToolIndexEntry | ToolDescriptor)[] = [];

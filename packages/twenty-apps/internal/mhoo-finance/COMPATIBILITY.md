@@ -3,9 +3,9 @@
 ARCHITECTURE IMPACT: CROSS-SYSTEM
 
 This source slice is intentionally not runtime acceptance. It defines the
-native Twenty App and fails closed where exact Twenty 2.37 Connections cannot
-yet preserve Clover's merchant binding or token lifecycle, and where the
-built-in tool registry cannot yet prove role-filtered exposure.
+native Twenty App and its bounded platform compatibility extension, but remains
+fail closed until that extension has passed source and disposable-Workspace
+proof.
 
 ## Exact reviewed facts
 
@@ -15,26 +15,38 @@ built-in tool registry cannot yet prove role-filtered exposure.
   `client_id` and `refresh_token`.
 - Clover read permissions are configured on the Clover application
   registration. They are not OAuth scope strings.
-- Twenty 2.37 accepts only `code`, `state`, and OAuth error fields at the App
-  callback, derives a Connection handle from an ID token or the Twenty user's
-  email, refreshes App Connections at the token endpoint with the standard
-  grant body, and assumes a one-hour App access-token lifetime.
-- Twenty 2.37 discovers every non-deleted logic function with
+- The v2.37 baseline accepts only `code`, `state`, and OAuth error fields at
+  the App callback, derives a Connection handle from an ID token or the Twenty
+  user's email, refreshes App Connections at the token endpoint with the
+  standard grant body, and assumes a one-hour App access-token lifetime.
+- The v2.37 baseline discovers every non-deleted logic function with
   `toolTriggerSettings` in a Workspace without filtering those descriptors by
   the authenticated caller's role.
 
 ## Consequence
 
-The Connection Provider declaration is valid metadata, but no Clover grant is
-canonical or operable until a separately reviewed Twenty compatibility change
-preserves the callback `merchant_id`, supports Clover's refresh contract, and
-uses a proven token-expiry rule. The status tool therefore rejects the
-email-shaped fallback handle and all noncanonical merchant identifiers.
+This branch introduces a bounded, provider-declared callback-handle parameter,
+refresh endpoint/body controls, and role allowlist for logic-function tool
+discovery. `@mhoo/finance` uses those declarations for Clover's `merchant_id`,
+JSON refresh endpoint, and an assignable zero-authority reader role.
 
-The native tool declaration also remains source-only until a separately
-reviewed compatibility change makes discovery and execution role-aware and
-proves allow/deny behavior for Workspace and member-visible Connections. A
-Workspace-authenticated endpoint alone is not sufficient authorization proof.
+The published `twenty-sdk@2.37.0` declaration types predate those bounded
+platform additions. The App therefore keeps its compatibility declarations in
+locally checked intersection types and passes the resulting values to the
+unchanged SDK helpers; this does not make the published 2.37.0 runtime support
+the behavior. The source-tree platform validators and disposable-Workspace
+proof remain required.
+
+No Clover grant is canonical or operable until the change is reviewed, merged,
+and proved. In particular, the generic App refresh manager still needs a proven
+provider-expiry rule rather than its baseline one-hour assumption. The status
+tool therefore rejects the email-shaped fallback handle and all noncanonical
+merchant identifiers.
+
+The native tool declaration remains source-only until role allow/deny behavior
+and Workspace/member-visible Connection behavior are proved in a disposable
+Workspace. A Workspace-authenticated endpoint alone is not sufficient
+authorization proof.
 
 This blocker must not be bypassed with a caller-supplied merchant ID,
 application variable, custom `/mcp` route, copied Cloudflare authority, static
