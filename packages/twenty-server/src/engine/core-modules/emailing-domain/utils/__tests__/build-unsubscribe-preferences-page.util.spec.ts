@@ -80,4 +80,29 @@ describe('buildUnsubscribePreferencesPage', () => {
 
     expect(page).not.toContain('<script>');
   });
+
+  it('renders Mhoo legal links and Twenty attribution when a brand is supplied', () => {
+    const page = buildUnsubscribePreferencesPage({
+      token: 'token-1',
+      topics: [],
+      updatePath: '/unsubscribe/update',
+      unsubscribeAllPath: '/unsubscribe/all',
+      brand: {
+        name: 'Mhoo',
+        logoUrl: '/images/mhoo/logo.png',
+        websiteUrl: 'https://mhoo.app/',
+        privacyUrl: 'https://mhoo.app/privacy/',
+        termsUrl: 'https://mhoo.app/terms/',
+        platformAttribution: {
+          label: 'Powered by Twenty',
+          url: 'https://twenty.com/',
+        },
+      },
+    });
+
+    expect(page).toContain('>Mhoo</span>');
+    expect(page).toContain('https://mhoo.app/privacy/');
+    expect(page).toContain('https://mhoo.app/terms/');
+    expect(page).toContain('>Powered by Twenty</a>');
+  });
 });

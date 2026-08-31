@@ -11,6 +11,9 @@ const mockedFs = fs as jest.Mocked<typeof fs>;
 
 const INDEX_TEMPLATE = `<html>
   <head>
+    <!-- BEGIN: Customer Brand -->
+    <title>Twenty</title>
+    <!-- END: Customer Brand -->
     <!-- BEGIN: Twenty Config -->
     <script id="twenty-env-config">
       window._env_ = {"REACT_APP_SERVER_BASE_URL":"http://stale-value"};
@@ -28,6 +31,9 @@ const getInjectedEnv = (): string => {
 
   return match ? match[1].replace(/\s+/g, '') : '';
 };
+
+const getWrittenContent = (callIndex = 0): string =>
+  mockedFs.writeFileSync.mock.calls[callIndex][1] as string;
 
 describe('generateFrontConfig', () => {
   const ORIGINAL_ENV = process.env;
@@ -48,5 +54,33 @@ describe('generateFrontConfig', () => {
     generateFrontConfig();
 
     expect(getInjectedEnv()).toBe('{}');
+  });
+
+  it('keeps the upstream shell when Mhoo foundation mode is disabled', () => {
+    generateFrontConfig({ isMhooFoundationEnabled: false });
+
+    expect(getWrittenContent()).toContain('<title>Twenty</title>');
+    expect(getWrittenContent()).toContain('href="/manifest.json"');
+    expect(getWrittenContent()).not.toContain('<title>Mhoo</title>');
+  });
+
+  it('writes the Mhoo shell and powered-by description in foundation mode', () => {
+    generateFrontConfig({ isMhooFoundationEnabled: true });
+
+    expect(getWrittenContent()).toContain('<title>Mhoo</title>');
+    expect(getWrittenContent()).toContain('href="/manifest.mhoo.json"');
+    expect(getWrittenContent()).toContain(
+      'Mhoo is a managed business workspace powered by Twenty.',
+    );
+  });
+
+  it('can restore the upstream shell after a foundation-mode restart', () => {
+    generateFrontConfig({ isMhooFoundationEnabled: true });
+    mockedFs.readFileSync.mockReturnValue(getWrittenContent());
+
+    generateFrontConfig({ isMhooFoundationEnabled: false });
+
+    expect(getWrittenContent(1)).toContain('<title>Twenty</title>');
+    expect(getWrittenContent(1)).not.toContain('<title>Mhoo</title>');
   });
 });

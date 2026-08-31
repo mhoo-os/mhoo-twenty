@@ -3,8 +3,12 @@ export type CustomerBrand = {
   logoUrl: string;
   websiteUrl: string;
   termsUrl: string;
-  dataProcessingAgreementUrl: string;
+  dataProcessingAgreementUrl: string | null;
   privacyUrl: string;
+  platformAttribution: {
+    label: string;
+    url: string;
+  } | null;
 };
 
 const TWENTY_BRAND: CustomerBrand = {
@@ -14,15 +18,20 @@ const TWENTY_BRAND: CustomerBrand = {
   termsUrl: 'https://twenty.com/legal/terms',
   dataProcessingAgreementUrl: 'https://twenty.com/legal/dpa',
   privacyUrl: 'https://twenty.com/legal/privacy',
+  platformAttribution: null,
 };
 
 const MHOO_BRAND: CustomerBrand = {
   name: 'Mhoo',
   logoUrl: '/images/mhoo/mhoo-snout-transparent-1024.png',
   websiteUrl: 'https://mhoo.app/',
-  termsUrl: 'https://mhoo.app/legal/terms',
-  dataProcessingAgreementUrl: 'https://mhoo.app/legal/dpa',
-  privacyUrl: 'https://mhoo.app/legal/privacy',
+  termsUrl: 'https://mhoo.app/terms/',
+  dataProcessingAgreementUrl: null,
+  privacyUrl: 'https://mhoo.app/privacy/',
+  platformAttribution: {
+    label: 'Powered by Twenty',
+    url: 'https://twenty.com/',
+  },
 };
 
 export const getCustomerBrand = (

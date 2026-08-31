@@ -1,0 +1,23 @@
+{
+  "short_name": "Mhoo",
+  "name": "Mhoo",
+  "description": "Mhoo is a managed business workspace powered by Twenty.",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0b5cff",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "images/mhoo/mhoo-snout-white-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "images/mhoo/mhoo-snout-transparent-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import { BaseEmail } from 'src/components/BaseEmail';
 import { CallToAction } from 'src/components/CallToAction';
 import { MainText } from 'src/components/MainText';
 import { Title } from 'src/components/Title';
+import { getEmailCustomerBrand } from 'src/components/get-customer-brand';
 import { createI18nInstance } from 'src/utils/i18n.utils';
 import { type APP_LOCALES } from 'twenty-shared/translations';
 
@@ -18,12 +19,18 @@ export const SendEmailVerificationLinkEmail = ({
   isEmailUpdate = false,
 }: SendEmailVerificationLinkEmailProps) => {
   const i18n = createI18nInstance(locale);
+  const brand = getEmailCustomerBrand();
   const title = isEmailUpdate
     ? i18n._('Confirm your new email address')
     : i18n._('Confirm your email address');
-  const bodyId = isEmailUpdate
-    ? 'We received a request to change the email address associated with your Twenty account. Click below to confirm this change.'
-    : 'Thanks for registering for an account on Twenty! Before we get started, we just need to confirm that this is you. Click below to verify your email address.';
+  const bodyId =
+    brand.name === 'Mhoo'
+      ? isEmailUpdate
+        ? 'We received a request to change the email address associated with your Mhoo account. Click below to confirm this change.'
+        : 'Thanks for registering for an account on Mhoo! Before we get started, we just need to confirm that this is you. Click below to verify your email address.'
+      : isEmailUpdate
+        ? 'We received a request to change the email address associated with your Twenty account. Click below to confirm this change.'
+        : 'Thanks for registering for an account on Twenty! Before we get started, we just need to confirm that this is you. Click below to verify your email address.';
   const ctaLabel = isEmailUpdate
     ? i18n._('Confirm new email')
     : i18n._('Verify Email');

@@ -17,10 +17,12 @@ import { UnsubscribeTokenService } from 'src/engine/core-modules/emailing-domain
 import { MessageSuppressionReason } from 'src/engine/core-modules/emailing-domain/types/message-suppression-reason.type';
 import { MessageSuppressionSource } from 'src/engine/core-modules/emailing-domain/types/message-suppression-source.type';
 import { type UnsubscribeTokenPayload } from 'src/engine/core-modules/emailing-domain/types/unsubscribe-token-payload.type';
+import { type EmailingPublicPageBrand } from 'src/engine/core-modules/emailing-domain/types/emailing-public-page-brand.type';
 import { buildUnsubscribePreferencesPage } from 'src/engine/core-modules/emailing-domain/utils/build-unsubscribe-preferences-page.util';
 import { buildUnsubscribeResultPage } from 'src/engine/core-modules/emailing-domain/utils/build-unsubscribe-result-page.util';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
+import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { MessageSuppressionService } from 'src/modules/emailing/services/message-suppression.service';
 
 const UNSUBSCRIBE_TOKEN_FORMAT = /^[A-Za-z0-9_-]{1,1024}$/;
@@ -29,11 +31,6 @@ const UPDATE_PREFERENCES_PATH = `/${ApiPath.Emailing}/unsubscribe/preferences`;
 const UNSUBSCRIBE_ALL_PATH = `/${ApiPath.Emailing}/unsubscribe/all`;
 
 const HTML_CONTENT_TYPE = 'text/html; charset=utf-8';
-
-const PREVIEW_RESULT_PAGE = buildUnsubscribeResultPage(
-  'Preview',
-  'This is a preview — no changes were saved.',
-);
 
 type UnsubscribeFormBody = {
   t?: string;
@@ -46,6 +43,7 @@ export class UnsubscribeController {
   constructor(
     private readonly unsubscribeTokenService: UnsubscribeTokenService,
     private readonly messageSuppressionService: MessageSuppressionService,
+    private readonly twentyConfigService: TwentyConfigService,
   ) {}
 
   @Post()
@@ -81,6 +79,7 @@ export class UnsubscribeController {
       topics,
       updatePath: UPDATE_PREFERENCES_PATH,
       unsubscribeAllPath: UNSUBSCRIBE_ALL_PATH,
+      brand: this.getPublicPageBrand(),
     });
   }
 
@@ -92,7 +91,11 @@ export class UnsubscribeController {
     const payload = this.verifyTokenOrThrow(body.t);
 
     if (payload.preview === true) {
-      return PREVIEW_RESULT_PAGE;
+      return buildUnsubscribeResultPage(
+        'Preview',
+        'This is a preview — no changes were saved.',
+        this.getPublicPageBrand(),
+      );
     }
 
     await this.messageSuppressionService.setTopicOptOuts({
@@ -104,6 +107,7 @@ export class UnsubscribeController {
     return buildUnsubscribeResultPage(
       'Preferences updated',
       'Your email preferences have been saved.',
+      this.getPublicPageBrand(),
     );
   }
 
@@ -115,7 +119,11 @@ export class UnsubscribeController {
     const payload = this.verifyTokenOrThrow(body.t);
 
     if (payload.preview === true) {
-      return PREVIEW_RESULT_PAGE;
+      return buildUnsubscribeResultPage(
+        'Preview',
+        'This is a preview — no changes were saved.',
+        this.getPublicPageBrand(),
+      );
     }
 
     await this.messageSuppressionService.suppress({
@@ -128,7 +136,26 @@ export class UnsubscribeController {
     return buildUnsubscribeResultPage(
       'You have been unsubscribed',
       'You will no longer receive marketing emails from this sender.',
+      this.getPublicPageBrand(),
     );
+  }
+
+  private getPublicPageBrand(): EmailingPublicPageBrand | undefined {
+    if (!this.twentyConfigService.get('IS_MHOO_FOUNDATION_ENABLED')) {
+      return undefined;
+    }
+
+    return {
+      name: 'Mhoo',
+      logoUrl: '/images/mhoo/mhoo-snout-transparent-1024.png',
+      websiteUrl: 'https://mhoo.app/',
+      privacyUrl: 'https://mhoo.app/privacy/',
+      termsUrl: 'https://mhoo.app/terms/',
+      platformAttribution: {
+        label: 'Powered by Twenty',
+        url: 'https://twenty.com/',
+      },
+    };
   }
 
   private normalizeTopicIds(

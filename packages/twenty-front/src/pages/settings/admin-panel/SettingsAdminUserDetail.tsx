@@ -12,6 +12,7 @@ import {
 } from 'twenty-shared/utils';
 
 import { currentUserState } from '@/auth/states/currentUserState';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import { useApolloAdminClient } from '@/settings/admin-panel/apollo/hooks/useApolloAdminClient';
 import { SettingsAdminServerAdminAccess } from '@/settings/admin-panel/components/SettingsAdminServerAdminAccess';
 import { SettingsAdminWorkspaceContent } from '@/settings/admin-panel/components/SettingsAdminWorkspaceContent';
@@ -23,7 +24,7 @@ import { SettingsTableCard } from '@/settings/components/SettingsTableCard';
 import { SettingsPageLayout } from '@/settings/components/layout/SettingsPageLayout';
 import { TabList } from '@/ui/layout/tab-list/components/TabList';
 import { activeTabIdComponentState } from '@/ui/layout/tab-list/states/activeTabIdComponentState';
-import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
+import { getDefaultWorkspaceLogo } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import {
@@ -68,6 +69,9 @@ export const SettingsAdminUserDetail = () => {
   const userLookupResult = userLookupData?.userLookupAdminPanel;
 
   const currentUser = useAtomStateValue(currentUserState);
+  const isMhooFoundationEnabled = useAtomStateValue(
+    isMhooFoundationEnabledState,
+  );
   const { handleImpersonate, impersonatingUserId } = useHandleImpersonate();
 
   const effectiveTabId = activeTabId || userLookupResult?.workspaces?.[0]?.id;
@@ -89,7 +93,7 @@ export const SettingsAdminUserDetail = () => {
         getImageAbsoluteURI({
           imageUrl: isNonEmptyString(workspace.logo)
             ? workspace.logo
-            : DEFAULT_WORKSPACE_LOGO,
+            : getDefaultWorkspaceLogo(isMhooFoundationEnabled),
           baseUrl: REACT_APP_SERVER_BASE_URL,
         }) ?? '',
     })) ?? [];

@@ -71,6 +71,9 @@ export const FooterNote = ({
     isMhooFoundationEnabledState,
   );
   const brand = getCustomerBrand(isMhooFoundationEnabled);
+  const shouldShowDataProcessingAgreement =
+    secondaryAgreement === 'dataProcessingAgreement' &&
+    brand.dataProcessingAgreementUrl !== null;
 
   const { shouldOfferBypass, shouldUseBypass, enableBypass } =
     useWorkspaceBypass();
@@ -87,9 +90,9 @@ export const FooterNote = ({
           <Trans>Terms of Service</Trans>
         </a>{' '}
         <Trans>and</Trans>{' '}
-        {secondaryAgreement === 'dataProcessingAgreement' ? (
+        {shouldShowDataProcessingAgreement ? (
           <a
-            href={brand.dataProcessingAgreementUrl}
+            href={brand.dataProcessingAgreementUrl ?? brand.privacyUrl}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -101,6 +104,18 @@ export const FooterNote = ({
           </a>
         )}
         .
+        {brand.platformAttribution !== null && (
+          <>
+            <br />
+            <a
+              href={brand.platformAttribution.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {brand.platformAttribution.label}
+            </a>
+          </>
+        )}
       </StyledCopyContainer>
     );
   }
@@ -122,6 +137,18 @@ export const FooterNote = ({
       <a href={brand.termsUrl} target="_blank" rel="noopener noreferrer">
         <Trans>Terms of Service</Trans>
       </a>
+      {brand.platformAttribution !== null && (
+        <>
+          <StyledSeparator>•</StyledSeparator>
+          <a
+            href={brand.platformAttribution.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {brand.platformAttribution.label}
+          </a>
+        </>
+      )}
     </StyledLinksContainer>
   );
 };

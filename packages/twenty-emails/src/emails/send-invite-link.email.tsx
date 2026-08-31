@@ -10,6 +10,7 @@ import { Link } from 'src/components/Link';
 import { MainText } from 'src/components/MainText';
 import { Title } from 'src/components/Title';
 import { WhatIsTwenty } from 'src/components/WhatIsTwenty';
+import { getEmailCustomerBrand } from 'src/components/get-customer-brand';
 import { capitalize } from 'src/utils/capitalize';
 import { createI18nInstance } from 'src/utils/i18n.utils';
 import { type APP_LOCALES } from 'twenty-shared/translations';
@@ -35,6 +36,7 @@ export const SendInviteLinkEmail = ({
   locale,
 }: SendInviteLinkEmailProps) => {
   const i18n = createI18nInstance(locale);
+  const brand = getEmailCustomerBrand();
   const workspaceLogo = workspace.logo
     ? getImageAbsoluteURI({ imageUrl: workspace.logo, baseUrl: serverUrl })
     : null;
@@ -45,7 +47,13 @@ export const SendInviteLinkEmail = ({
 
   return (
     <BaseEmail width={333} locale={locale}>
-      <Title value={i18n._('Join your team on Twenty')} />
+      <Title
+        value={
+          brand.name === 'Mhoo'
+            ? i18n._('Join your team on Mhoo')
+            : i18n._('Join your team on Twenty')
+        }
+      />
       <MainText>
         <Trans
           id="{senderName} (<0>{senderEmail}</0>) has invited you to join a workspace called <1>{workspaceName}</1>."

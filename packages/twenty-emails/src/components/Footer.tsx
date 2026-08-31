@@ -58,12 +58,45 @@ export const Footer = ({ i18n }: FooterProps) => {
             </Column>
           </>
         )}
+        {brand.name === 'Mhoo' && (
+          <>
+            <Column>
+              <ShadowText>
+                <Link
+                  href={brand.privacyUrl}
+                  value={i18n._('Privacy')}
+                  aria-label={i18n._("Read Mhoo's Privacy Policy")}
+                />
+              </ShadowText>
+            </Column>
+            <Column>
+              <ShadowText>
+                <Link
+                  href={brand.termsUrl}
+                  value={i18n._('Terms')}
+                  aria-label={i18n._("Read Mhoo's Terms of Service")}
+                />
+              </ShadowText>
+            </Column>
+            {brand.platformAttribution !== null && (
+              <Column>
+                <ShadowText>
+                  <Link
+                    href={brand.platformAttribution.url}
+                    value={brand.platformAttribution.label}
+                    aria-label={i18n._('Visit Twenty')}
+                  />
+                </ShadowText>
+              </Column>
+            )}
+          </>
+        )}
       </Row>
       <ShadowText>
         <>
-          {brand.name}
+          {brand.legalName}
           <br />
-          {i18n._('San Francisco / Paris')}
+          {brand.location}
         </>
       </ShadowText>
     </Container>

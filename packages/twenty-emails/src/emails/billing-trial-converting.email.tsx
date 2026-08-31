@@ -3,6 +3,7 @@ import { BaseEmail } from 'src/components/BaseEmail';
 import { CallToAction } from 'src/components/CallToAction';
 import { MainText } from 'src/components/MainText';
 import { Title } from 'src/components/Title';
+import { getEmailCustomerBrand } from 'src/components/get-customer-brand';
 import { createI18nInstance } from 'src/utils/i18n.utils';
 import { type APP_LOCALES } from 'twenty-shared/translations';
 
@@ -27,6 +28,7 @@ export const BillingTrialConvertingEmail = ({
   locale,
 }: BillingTrialConvertingEmailProps) => {
   const i18n = createI18nInstance(locale);
+  const brand = getEmailCustomerBrand();
   const formattedDate = i18n.date(trialEndsAt, {
     day: 'numeric',
     month: 'long',
@@ -62,7 +64,11 @@ export const BillingTrialConvertingEmail = ({
         )}
         <br />
         <br />
-        <Trans id="If Twenty is working for you, you're all set — there's nothing to do. If it's not the right fit, you can cancel in one click before then and you won't be charged." />
+        {brand.name === 'Mhoo' ? (
+          <Trans id="If Mhoo is working for you, you're all set — there's nothing to do. If it's not the right fit, you can cancel in one click before then and you won't be charged." />
+        ) : (
+          <Trans id="If Twenty is working for you, you're all set — there's nothing to do. If it's not the right fit, you can cancel in one click before then and you won't be charged." />
+        )}
       </MainText>
       <br />
       <CallToAction href={link} value={i18n._('Manage subscription')} />
