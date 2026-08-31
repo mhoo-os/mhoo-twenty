@@ -75,11 +75,11 @@ cd "$REPOSITORY_ROOT"
 docker image inspect "$IMAGE_NAME" >/dev/null 2>&1 || fail "authoritative image is not loaded"
 assert_equal "$(docker image inspect "$IMAGE_NAME" --format '{{.Os}}/{{.Architecture}}')" \
   "$(manifest_value TWENTY_BUILD_PLATFORM)" "candidate platform"
-assert_equal "$(docker image inspect "$IMAGE_NAME" --format '{{index .Config.Labels \"org.opencontainers.image.revision\"}}')" \
+assert_equal "$(docker image inspect "$IMAGE_NAME" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')" \
   "$SOURCE_REVISION" "OCI revision label"
-assert_equal "$(docker image inspect "$IMAGE_NAME" --format '{{index .Config.Labels \"org.opencontainers.image.version\"}}')" \
+assert_equal "$(docker image inspect "$IMAGE_NAME" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')" \
   "$(manifest_value TWENTY_VERSION)" "OCI version label"
-assert_equal "$(docker image inspect "$IMAGE_NAME" --format '{{index .Config.Labels \"io.mhoo.build.id\"}}')" \
+assert_equal "$(docker image inspect "$IMAGE_NAME" --format '{{index .Config.Labels "io.mhoo.build.id"}}')" \
   "$BUILD_ID" "OCI build label"
 
 docker network create "$NETWORK_NAME" >/dev/null

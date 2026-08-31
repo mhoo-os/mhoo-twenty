@@ -3,6 +3,7 @@
 set -euo pipefail
 
 WORKFLOW=".github/workflows/publish-twenty-v2.37.0-candidate.yml"
+VALIDATOR="scripts/provenance/validate-v2.37.0-candidate.sh"
 
 fail() {
   echo "v2.37.0 publication workflow validation failed: $*" >&2
@@ -17,7 +18,16 @@ forbid_literal() {
   ! grep -Fq -- "$1" "$WORKFLOW" || fail "forbidden mutable publication contract: $1"
 }
 
+require_validator_literal() {
+  grep -Fq -- "$1" "$VALIDATOR" || fail "missing validator contract: $1"
+}
+
+forbid_validator_literal() {
+  ! grep -Fq -- "$1" "$VALIDATOR" || fail "forbidden validator contract: $1"
+}
+
 [[ -f "$WORKFLOW" ]] || fail "workflow is missing"
+[[ -f "$VALIDATOR" ]] || fail "candidate validator is missing"
 command -v actionlint >/dev/null || fail "actionlint is required"
 actionlint "$WORKFLOW"
 
@@ -42,6 +52,13 @@ require_literal 'verify --certificate-identity "$CERTIFICATE_IDENTITY"'
 require_literal 'applicationFilePersistence:"not evaluated; separate gate"'
 require_literal 'primitive:"digest-only"'
 require_literal 'retention-days: 90'
+
+require_validator_literal "--format '{{index .Config.Labels \"org.opencontainers.image.revision\"}}'"
+require_validator_literal "--format '{{index .Config.Labels \"org.opencontainers.image.version\"}}'"
+require_validator_literal "--format '{{index .Config.Labels \"io.mhoo.build.id\"}}'"
+forbid_validator_literal '\"org.opencontainers.image.revision\"'
+forbid_validator_literal '\"org.opencontainers.image.version\"'
+forbid_validator_literal '\"io.mhoo.build.id\"'
 
 forbid_literal 'docker push'
 forbid_literal 'docker tag'
