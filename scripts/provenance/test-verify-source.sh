@@ -77,4 +77,15 @@ expect_verifier_failure \
   "unrelated provenance-protected path mutation" \
   "Twenty source differs from upstream outside the provenance overlay" \
   "LICENSE"
+
+mkdir -p .agents
+printf 'unauthorized trajectory policy file\n' > .agents/unapproved.md
+git add .agents/unapproved.md
+git -c user.name='Mhoo provenance test' \
+  -c user.email='provenance-test@mhoo.invalid' \
+  commit -m 'test: unauthorized trajectory policy mutation' >/dev/null
+expect_verifier_failure \
+  "unapproved trajectory policy mutation" \
+  "Twenty source differs from upstream outside the provenance overlay" \
+  ".agents/unapproved.md"
 echo "verify-source regression tests passed"
