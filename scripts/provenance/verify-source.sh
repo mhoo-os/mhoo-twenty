@@ -182,6 +182,9 @@ is_allowed_overlay_path() {
     packages/twenty-server/src/modules/connected-account/channel-sync/services/channel-sync.service.ts|packages/twenty-utils/dangerfile.ts)
       return 0
       ;;
+    packages/twenty-server/test/integration/graphql/suites/workflow/if-else-workflow.integration-spec.ts)
+      return 0
+      ;;
     *)
       return 1
       ;;
