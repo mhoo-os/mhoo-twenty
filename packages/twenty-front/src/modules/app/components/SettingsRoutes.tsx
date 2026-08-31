@@ -8,9 +8,11 @@ import {
   useParams,
 } from 'react-router-dom';
 
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import { SettingsProtectedRouteWrapper } from '@/settings/components/SettingsProtectedRouteWrapper';
 import { SettingsSkeletonLoader } from '@/settings/components/SettingsSkeletonLoader';
 import { SettingPublicDomain } from '@/settings/domains/components/SettingPublicDomain';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { SettingsPath } from 'twenty-shared/types';
 import { getSettingsPath } from 'twenty-shared/utils';
 import { PermissionFlagType } from '~/generated-metadata/graphql';
@@ -181,6 +183,22 @@ const SettingsLegalDpaNew = lazy(() =>
     default: module.SettingsLegalDpaNew,
   })),
 );
+
+type MhooAwareDpaPageProps = {
+  page: 'agreements' | 'new';
+};
+
+const MhooAwareDpaPage = ({ page }: MhooAwareDpaPageProps) => {
+  const isMhooFoundationEnabled = useAtomStateValue(
+    isMhooFoundationEnabledState,
+  );
+
+  if (isMhooFoundationEnabled) {
+    return <Navigate to={getSettingsPath(SettingsPath.General)} replace />;
+  }
+
+  return page === 'agreements' ? <SettingsLegalDpa /> : <SettingsLegalDpaNew />;
+};
 
 const SettingsWorkspaceCommunications = lazy(() =>
   import('~/pages/settings/communications/SettingsWorkspaceCommunications').then(
@@ -772,10 +790,13 @@ export const SettingsRoutes = ({ isAdminPageEnabled }: SettingsRoutesProps) => (
           path={SettingsPath.PublicDomain}
           element={<SettingPublicDomain />}
         />
-        <Route path={SettingsPath.LegalDpa} element={<SettingsLegalDpa />} />
+        <Route
+          path={SettingsPath.LegalDpa}
+          element={<MhooAwareDpaPage page="agreements" />}
+        />
         <Route
           path={SettingsPath.LegalDpaNew}
-          element={<SettingsLegalDpaNew />}
+          element={<MhooAwareDpaPage page="new" />}
         />
       </Route>
       <Route

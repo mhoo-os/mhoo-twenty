@@ -107,16 +107,22 @@ is_allowed_overlay_path() {
     packages/twenty-client-sdk/src/metadata/generated/schema.graphql|packages/twenty-client-sdk/src/metadata/generated/schema.ts|packages/twenty-client-sdk/src/metadata/generated/types.ts)
       return 0
       ;;
-    packages/twenty-emails/src/components/BaseHead.tsx|packages/twenty-emails/src/components/Footer.tsx|packages/twenty-emails/src/components/Logo.tsx|packages/twenty-emails/src/components/get-customer-brand.ts)
+    packages/twenty-emails/src/components/BaseHead.tsx|packages/twenty-emails/src/components/Footer.tsx|packages/twenty-emails/src/components/Logo.tsx|packages/twenty-emails/src/components/WhatIsTwenty.tsx|packages/twenty-emails/src/components/get-customer-brand.ts)
+      return 0
+      ;;
+    packages/twenty-emails/src/emails/billing-trial-converting.email.tsx|packages/twenty-emails/src/emails/clean-suspended-workspace.email.tsx|packages/twenty-emails/src/emails/password-update-notify.email.tsx|packages/twenty-emails/src/emails/send-email-verification-link.email.tsx|packages/twenty-emails/src/emails/send-invite-link.email.tsx|packages/twenty-emails/src/index.ts)
       return 0
       ;;
     packages/twenty-front/src/generated-metadata/graphql.ts|packages/twenty-front/src/hooks/__tests__/usePageChangeEffectNavigateLocationFoundation.test.tsx)
       return 0
       ;;
-    packages/twenty-front/src/modules/app/components/RootAppProviders.tsx|packages/twenty-front/src/modules/app/components/WorkspaceAppProviders.tsx)
+    packages/twenty-front/index.html|packages/twenty-front/public/manifest.mhoo.json|packages/twenty-front/public/legal/PROVENANCE.md|packages/twenty-front/public/legal/mhoo-legal.css|packages/twenty-front/public/privacy/index.html|packages/twenty-front/public/terms/index.html)
       return 0
       ;;
-    packages/twenty-front/src/modules/auth/components/Logo.tsx|packages/twenty-front/src/modules/auth/components/__tests__/VerifyEmail.test.tsx|packages/twenty-front/src/modules/auth/sign-in-up/components/FooterNote.tsx|packages/twenty-front/src/modules/auth/sign-in-up/hooks/useSignInUp.ts|packages/twenty-front/src/modules/auth/sign-in-up/hooks/__tests__/useSignInUp.test.tsx)
+    packages/twenty-front/src/modules/app/components/RootAppProviders.tsx|packages/twenty-front/src/modules/app/components/SettingsRoutes.tsx|packages/twenty-front/src/modules/app/components/WorkspaceAppProviders.tsx)
+      return 0
+      ;;
+    packages/twenty-front/src/modules/auth/components/Logo.tsx|packages/twenty-front/src/modules/auth/components/__tests__/VerifyEmail.test.tsx|packages/twenty-front/src/modules/auth/sign-in-up/components/FooterNote.tsx|packages/twenty-front/src/modules/auth/sign-in-up/components/SignInUpGlobalScopeForm.tsx|packages/twenty-front/src/modules/auth/sign-in-up/hooks/useSignInUp.ts|packages/twenty-front/src/modules/auth/sign-in-up/hooks/__tests__/useSignInUp.test.tsx)
       return 0
       ;;
     packages/twenty-front/src/modules/branding/utils/getCustomerBrand.ts|packages/twenty-front/src/modules/branding/utils/__tests__/getCustomerBrand.test.ts)
@@ -146,7 +152,7 @@ is_allowed_overlay_path() {
     packages/twenty-front/src/modules/side-panel/pages/email-block-settings/components/EmailPageStyleSection.tsx|packages/twenty-front/src/modules/side-panel/pages/email-block-settings/components/SidePanelEmailBlockSettingsPage.tsx)
       return 0
       ;;
-    packages/twenty-front/src/modules/onboarding/components/OnboardingHeader.tsx|packages/twenty-front/src/modules/onboarding/components/OnboardingPulsingLogo.tsx|packages/twenty-front/src/modules/ui/utilities/page-favicon/components/PageFavicon.tsx|packages/twenty-front/src/modules/workspace/components/WorkspaceProviderEffect.tsx|packages/twenty-front/src/pages/auth/SignInUp.tsx|packages/twenty-front/src/testing/mock-data/config.ts)
+    packages/twenty-front/src/modules/onboarding/components/OnboardingHeader.tsx|packages/twenty-front/src/modules/onboarding/components/OnboardingPulsingLogo.tsx|packages/twenty-front/src/modules/settings/admin-panel/components/SettingsAdminWorkspaceContent.tsx|packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspaceDropdownClickableComponent.tsx|packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspaceDropdownDefaultComponents.tsx|packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/components/AvailableWorkspaceItem.tsx|packages/twenty-front/src/modules/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo.ts|packages/twenty-front/src/modules/ui/utilities/page-favicon/components/PageFavicon.tsx|packages/twenty-front/src/modules/workspace/components/WorkspaceProviderEffect.tsx|packages/twenty-front/src/pages/auth/SignInUp.tsx|packages/twenty-front/src/pages/settings/admin-panel/SettingsAdminUserDetail.tsx|packages/twenty-front/src/pages/settings/admin-panel/SettingsAdminWorkspaceDetail.tsx|packages/twenty-front/src/testing/mock-data/config.ts)
       return 0
       ;;
     packages/twenty-server/src/engine/core-modules/auth/auth.resolver.spec.ts|packages/twenty-server/src/engine/core-modules/auth/auth.resolver.ts|packages/twenty-server/src/engine/core-modules/auth/controllers/oauth-propagator.controller.spec.ts|packages/twenty-server/src/engine/core-modules/auth/controllers/oauth-propagator.controller.ts|packages/twenty-server/src/engine/core-modules/auth/guards/google-apis-oauth-exchange-code-for-token.guard.ts|packages/twenty-server/src/engine/core-modules/auth/guards/google-apis-oauth-request-code.guard.ts|packages/twenty-server/src/engine/core-modules/auth/guards/microsoft-apis-oauth-exchange-code-for-token.guard.ts|packages/twenty-server/src/engine/core-modules/auth/guards/microsoft-apis-oauth-request-code.guard.ts)
@@ -155,10 +161,19 @@ is_allowed_overlay_path() {
     packages/twenty-server/src/engine/core-modules/client-config/client-config.controller.spec.ts|packages/twenty-server/src/engine/core-modules/client-config/client-config.entity.ts|packages/twenty-server/src/engine/core-modules/client-config/services/client-config.service.spec.ts|packages/twenty-server/src/engine/core-modules/client-config/services/client-config.service.ts)
       return 0
       ;;
+    packages/twenty-server/src/engine/core-modules/approved-access-domain/services/approved-access-domain.service.ts|packages/twenty-server/src/engine/core-modules/dpa/services/dpa.service.ts|packages/twenty-server/src/engine/core-modules/dpa/services/__tests__/dpa.service.spec.ts|packages/twenty-server/src/engine/core-modules/workspace-invitation/services/workspace-invitation.service.ts)
+      return 0
+      ;;
+    packages/twenty-server/src/engine/core-modules/emailing-domain/types/emailing-public-page-brand.type.ts|packages/twenty-server/src/engine/core-modules/emailing-domain/utils/__tests__/build-unsubscribe-preferences-page.util.spec.ts|packages/twenty-server/src/engine/core-modules/emailing-domain/utils/__tests__/build-unsubscribe-result-page.util.spec.ts|packages/twenty-server/src/engine/core-modules/emailing-domain/utils/build-unsubscribe-preferences-page.util.ts|packages/twenty-server/src/engine/core-modules/emailing-domain/utils/build-unsubscribe-result-page.util.ts|packages/twenty-server/src/modules/emailing/controllers/unsubscribe.controller.ts)
+      return 0
+      ;;
     packages/twenty-server/src/engine/core-modules/domain/custom-domain-manager/services/custom-domain-manager.service.spec.ts|packages/twenty-server/src/engine/core-modules/domain/custom-domain-manager/services/custom-domain-manager.service.ts|packages/twenty-server/src/engine/core-modules/domain/domain-server-config/services/__test__/domain-server-config.service.spec.ts|packages/twenty-server/src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service.ts|packages/twenty-server/src/engine/core-modules/domain/workspace-domains/services/__test__/workspace-domains.service.spec.ts|packages/twenty-server/src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service.ts)
       return 0
       ;;
     packages/twenty-server/src/engine/core-modules/twenty-config/config-variables.ts|packages/twenty-server/src/engine/core-modules/twenty-config/twenty-config.service.ts|packages/twenty-server/src/engine/core-modules/twenty-config/utils/is-mhoo-foundation-enabled.util.ts|packages/twenty-server/src/engine/core-modules/twenty-config/utils/validate-mhoo-foundation-config.util.ts|packages/twenty-server/src/engine/core-modules/twenty-config/utils/__tests__/validate-mhoo-foundation-config.util.spec.ts)
+      return 0
+      ;;
+    packages/twenty-server/src/main.ts|packages/twenty-server/src/utils/__test__/generate-front-config.spec.ts|packages/twenty-server/src/utils/generate-front-config.ts)
       return 0
       ;;
     packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.module.ts|packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.resolver.spec.ts|packages/twenty-server/src/engine/core-modules/two-factor-authentication/two-factor-authentication.resolver.ts|packages/twenty-server/src/engine/core-modules/workspace/crons/jobs/check-custom-domain-valid-records.cron.job.ts|packages/twenty-server/src/engine/core-modules/workspace/services/__tests__/workspace.service.spec.ts|packages/twenty-server/src/engine/core-modules/workspace/services/workspace.service.ts|packages/twenty-server/src/engine/core-modules/workspace/workspace.resolver.ts)
