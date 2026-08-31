@@ -182,6 +182,27 @@ runtime proof was performed; and Gate B was not invoked. Candidate source
 remain unchanged. This PR head is only a source successor awaiting review and
 later authorization; Phase 4 remains blocked and R3 remains open.
 
+## Stable-host verification-shell correction
+
+A production auth incident on the v2.37 Foundation runtime exposed a client
+router mismatch before GraphQL token verification. Foundation mode classified
+the stable host as the default domain, so `DomainShell` mounted `RootApp`;
+`RootApp` does not own `/verify`, while its fallback and the global welcome flow
+redirected between `/verify` and `/welcome`.
+
+Foundation mode now mounts `WorkspaceApp`, whose router is the existing
+superset containing global signup, verification, Workspace, and authenticated
+routes. The separate Foundation signup-operation rule remains unchanged, and
+Twenty login-token verification and membership checks remain the sole
+Workspace authority. Focused coverage proves that `/verify` selects the
+Workspace shell when Foundation and multi-Workspace modes are enabled on the
+stable host.
+
+This is a source-only routing correction. It adds no identity system, token
+format, Workspace selector, domain authority, provider behavior, deployment,
+or architecture acceptance. Candidate publication, deployment, and stable
+authenticated runtime proof remain separate gates.
+
 ## PR #19 CI execution adaptation
 
 PR #19 adds a repository-local CI adaptation only: `CI Front` uses GitHub's
