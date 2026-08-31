@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "rubric": {
+    "path": ".agents/trajectory-review-rubric.md",
+    "sha256": "340b4acbf71674fd684026bc9df22ecc83ec01de7c26e8690cd57723a79da3e2"
+  },
+  "governing_sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "63242ac9a2cbac740fb3f992aa54bc20eb7e63ec4f4048dd71753938404637b2"
+    }
+  ]
+}
