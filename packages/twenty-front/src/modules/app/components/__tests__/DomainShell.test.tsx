@@ -3,6 +3,7 @@ import { Provider as JotaiProvider } from 'jotai';
 
 import { DomainShell } from '@/app/components/DomainShell';
 import { clientConfigApiStatusState } from '@/client-config/states/clientConfigApiStatusState';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
 import {
   jotaiStore,
@@ -75,6 +76,7 @@ describe('DomainShell', () => {
   beforeEach(() => {
     resetJotaiStore();
     isDefaultDomainValue = true;
+    jotaiStore.set(isMhooFoundationEnabledState.atom, false);
     window.history.pushState({}, '', '/');
   });
 
@@ -101,6 +103,18 @@ describe('DomainShell', () => {
     setClientConfigLoaded(true);
     jotaiStore.set(isMultiWorkspaceEnabledState.atom, false);
     isDefaultDomainValue = true;
+
+    renderShell();
+
+    expect(screen.getByText('WORKSPACE_APP')).toBeInTheDocument();
+  });
+
+  it('mounts the workspace app on the Foundation stable host', () => {
+    setClientConfigLoaded(true);
+    jotaiStore.set(isMultiWorkspaceEnabledState.atom, true);
+    jotaiStore.set(isMhooFoundationEnabledState.atom, true);
+    isDefaultDomainValue = true;
+    window.history.pushState({}, '', '/verify?loginToken=login-token');
 
     renderShell();
 

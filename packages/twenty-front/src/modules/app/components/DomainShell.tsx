@@ -5,6 +5,7 @@ import { SharedAppProviders } from '@/app/components/SharedAppProviders';
 import { WorkspaceApp } from '@/app/components/WorkspaceApp';
 import { isOnOnboardingTransitionPath } from '@/auth/utils/isOnOnboardingTransitionPath';
 import { clientConfigApiStatusState } from '@/client-config/states/clientConfigApiStatusState';
+import { isMhooFoundationEnabledState } from '@/client-config/states/isMhooFoundationEnabledState';
 import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
 import { useIsCurrentLocationOnDefaultDomain } from '@/domain-manager/hooks/useIsCurrentLocationOnDefaultDomain';
 import { OnboardingPageLoader } from '@/onboarding/components/OnboardingPageLoader';
@@ -15,6 +16,9 @@ export const DomainShell = () => {
   const { isLoadedOnce } = useAtomStateValue(clientConfigApiStatusState);
   const isMultiWorkspaceEnabled = useAtomStateValue(
     isMultiWorkspaceEnabledState,
+  );
+  const isMhooFoundationEnabled = useAtomStateValue(
+    isMhooFoundationEnabledState,
   );
   const { isDefaultDomain } = useIsCurrentLocationOnDefaultDomain();
 
@@ -32,7 +36,9 @@ export const DomainShell = () => {
     );
   }
 
-  if (!isMultiWorkspaceEnabled) {
+  // Foundation keeps signup and Workspace routes on one stable host. The
+  // Workspace router is the superset that also owns /verify and app routes.
+  if (!isMultiWorkspaceEnabled || isMhooFoundationEnabled) {
     return <WorkspaceApp />;
   }
 
