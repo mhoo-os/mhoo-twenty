@@ -113,7 +113,7 @@ is_allowed_overlay_path() {
     packages/twenty-emails/src/emails/billing-trial-converting.email.tsx|packages/twenty-emails/src/emails/clean-suspended-workspace.email.tsx|packages/twenty-emails/src/emails/password-update-notify.email.tsx|packages/twenty-emails/src/emails/send-email-verification-link.email.tsx|packages/twenty-emails/src/emails/send-invite-link.email.tsx|packages/twenty-emails/src/index.ts)
       return 0
       ;;
-    packages/twenty-front/src/generated-metadata/graphql.ts|packages/twenty-front/src/hooks/__tests__/usePageChangeEffectNavigateLocationFoundation.test.tsx)
+    packages/twenty-front/src/generated-metadata/graphql.ts|packages/twenty-front/src/hooks/__tests__/usePageChangeEffectNavigateLocationFoundation.test.tsx|packages/twenty-front/src/pages/settings/data-model/__stories__/SettingsObjectNewField/SettingsObjectNewFieldSelect.stories.tsx)
       return 0
       ;;
     packages/twenty-front/index.html|packages/twenty-front/public/manifest.mhoo.json|packages/twenty-front/public/legal/PROVENANCE.md|packages/twenty-front/public/legal/mhoo-legal.css|packages/twenty-front/public/privacy/index.html|packages/twenty-front/public/terms/index.html)
