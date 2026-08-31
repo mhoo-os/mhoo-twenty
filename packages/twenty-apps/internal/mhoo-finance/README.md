@@ -23,6 +23,22 @@ The native tool is discovered as `app_clover_connection_status` through
 Twenty's built-in tool registry. It takes no caller-supplied Workspace,
 merchant, or Connection selector and never returns an access token.
 
+## Engagement authority contract
+
+The implementation-facing Gate 0 evaluator lives in
+`src/engagement/authority-contract.ts`. Its durable normative source is
+`mhoo-os/mhoo/docs/architecture/finance/ENGAGEMENT_AUTHORITY_CONTRACT.md`.
+It rejects approval unless the contract identifies six contiguous inclusive
+year periods, entity and representative authority, masked Clover scope, every
+required inventory-category attestation, reviewers and recipients, work-product
+limitations, retention/return terms, and immutable approvals.
+
+Gate 0 approval alone never enables source acquisition. Business-source
+acquisition additionally requires an approved source-specific form; personal
+data additionally requires a case-specific consent. The evaluator deliberately
+cannot authorize credentials, deployment, or production. The Hass instance is
+currently pending client decisions, so no runtime record should claim approval.
+
 ## Clover permission boundary
 
 The Clover application registration must request only:
