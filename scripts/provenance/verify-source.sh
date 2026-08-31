@@ -98,6 +98,9 @@ is_allowed_overlay_path() {
     packages/twenty-front/src/modules/onboarding/components/OnboardingHeader.tsx|packages/twenty-front/src/modules/onboarding/components/OnboardingPulsingLogo.tsx|packages/twenty-front/src/modules/ui/utilities/page-favicon/components/PageFavicon.tsx|packages/twenty-front/src/modules/workspace/components/WorkspaceProviderEffect.tsx|packages/twenty-front/src/pages/auth/SignInUp.tsx|packages/twenty-front/src/testing/mock-data/config.ts)
       return 0
       ;;
+    packages/twenty-apps/internal/mhoo-finance/*)
+      return 0
+      ;;
     packages/twenty-server/src/engine/core-modules/auth/auth.resolver.spec.ts|packages/twenty-server/src/engine/core-modules/auth/auth.resolver.ts|packages/twenty-server/src/engine/core-modules/auth/controllers/oauth-propagator.controller.spec.ts|packages/twenty-server/src/engine/core-modules/auth/controllers/oauth-propagator.controller.ts|packages/twenty-server/src/engine/core-modules/auth/guards/google-apis-oauth-exchange-code-for-token.guard.ts|packages/twenty-server/src/engine/core-modules/auth/guards/google-apis-oauth-request-code.guard.ts|packages/twenty-server/src/engine/core-modules/auth/guards/microsoft-apis-oauth-exchange-code-for-token.guard.ts|packages/twenty-server/src/engine/core-modules/auth/guards/microsoft-apis-oauth-request-code.guard.ts)
       return 0
       ;;
