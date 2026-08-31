@@ -1,0 +1,4 @@
+interface:
+  display_name: "PR Trajectory Audit"
+  short_description: "Audit PR process against repository AI rules"
+  default_prompt: "Use $pr-trajectory-audit to audit [owner/repo] for compliance with its documented AI layer."
