@@ -7,7 +7,6 @@ import {
 } from 'src/clover/permissions';
 import cloverConnectionProvider from 'src/connection-providers/clover.connection-provider';
 import cloverConnectionStatus from 'src/logic-functions/clover-connection-status.logic-function';
-import defaultFunctionRole from 'src/roles/default-function.role';
 import cloverReaderRole from 'src/roles/clover-reader.role';
 import { CLOVER_READER_ROLE_UNIVERSAL_IDENTIFIER } from 'src/constants/universal-identifiers';
 
@@ -39,9 +38,9 @@ describe('@mhoo/finance manifest contracts', () => {
     });
   });
 
-  it('keeps the function role at zero Twenty data and settings authority', () => {
-    expect(defaultFunctionRole.success).toBe(true);
-    expect(defaultFunctionRole.config).toMatchObject({
+  it('uses one default, assignable role with zero Twenty authority', () => {
+    expect(cloverReaderRole.success).toBe(true);
+    expect(cloverReaderRole.config).toMatchObject({
       canAccessAllTools: false,
       canReadAllObjectRecords: false,
       canUpdateAllObjectRecords: false,
@@ -51,16 +50,6 @@ describe('@mhoo/finance manifest contracts', () => {
       objectPermissions: [],
       fieldPermissions: [],
       permissionFlagUniversalIdentifiers: [],
-    });
-  });
-
-  it('uses a separately assignable zero-authority role for native MCP discovery', () => {
-    expect(cloverReaderRole.success).toBe(true);
-    expect(cloverReaderRole.config).toMatchObject({
-      canAccessAllTools: false,
-      canReadAllObjectRecords: false,
-      canUpdateAllObjectRecords: false,
-      canUpdateAllSettings: false,
       canBeAssignedToAgents: true,
       canBeAssignedToUsers: true,
       canBeAssignedToApiKeys: true,
