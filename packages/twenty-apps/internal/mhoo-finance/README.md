@@ -1,9 +1,11 @@
 # @mhoo/finance
 
 `@mhoo/finance` is the native Twenty 2.37 App boundary for read-only finance
-provider facts. This first source slice scaffolds the App, declares the Clover
-Connection Provider, freezes the reviewed read/effect permission boundary, and
-exposes one native Connection status tool.
+provider facts. The current source slice includes the Clover Connection
+Provider boundary plus a synthetic fixture-first ingestion-to-insight path:
+immutable source artifacts, import receipts, revision-aware normalized facts,
+coverage periods, deterministic reconciliation exceptions, native views, and
+a native standalone dashboard preview.
 
 ARCHITECTURE IMPACT: CROSS-SYSTEM
 
@@ -18,6 +20,41 @@ ARCHITECTURE IMPACT: CROSS-SYSTEM
 - Custom App `/mcp`: absent
 - Deployment, installation, credentials, customer data, and cutover: not
   authorized and not performed
+
+## Fixture-first vertical slice
+
+Generate or reset the deterministic synthetic dataset from this package:
+
+```text
+yarn fixtures:generate
+```
+
+The generated `fixtures/mhoo-finance-fixture-pack.json` contains no provider,
+customer, credential, or personal-account data. It covers January–March bank,
+card, Toast, and Clover periods, a Toast/Clover overlap, duplicate file and
+row suppression, pending-to-posted and corrected revisions, refunds, voids,
+discounts, internal transfers, a missing period, a legitimate zero-activity
+period, a stale source, a resolved control total, and open reconciliation
+exceptions.
+
+The `finance-audit-dashboard` front component is an inspectable local preview
+with populated, loading, empty, partial, stale, failed, and denied states. It
+uses the same deterministic fixture pipeline as the generated pack and ends a
+source trace at an exact synthetic artifact row. The native rollup tab uses
+Twenty page-layout graphs over the App-owned objects; no dashboard-only
+service or AI-generated arithmetic is introduced.
+
+Focused proof:
+
+```text
+yarn test:unit
+yarn lint
+yarn typecheck
+```
+
+The common fixture-generation plus focused-test loop remains local and
+provider-free. A live Workspace fixture load, screenshot receipt, and runtime
+permission proof remain separate Twenty installation/runtime gates.
 
 The native tool is discovered as `app_clover_connection_status` through
 Twenty's built-in tool registry. It takes no caller-supplied Workspace,
