@@ -52,6 +52,12 @@ yarn lint
 yarn typecheck
 ```
 
+Measured local baseline on 2026-09-01 (warm install, excluding dependency
+installation): fixture generation 0.76s, focused tests 1.00s, lint 0.67s,
+and App manifest build plus TypeScript typecheck 3.23s. The common loop is
+5.66s. The front-component preview is included in the App build; a live
+Workspace render is intentionally not claimed until the runtime gate exists.
+
 The common fixture-generation plus focused-test loop remains local and
 provider-free. A live Workspace fixture load, screenshot receipt, and runtime
 permission proof remain separate Twenty installation/runtime gates.
