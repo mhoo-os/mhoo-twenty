@@ -83,7 +83,7 @@ is_allowed_overlay_path() {
     packages/twenty-front/src/generated-metadata/graphql.ts|packages/twenty-front/src/hooks/__tests__/usePageChangeEffectNavigateLocationFoundation.test.tsx)
       return 0
       ;;
-    packages/twenty-front/src/modules/app/components/RootAppProviders.tsx|packages/twenty-front/src/modules/app/components/WorkspaceAppProviders.tsx)
+    packages/twenty-front/src/modules/app/components/DomainShell.tsx|packages/twenty-front/src/modules/app/components/RootAppProviders.tsx|packages/twenty-front/src/modules/app/components/WorkspaceAppProviders.tsx|packages/twenty-front/src/modules/app/components/__tests__/DomainShell.test.tsx)
       return 0
       ;;
     packages/twenty-front/src/modules/auth/components/Logo.tsx|packages/twenty-front/src/modules/auth/components/__tests__/VerifyEmail.test.tsx|packages/twenty-front/src/modules/auth/sign-in-up/components/FooterNote.tsx|packages/twenty-front/src/modules/auth/sign-in-up/hooks/useSignInUp.ts|packages/twenty-front/src/modules/auth/sign-in-up/hooks/__tests__/useSignInUp.test.tsx)
