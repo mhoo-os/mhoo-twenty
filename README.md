@@ -3,9 +3,9 @@
 
 This repository is the governed Twenty distribution and sole Mhoo application and data framework.
 
-- **Owns:** Twenty authentication, sessions, memberships, roles, authorization, and Workspace lifecycle; Mhoo Twenty Apps including @mhoo/core; Workspace objects, permissions, generated APIs, files, MCP, Connections, jobs, and native UI.
+- **Owns:** Twenty authentication, sessions, memberships, roles, authorization, and Workspace lifecycle; Mhoo Twenty Apps including @mhoo/core, except Finance assigned to mhoo-twenty-next by ADR-0009; Workspace objects, permissions, generated APIs, files, MCP, Connections, jobs, and native UI.
 - **Does not own:** external provider facts; model or agent reasoning; architecture governance; deployment and cutover authority.
-- **Architecture authority:** [accepted Mhoo OS blueprint](https://github.com/mhoo-os/mhoo/blob/0e94e6b00a3033215e4df3ab197e5559652c2436/docs/architecture/SYSTEM_BLUEPRINT.md) and [ADR-0008](https://github.com/mhoo-os/mhoo/blob/0e94e6b00a3033215e4df3ab197e5559652c2436/ADR/0008-twenty-framework-platform.md).
+- **Architecture authority:** [accepted Mhoo OS blueprint](https://github.com/mhoo-os/mhoo/blob/a8e054de084ce3ede6deec960b9638b5250a4c1f/docs/architecture/SYSTEM_BLUEPRINT.md) and [ADR-0008](https://github.com/mhoo-os/mhoo/blob/a8e054de084ce3ede6deec960b9638b5250a4c1f/ADR/0008-twenty-framework-platform.md).
 - **Current implementation evidence:** [repository-owned source and records](https://github.com/mhoo-os/mhoo-twenty/blob/main/.twenty-source).
 - **Deployment and production evidence:** owned separately by [Mhoo OS Infrastructure](https://github.com/mhoo-os/infrastructure/tree/main/docs); source, CI, publication, and rehearsal are not deployment or cutover proof.
 - **Upstream context:** Maintained Mhoo fork of Twenty; the upstream README below the notice is upstream product documentation, not the Mhoo architecture or status contract.
