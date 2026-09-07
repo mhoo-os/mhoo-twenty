@@ -38,7 +38,9 @@ architecture governance, or infrastructure deployment and cutover authority.
 - Verify origin, remote default branch and source SHA, local HEAD, dirty state,
   and existing worktrees. Missing local instructions do not prove absence on
   remote `main`. Preserve retained workers and their checkouts; use one isolated
-  proposal lane and notify the coordinator before any ownership transfer.
+  proposal lane. Finalize custody only after explicit receiving-head acceptance,
+  notification to retained workers, their acknowledgment, and coordinator
+  notification. Source publication alone does not establish adoption.
 - Historical inputs include [PR #40](https://github.com/mhoo-os/mhoo-twenty/pull/40)
   (MHO-123 Gate 0) and [PR #45](https://github.com/mhoo-os/mhoo-twenty/pull/45)
   (Finance fixture slice). Compare their exact heads with the assigned target
@@ -48,9 +50,10 @@ architecture governance, or infrastructure deployment and cutover authority.
   in the existing ledger; do not rerun accepted journeys because time passed.
 - Finish an authorized increment with repository/base/head, changed files,
   validation evidence and limits, existing ledger/PR references, and remaining
-  gates. Continue only the next authorized step with changed inputs. Escalate
-  ownership conflicts, absent ledgers, lock/freeze conflicts, or new external
-  effects to the coordinator; otherwise wait without inventing work.
+  gates. Continue the next safe authorized step, including resolving missing
+  evidence without a source change; do not repeat unchanged completed checks.
+  Escalate ownership conflicts, absent ledgers, lock/freeze conflicts, or new
+  external effects to the coordinator; otherwise wait without inventing work.
 - Cleanup candidates require an exact path/ref, owner, retained evidence and
   dependency disposition. A prunable worktree or old branch alone authorizes
   no deletion.
