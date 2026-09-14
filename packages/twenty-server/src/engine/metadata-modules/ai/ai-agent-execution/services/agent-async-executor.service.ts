@@ -301,7 +301,10 @@ export class AgentAsyncExecutorService {
       }
 
       const registeredModel =
-        await this.aiModelRegistryService.resolveModelForAgent(agent);
+        await this.aiModelRegistryService.resolveModelForAgent(
+          agent,
+          workspaceId,
+        );
 
       let tools: ToolSet = {};
       let toolCatalogSection = '';

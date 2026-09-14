@@ -14,6 +14,13 @@ import {
 import { AiModelPreferencesService } from 'src/engine/metadata-modules/ai/ai-models/services/ai-model-preferences.service';
 import { ProviderConfigService } from 'src/engine/metadata-modules/ai/ai-models/services/provider-config.service';
 import { SdkProviderFactoryService } from 'src/engine/metadata-modules/ai/ai-models/services/sdk-provider-factory.service';
+import { WorkspaceCodexLbModelService } from 'src/engine/metadata-modules/ai/ai-models/services/workspace-codex-lb-model.service';
+import { WorkspaceCodexLbCredentialService } from 'src/engine/metadata-modules/ai/ai-models/services/workspace-codex-lb-credential.service';
+import {
+  WORKSPACE_CODEX_LB_TERRA_MODEL_ID,
+  isWorkspaceCodexLbModelId,
+} from 'src/engine/metadata-modules/ai/ai-models/constants/workspace-codex-lb.const';
+import { AI_SDK_OPENAI_COMPATIBLE } from 'src/engine/metadata-modules/ai/ai-models/constants/ai-sdk-package.const';
 import { type AiModelConfig } from 'src/engine/metadata-modules/ai/ai-models/types/ai-model-config.type';
 import { type AiProviderConfig } from 'src/engine/metadata-modules/ai/ai-models/types/ai-provider-config.type';
 import { type AiProviderModelConfig } from 'src/engine/metadata-modules/ai/ai-models/types/ai-provider-model-config.type';
@@ -61,6 +68,8 @@ export class AiModelRegistryService {
     private readonly sdkProviderFactory: SdkProviderFactoryService,
     private readonly preferencesService: AiModelPreferencesService,
     private readonly configGroupHashService: ConfigGroupHashService,
+    private readonly workspaceCodexLbModelService: WorkspaceCodexLbModelService,
+    private readonly workspaceCodexLbCredentialService: WorkspaceCodexLbCredentialService,
   ) {}
 
   // The registry is rebuilt lazily whenever the LLM-group config hash changes,
@@ -182,6 +191,28 @@ export class AiModelRegistryService {
     return Array.from(this.modelRegistry.values());
   }
 
+  async hasAvailableModelsForWorkspace(workspaceId: string): Promise<boolean> {
+    return (
+      this.getAvailableModels().length > 0 ||
+      (await this.workspaceCodexLbCredentialService.isConfigured(workspaceId))
+    );
+  }
+
+  async getDefaultSpeedModelForWorkspace(
+    workspaceId: string,
+  ): Promise<RegisteredAiModel> {
+    if (
+      await this.workspaceCodexLbCredentialService.isConfigured(workspaceId)
+    ) {
+      return this.workspaceCodexLbModelService.resolve(
+        workspaceId,
+        WORKSPACE_CODEX_LB_TERRA_MODEL_ID,
+      );
+    }
+
+    return this.getDefaultSpeedModel();
+  }
+
   getModelConfig(modelId: string): AiModelConfig | undefined {
     this.ensureFresh();
 
@@ -237,6 +268,22 @@ export class AiModelRegistryService {
 
   getEffectiveModelConfig(modelId: string): AiModelConfig {
     this.ensureFresh();
+
+    if (isWorkspaceCodexLbModelId(modelId)) {
+      return {
+        modelId,
+        sdkPackage: AI_SDK_OPENAI_COMPATIBLE,
+        label:
+          modelId === WORKSPACE_CODEX_LB_TERRA_MODEL_ID
+            ? 'GPT-5.6 Terra'
+            : 'GPT-5.6 Luna',
+        description: 'Workspace-scoped codex-lb model',
+        inputCostPerMillionTokens: 0,
+        outputCostPerMillionTokens: 0,
+        contextWindowTokens: DEFAULT_CONTEXT_WINDOW_TOKENS,
+        maxOutputTokens: DEFAULT_MAX_OUTPUT_TOKENS,
+      };
+    }
 
     if (isAutoSelectModelId(modelId)) {
       const defaultModel =
@@ -412,10 +459,37 @@ export class AiModelRegistryService {
     return this.providerConfigService.getCatalogProviderNames();
   }
 
-  resolveModelForAgent(agent: { modelId: string } | null): RegisteredAiModel {
+  async resolveModelForAgent(
+    agent: { modelId: string } | null,
+    workspaceId: string,
+  ): Promise<RegisteredAiModel> {
+    if (
+      (!agent || isAutoSelectModelId(agent.modelId)) &&
+      (await this.workspaceCodexLbCredentialService.isConfigured(workspaceId))
+    ) {
+      return this.workspaceCodexLbModelService.resolve(
+        workspaceId,
+        WORKSPACE_CODEX_LB_TERRA_MODEL_ID,
+      );
+    }
+
+    if (agent && isWorkspaceCodexLbModelId(agent.modelId)) {
+      return this.workspaceCodexLbModelService.resolve(
+        workspaceId,
+        agent.modelId,
+      );
+    }
+
     const aiModel = this.getEffectiveModelConfig(
       agent?.modelId ?? AUTO_SELECT_SMART_MODEL_ID,
     );
+
+    if (isWorkspaceCodexLbModelId(aiModel.modelId)) {
+      return this.workspaceCodexLbModelService.resolve(
+        workspaceId,
+        aiModel.modelId,
+      );
+    }
 
     const registeredModel = this.getModel(aiModel.modelId);
 

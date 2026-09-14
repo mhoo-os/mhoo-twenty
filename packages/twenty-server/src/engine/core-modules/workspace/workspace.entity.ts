@@ -36,6 +36,7 @@ import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user
 import { WorkspaceDiscoverability } from 'src/engine/core-modules/workspace/types/workspace-discoverability.type';
 import { AgentEntity } from 'src/engine/metadata-modules/ai/ai-agent/entities/agent.entity';
 import { type ModelId } from 'src/engine/metadata-modules/ai/ai-models/types/model-id.type';
+import { type EncryptedString } from 'src/engine/core-modules/secret-encryption/branded-strings/encrypted-string.type';
 import { RoleDTO } from 'src/engine/metadata-modules/role/dtos/role.dto';
 import { ViewFieldDTO } from 'src/engine/metadata-modules/view-field/dtos/view-field.dto';
 import { ViewFieldEntity } from 'src/engine/metadata-modules/view-field/entities/view-field.entity';
@@ -330,6 +331,14 @@ export class WorkspaceEntity {
     default: AUTO_SELECT_SMART_MODEL_ID,
   })
   smartModel: ModelId;
+
+  // Deliberately excluded from GraphQL and default TypeORM selects. Only the
+  // Workspace-scoped credential service may read this ciphertext.
+  @Column({ type: 'text', nullable: true, select: false })
+  codexLbEncryptedApiKey: EncryptedString | null;
+
+  @Column({ type: 'integer', default: 0 })
+  codexLbCredentialRevision: number;
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })

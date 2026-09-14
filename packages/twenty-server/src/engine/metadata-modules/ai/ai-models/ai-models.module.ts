@@ -1,4 +1,10 @@
 import { Global, Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { SecretEncryptionModule } from 'src/engine/core-modules/secret-encryption/secret-encryption.module';
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+import { WorkspaceCodexLbCredentialService } from 'src/engine/metadata-modules/ai/ai-models/services/workspace-codex-lb-credential.service';
+import { WorkspaceCodexLbModelService } from 'src/engine/metadata-modules/ai/ai-models/services/workspace-codex-lb-model.service';
 
 import { AiModelConfigService } from 'src/engine/metadata-modules/ai/ai-models/services/ai-model-config.service';
 import { AiModelPreferencesService } from 'src/engine/metadata-modules/ai/ai-models/services/ai-model-preferences.service';
@@ -11,7 +17,13 @@ import { SdkProviderFactoryService } from 'src/engine/metadata-modules/ai/ai-mod
 
 @Global()
 @Module({
+  imports: [
+    TypeOrmModule.forFeature([WorkspaceEntity]),
+    SecretEncryptionModule,
+  ],
   providers: [
+    WorkspaceCodexLbCredentialService,
+    WorkspaceCodexLbModelService,
     DefaultAiCatalogService,
     ProviderConfigService,
     SdkProviderFactoryService,
@@ -22,6 +34,8 @@ import { SdkProviderFactoryService } from 'src/engine/metadata-modules/ai/ai-mod
     NativeToolBinderService,
   ],
   exports: [
+    WorkspaceCodexLbCredentialService,
+    WorkspaceCodexLbModelService,
     DefaultAiCatalogService,
     AiModelRegistryService,
     AiModelPreferencesService,

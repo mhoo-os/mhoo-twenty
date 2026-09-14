@@ -56,6 +56,11 @@ export class SdkProviderFactoryService {
     return instance;
   }
 
+  // Workspace credentials must never enter the instance-wide provider cache.
+  createUncachedProvider(config: AiProviderConfig): AiSdkProviderInstance {
+    return this.buildProviderInstance(config);
+  }
+
   getRawProvider<T>(
     providerName: string,
     ...allowedPackages: string[]

@@ -46,7 +46,11 @@ export class AiGenerateTextController {
     @AuthWorkspace() workspace: WorkspaceEntity,
     @AuthUserWorkspaceId() userWorkspaceId: string,
   ) {
-    if (this.aiModelRegistryService.getAvailableModels().length === 0) {
+    if (
+      !(await this.aiModelRegistryService.hasAvailableModelsForWorkspace(
+        workspace.id,
+      ))
+    ) {
       throw new AiException(
         'No AI models are available. Please configure at least one AI provider API key.',
         AiExceptionCode.API_KEY_NOT_CONFIGURED,
@@ -63,9 +67,12 @@ export class AiGenerateTextController {
     );
 
     const registeredModel =
-      await this.aiModelRegistryService.resolveModelForAgent({
-        modelId: resolvedModelId,
-      });
+      await this.aiModelRegistryService.resolveModelForAgent(
+        {
+          modelId: resolvedModelId,
+        },
+        workspace.id,
+      );
 
     let result: Awaited<ReturnType<typeof generateText>> | undefined;
 

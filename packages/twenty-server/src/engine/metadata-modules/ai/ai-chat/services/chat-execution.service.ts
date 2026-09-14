@@ -193,9 +193,12 @@ export class ChatExecutionService {
     );
 
     const registeredModel =
-      await this.aiModelRegistryService.resolveModelForAgent({
-        modelId: resolvedModelId,
-      });
+      await this.aiModelRegistryService.resolveModelForAgent(
+        {
+          modelId: resolvedModelId,
+        },
+        workspace.id,
+      );
 
     const modelConfig = this.aiModelRegistryService.getEffectiveModelConfig(
       registeredModel.modelId,

@@ -87,7 +87,11 @@ export class WorkspaceSetupChatService {
       return { outcome: WorkspaceSetupChatOutcome.UNAVAILABLE, thread: null };
     }
 
-    if (this.aiModelRegistryService.getAvailableModels().length === 0) {
+    if (
+      !(await this.aiModelRegistryService.hasAvailableModelsForWorkspace(
+        workspace.id,
+      ))
+    ) {
       return { outcome: WorkspaceSetupChatOutcome.UNAVAILABLE, thread: null };
     }
 

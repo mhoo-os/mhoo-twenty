@@ -165,7 +165,11 @@ export class AgentChatResolver {
     @AuthUserWorkspaceId() userWorkspaceId: string,
     @AuthWorkspace() workspace: WorkspaceEntity,
   ): Promise<SendChatMessageResultDTO> {
-    if (this.aiModelRegistryService.getAvailableModels().length === 0) {
+    if (
+      !(await this.aiModelRegistryService.hasAvailableModelsForWorkspace(
+        workspace.id,
+      ))
+    ) {
       throw new AiException(
         'No AI models are available. Configure at least one AI provider.',
         AiExceptionCode.API_KEY_NOT_CONFIGURED,
@@ -278,7 +282,11 @@ export class AgentChatResolver {
     @AuthUserWorkspaceId() userWorkspaceId: string,
     @AuthWorkspace() workspace: WorkspaceEntity,
   ): Promise<SendChatMessageResultDTO> {
-    if (this.aiModelRegistryService.getAvailableModels().length === 0) {
+    if (
+      !(await this.aiModelRegistryService.hasAvailableModelsForWorkspace(
+        workspace.id,
+      ))
+    ) {
       throw new AiException(
         'No AI models are available. Configure at least one AI provider.',
         AiExceptionCode.API_KEY_NOT_CONFIGURED,
@@ -329,7 +337,11 @@ export class AgentChatResolver {
     @AuthUserWorkspaceId() userWorkspaceId: string,
     @AuthWorkspace() workspace: WorkspaceEntity,
   ): Promise<SendChatMessageResultDTO> {
-    if (this.aiModelRegistryService.getAvailableModels().length === 0) {
+    if (
+      !(await this.aiModelRegistryService.hasAvailableModelsForWorkspace(
+        workspace.id,
+      ))
+    ) {
       throw new AiException(
         'No AI models are available. Configure at least one AI provider.',
         AiExceptionCode.API_KEY_NOT_CONFIGURED,

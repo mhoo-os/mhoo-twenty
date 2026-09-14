@@ -7,6 +7,7 @@ import { DefaultAiCatalogService } from 'src/engine/metadata-modules/ai/ai-model
 import { type AiProviderConfig } from 'src/engine/metadata-modules/ai/ai-models/types/ai-provider-config.type';
 import { type AiProvidersConfig } from 'src/engine/metadata-modules/ai/ai-models/types/ai-providers-config.type';
 import { extractConfigVariableName } from 'src/engine/metadata-modules/ai/ai-models/utils/extract-config-variable-name.util';
+import { WORKSPACE_CODEX_LB_PROVIDER_NAME } from 'src/engine/metadata-modules/ai/ai-models/constants/workspace-codex-lb.const';
 
 @Injectable()
 export class ProviderConfigService {
@@ -26,7 +27,11 @@ export class ProviderConfigService {
     // Only resolve {{VAR}} templates in the committed catalog — never in
     // user-supplied custom providers, to prevent config variable exfiltration.
     const catalog = this.resolveTemplates(rawCatalog);
-    const custom = this.twentyConfigService.get('AI_PROVIDERS');
+    const custom = { ...this.twentyConfigService.get('AI_PROVIDERS') };
+
+    // The Workspace-scoped provider is never resolved from Organization config.
+    // Even a mistakenly entered global key must not become a routing fallback.
+    delete custom[WORKSPACE_CODEX_LB_PROVIDER_NAME];
 
     return { ...catalog, ...custom };
   }

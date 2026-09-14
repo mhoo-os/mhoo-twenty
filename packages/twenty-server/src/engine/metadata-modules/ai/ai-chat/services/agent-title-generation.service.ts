@@ -31,7 +31,10 @@ export class AgentTitleGenerationService {
   ): Promise<string> {
     await this.billingUsageService.hasAvailableCreditsOrThrow(workspaceId);
 
-    const defaultModel = this.aiModelRegistryService.getDefaultSpeedModel();
+    const defaultModel =
+      await this.aiModelRegistryService.getDefaultSpeedModelForWorkspace(
+        workspaceId,
+      );
 
     if (!defaultModel) {
       this.logger.warn('No default AI model available for title generation');
