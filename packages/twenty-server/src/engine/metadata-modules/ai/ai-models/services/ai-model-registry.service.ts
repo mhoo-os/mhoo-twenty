@@ -18,6 +18,7 @@ import { WorkspaceCodexLbModelService } from 'src/engine/metadata-modules/ai/ai-
 import { WorkspaceCodexLbCredentialService } from 'src/engine/metadata-modules/ai/ai-models/services/workspace-codex-lb-credential.service';
 import {
   WORKSPACE_CODEX_LB_TERRA_MODEL_ID,
+  WORKSPACE_CODEX_LB_MODEL_IDS,
   isWorkspaceCodexLbModelId,
 } from 'src/engine/metadata-modules/ai/ai-models/constants/workspace-codex-lb.const';
 import { AI_SDK_OPENAI_COMPATIBLE } from 'src/engine/metadata-modules/ai/ai-models/constants/ai-sdk-package.const';
@@ -220,7 +221,10 @@ export class AiModelRegistryService {
   }
 
   getRecommendedModelIds(): Set<string> {
-    return this.preferencesService.getRecommendedModelIds();
+    return new Set([
+      ...this.preferencesService.getRecommendedModelIds(),
+      ...WORKSPACE_CODEX_LB_MODEL_IDS,
+    ]);
   }
 
   private getFirstAvailableModelFromList(
@@ -313,6 +317,20 @@ export class AiModelRegistryService {
       `Model with ID ${modelId} not found`,
       AiExceptionCode.AGENT_EXECUTION_FAILED,
     );
+  }
+
+  async getEffectiveModelConfigForWorkspace(
+    modelId: string,
+    workspaceId: string,
+  ): Promise<AiModelConfig> {
+    if (
+      isAutoSelectModelId(modelId) &&
+      (await this.workspaceCodexLbCredentialService.isConfigured(workspaceId))
+    ) {
+      return this.getEffectiveModelConfig(WORKSPACE_CODEX_LB_TERRA_MODEL_ID);
+    }
+
+    return this.getEffectiveModelConfig(modelId);
   }
 
   private createDefaultConfigForCustomModel(

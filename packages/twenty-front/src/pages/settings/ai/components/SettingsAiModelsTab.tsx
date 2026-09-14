@@ -2,8 +2,9 @@ import { styled } from '@linaria/react';
 import { useContext, useState } from 'react';
 
 import { useWorkspaceAiModelAvailability } from '@/ai/hooks/useWorkspaceAiModelAvailability';
+import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
-import { aiModelsState } from '@/client-config/states/aiModelsState';
+import { useWorkspaceAiModels } from '@/ai/hooks/useWorkspaceAiModels';
 import { SettingsAiModelsTable } from '@/settings/ai/components/SettingsAiModelsTable';
 import { getDataResidencyDisplay } from '@/settings/ai/utils/getDataResidencyDisplay';
 import { getModelIcon } from '@/settings/ai/utils/getModelIcon';
@@ -18,6 +19,7 @@ import { t } from '@lingui/core/macro';
 import {
   AUTO_SELECT_FAST_MODEL_ID,
   AUTO_SELECT_SMART_MODEL_ID,
+  PermissionFlagType,
 } from 'twenty-shared/constants';
 import { SettingsPath } from 'twenty-shared/types';
 import { getSettingsPath, isDefined } from 'twenty-shared/utils';
@@ -30,6 +32,7 @@ import { UndecoratedLink } from 'twenty-ui/navigation';
 import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
 import { GetAiSystemPromptPreviewDocument } from '~/generated-metadata/graphql';
 import { useSettingsAiModelsActions } from '~/pages/settings/ai/hooks/useSettingsAiModelsActions';
+import { SettingsAiWorkspaceCodexLbProvider } from '~/pages/settings/ai/components/SettingsAiWorkspaceCodexLbProvider';
 import { formatNumber } from '~/utils/format/formatNumber';
 
 const StyledCustomModelsContainer = styled.div`
@@ -41,11 +44,12 @@ const StyledCustomModelsContainer = styled.div`
 
 export const SettingsAiModelsTab = () => {
   const { theme } = useContext(ThemeContext);
+  const canManageWorkspace = useHasPermissionFlag(PermissionFlagType.WORKSPACE);
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const [searchQuery, setSearchQuery] = useState('');
 
   const { data: previewData } = useQuery(GetAiSystemPromptPreviewDocument);
-  const aiModels = useAtomStateValue(aiModelsState);
+  const aiModels = useWorkspaceAiModels();
   const { useRecommendedModels, realModels, enabledModels } =
     useWorkspaceAiModelAvailability();
   const {
@@ -112,6 +116,7 @@ export const SettingsAiModelsTab = () => {
 
   return (
     <>
+      {canManageWorkspace && <SettingsAiWorkspaceCodexLbProvider />}
       <Section>
         <H2Title
           title={t`Default model`}

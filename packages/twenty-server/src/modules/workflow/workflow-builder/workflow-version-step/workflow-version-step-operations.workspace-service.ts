@@ -107,7 +107,10 @@ export class WorkflowVersionStepOperationsWorkspaceService {
     }
 
     const effectiveModelConfig =
-      this.aiModelRegistryService.getEffectiveModelConfig(workspace.fastModel);
+      await this.aiModelRegistryService.getEffectiveModelConfigForWorkspace(
+        workspace.fastModel,
+        workspaceId,
+      );
 
     return effectiveModelConfig.modelId;
   }

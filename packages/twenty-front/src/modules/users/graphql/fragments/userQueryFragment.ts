@@ -103,6 +103,7 @@ export const USER_QUERY_FRAGMENT = gql`
       }
       fastModel
       smartModel
+      codexLbConfigured
       aiAdditionalInstructions
       enabledAiModelIds
       useRecommendedModels

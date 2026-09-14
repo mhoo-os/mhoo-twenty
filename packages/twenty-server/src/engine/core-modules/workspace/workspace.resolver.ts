@@ -68,6 +68,9 @@ import { WorkspaceAuthGuard } from 'src/engine/guards/workspace-auth.guard';
 import { PermissionsGraphqlApiExceptionFilter } from 'src/engine/metadata-modules/permissions/utils/permissions-graphql-api-exception.filter';
 import { RoleDTO } from 'src/engine/metadata-modules/role/dtos/role.dto';
 import { RoleService } from 'src/engine/metadata-modules/role/role.service';
+import { WorkspaceCodexLbCredentialService } from 'src/engine/metadata-modules/ai/ai-models/services/workspace-codex-lb-credential.service';
+import { WorkspaceCodexLbModelService } from 'src/engine/metadata-modules/ai/ai-models/services/workspace-codex-lb-model.service';
+import { type PlaintextString } from 'src/engine/core-modules/secret-encryption/branded-strings/plaintext-string.type';
 import { fromRoleEntityToRoleDto } from 'src/engine/metadata-modules/role/utils/fromRoleEntityToRoleDto.util';
 import { ViewDTO } from 'src/engine/metadata-modules/view/dtos/view.dto';
 import { ViewService } from 'src/engine/metadata-modules/view/services/view.service';
@@ -101,6 +104,8 @@ export class WorkspaceResolver {
     private readonly customDomainManagerService: CustomDomainManagerService,
     private readonly applicationService: ApplicationService,
     private readonly enterprisePlanService: EnterprisePlanService,
+    private readonly workspaceCodexLbCredentialService: WorkspaceCodexLbCredentialService,
+    private readonly workspaceCodexLbModelService: WorkspaceCodexLbModelService,
   ) {}
 
   @Query(() => WorkspaceEntity)
@@ -111,6 +116,51 @@ export class WorkspaceResolver {
     assert(workspace, 'Workspace not found');
 
     return workspace;
+  }
+
+  @ResolveField(() => Boolean)
+  @UseGuards(WorkspaceAuthGuard)
+  async codexLbConfigured(
+    @Parent() workspace: WorkspaceEntity,
+    @AuthWorkspace() currentWorkspace: WorkspaceEntity,
+  ): Promise<boolean> {
+    if (workspace.id !== currentWorkspace.id) {
+      return false;
+    }
+
+    return this.workspaceCodexLbCredentialService.isConfigured(workspace.id);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(
+    WorkspaceAuthGuard,
+    SettingsPermissionGuard(PermissionFlagType.WORKSPACE),
+  )
+  async setWorkspaceCodexLbApiKey(
+    @Args('apiKey') apiKey: string,
+    @AuthWorkspace() workspace: WorkspaceEntity,
+  ): Promise<boolean> {
+    await this.workspaceCodexLbCredentialService.replaceForWorkspace(
+      workspace.id,
+      apiKey as PlaintextString,
+    );
+    this.workspaceCodexLbModelService.clearWorkspace(workspace.id);
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(
+    WorkspaceAuthGuard,
+    SettingsPermissionGuard(PermissionFlagType.WORKSPACE),
+  )
+  async removeWorkspaceCodexLbApiKey(
+    @AuthWorkspace() workspace: WorkspaceEntity,
+  ): Promise<boolean> {
+    await this.workspaceCodexLbCredentialService.removeForWorkspace(
+      workspace.id,
+    );
+    this.workspaceCodexLbModelService.clearWorkspace(workspace.id);
+    return true;
   }
 
   @Mutation(() => WorkspaceEntity)

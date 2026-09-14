@@ -5,7 +5,7 @@ import { type SelectOption } from 'twenty-ui/input';
 import { useIsWorkspaceSetupChat } from '@/ai/hooks/useIsWorkspaceSetupChat';
 import { useWorkspaceAiModelAvailability } from '@/ai/hooks/useWorkspaceAiModelAvailability';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
-import { aiModelsState } from '@/client-config/states/aiModelsState';
+import { useWorkspaceAiModels } from '@/ai/hooks/useWorkspaceAiModels';
 import { getModelIcon } from '@/settings/ai/utils/getModelIcon';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
@@ -21,7 +21,7 @@ export const useAiModelOptions = ({
   options: SelectOption<string>[];
   pinnedOption?: SelectOption<string>;
 } => {
-  const aiModels = useAtomStateValue(aiModelsState);
+  const aiModels = useWorkspaceAiModels();
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const { enabledModels } = useWorkspaceAiModelAvailability();
   const isWorkspaceSetupChat = useIsWorkspaceSetupChat();
@@ -75,7 +75,7 @@ export const useAiModelLabel = (
   modelId: string | undefined,
   includeProvider = true,
 ): string => {
-  const aiModels = useAtomStateValue(aiModelsState);
+  const aiModels = useWorkspaceAiModels();
 
   if (!modelId) {
     return '';

@@ -340,6 +340,9 @@ export class WorkspaceEntity {
   @Column({ type: 'integer', default: 0 })
   codexLbCredentialRevision: number;
 
+  @Field(() => Boolean)
+  codexLbConfigured: boolean;
+
   @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
   aiAdditionalInstructions: string | null;

@@ -54,7 +54,10 @@ export class AgentTurnGraderService {
     turn: AgentTurnEntity & { messages: AgentMessageEntity[] },
   ): Promise<{ score: number; comment: string }> {
     try {
-      const defaultModel = this.aiModelRegistryService.getDefaultSpeedModel();
+      const defaultModel =
+        await this.aiModelRegistryService.getDefaultSpeedModelForWorkspace(
+          turn.workspaceId,
+        );
 
       if (!defaultModel) {
         this.logger.warn('No default AI model available for evaluation');

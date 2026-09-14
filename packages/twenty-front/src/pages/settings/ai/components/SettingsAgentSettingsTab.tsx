@@ -6,7 +6,7 @@ import {
   useAiModelOptions,
 } from '@/ai/hooks/useAiModelOptions';
 import { SettingsAgentModelCapabilities } from '@/ai/components/SettingsAgentModelCapabilities';
-import { aiModelsState } from '@/client-config/states/aiModelsState';
+import { useWorkspaceAiModels } from '@/ai/hooks/useWorkspaceAiModels';
 import { IconPicker } from '@/ui/input/components/IconPicker';
 import { Select } from '@/ui/input/components/Select';
 import { SettingsTextInput } from '@/ui/input/components/SettingsTextInput';
@@ -68,7 +68,7 @@ export const SettingsAgentSettingsTab = ({
   const { t } = useLingui();
   const { openModal } = useModal();
 
-  const aiModels = useAtomStateValue(aiModelsState);
+  const aiModels = useWorkspaceAiModels();
   const { options: activeModelOptions } = useAiModelOptions();
   const currentModelLabel = useAiModelLabel(formValues.modelId);
 

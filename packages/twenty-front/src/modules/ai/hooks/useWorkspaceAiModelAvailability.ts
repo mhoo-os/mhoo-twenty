@@ -1,11 +1,11 @@
 import { isAutoSelectModelId } from 'twenty-shared/utils';
 
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
-import { aiModelsState } from '@/client-config/states/aiModelsState';
+import { useWorkspaceAiModels } from '@/ai/hooks/useWorkspaceAiModels';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 export const useWorkspaceAiModelAvailability = () => {
-  const aiModels = useAtomStateValue(aiModelsState);
+  const aiModels = useWorkspaceAiModels();
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
 
   const useRecommendedModels = currentWorkspace?.useRecommendedModels ?? true;
